@@ -3,15 +3,14 @@ package com.nexus.backend.entity;
 import com.nexus.backend.entity.enums.AccountStatus;
 import com.nexus.backend.entity.enums.AvailabilityStatus;
 import com.nexus.backend.entity.enums.Role;
-
 import jakarta.persistence.*;
 import lombok.*;
-
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 @Entity
 @Table(name = "students")
 @Getter
@@ -64,23 +63,33 @@ public class Student {
     private String linkedinUrl;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private AccountStatus accountStatus;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private AvailabilityStatus availabilityStatus;
 
+    @Column(nullable = false)
     private Boolean emailVerified;
 
     private LocalDateTime lastLogin;
 
     @CreationTimestamp
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    // =========================
+    // Relationships
+    // =========================
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<StudentSkill> studentSkills;
@@ -90,7 +99,6 @@ public class Student {
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Goal> goals;
-
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Project> createdProjects;
@@ -118,4 +126,34 @@ public class Student {
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MatchHistory> matchHistory;
+
+    // =========================
+    // Entity Lifecycle
+    // =========================
+
+    @PrePersist
+    public void prePersist() {
+
+        if (emailVerified == null) {
+            emailVerified = false;
+        }
+
+        if (role == null) {
+            role = Role.STUDENT;
+        }
+
+        if (accountStatus == null) {
+            accountStatus = AccountStatus.ACTIVE;
+        }
+
+        if (availabilityStatus == null) {
+            availabilityStatus = AvailabilityStatus.AVAILABLE;
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        // UpdateTimestamp handles updatedAt automatically.
+    }
+
 }
