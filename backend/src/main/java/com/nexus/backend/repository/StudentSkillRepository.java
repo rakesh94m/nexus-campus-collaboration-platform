@@ -17,5 +17,6 @@ public interface StudentSkillRepository extends JpaRepository<StudentSkill, Long
     Optional<StudentSkill> findByIdAndStudent(Long id, Student student);
 
     boolean existsByStudentAndSkill(Student student, Skill skill);
+    Long countByStudentId(Long studentId);
 
 }

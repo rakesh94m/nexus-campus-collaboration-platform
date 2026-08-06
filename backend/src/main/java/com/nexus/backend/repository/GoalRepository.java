@@ -14,5 +14,6 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
     List<Goal> findByStudent(Student student);
 
     Optional<Goal> findByIdAndStudent(Long id, Student student);
+    Long countByStudentId(Long studentId);
 
 }

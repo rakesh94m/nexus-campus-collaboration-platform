@@ -14,5 +14,6 @@ public interface CertificationRepository extends JpaRepository<Certification, Lo
     List<Certification> findByStudent(Student student);
 
     Optional<Certification> findByIdAndStudent(Long id, Student student);
+    Long countByStudentId(Long studentId);
 
 }

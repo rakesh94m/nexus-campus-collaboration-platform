@@ -17,5 +17,6 @@ public interface StudentInterestRepository extends JpaRepository<StudentInterest
     Optional<StudentInterest> findByIdAndStudent(Long id, Student student);
 
     boolean existsByStudentAndInterest(Student student, Interest interest);
+    Long countByStudentId(Long studentId);
 
 }
