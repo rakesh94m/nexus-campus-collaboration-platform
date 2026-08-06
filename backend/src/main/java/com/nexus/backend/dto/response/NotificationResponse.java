@@ -1,5 +1,7 @@
 package com.nexus.backend.dto.response;
 
+import com.nexus.backend.entity.enums.NotificationStatus;
+import com.nexus.backend.entity.enums.NotificationType;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -13,11 +15,13 @@ public class NotificationResponse {
 
     private Long id;
 
-    private String type;
+    private Long studentId;
+
+    private NotificationType type;
 
     private String message;
 
-    private String status;
+    private NotificationStatus status;
 
     private LocalDateTime createdAt;
 

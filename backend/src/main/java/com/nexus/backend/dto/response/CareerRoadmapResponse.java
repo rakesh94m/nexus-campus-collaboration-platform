@@ -13,6 +13,8 @@ public class CareerRoadmapResponse {
 
     private Long id;
 
+    private Long studentId;
+
     private String careerGoal;
 
     private String roadmap;
