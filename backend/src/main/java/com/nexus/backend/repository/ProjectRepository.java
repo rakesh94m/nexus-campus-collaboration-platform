@@ -21,4 +21,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     List<Project> findByTechnologiesUsedContainingIgnoreCase(String technologiesUsed);
 
+    List<Project> findAll();
+
 }
