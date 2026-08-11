@@ -12,9 +12,11 @@ public interface ProjectService {
 
     List<ProjectResponse> getMyProjects();
 
-    ProjectResponse updateProject(Long id,
-                                  UpdateProjectRequest request);
+    List<ProjectResponse> getAvailableProjects();
+
+    ProjectResponse updateProject(
+            Long id,
+            UpdateProjectRequest request);
 
     void deleteProject(Long id);
-
 }

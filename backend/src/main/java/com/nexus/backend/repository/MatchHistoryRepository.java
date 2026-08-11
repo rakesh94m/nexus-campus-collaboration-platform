@@ -6,13 +6,17 @@ import com.nexus.backend.entity.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface MatchHistoryRepository extends JpaRepository<MatchHistory, Long> {
+public interface MatchHistoryRepository
+        extends JpaRepository<MatchHistory, Long> {
 
     Optional<MatchHistory> findByStudentAndProject(
             Student student,
-            Project project);
+            Project project
+    );
 
+    List<MatchHistory> findByProject(Project project);
 }

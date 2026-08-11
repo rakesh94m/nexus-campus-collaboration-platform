@@ -31,7 +31,7 @@ public class ProjectMemberController {
     }
 
     // =========================================
-    // Get My Projects
+    // Get My Project Memberships
     // =========================================
 
     @GetMapping
@@ -41,7 +41,18 @@ public class ProjectMemberController {
     }
 
     // =========================================
-    // Update Project Member
+    // Get All Members Of A Project
+    // =========================================
+
+    @GetMapping("/project/{projectId}")
+    public List<ProjectMemberResponse> getProjectMembers(
+            @PathVariable Long projectId) {
+
+        return projectMemberService.getProjectMembers(projectId);
+    }
+
+    // =========================================
+    // Update Project Member Role
     // =========================================
 
     @PutMapping("/{id}")
@@ -49,18 +60,37 @@ public class ProjectMemberController {
             @PathVariable Long id,
             @Valid @RequestBody UpdateProjectMemberRequest request) {
 
-        return projectMemberService.updateProjectMember(id, request);
+        return projectMemberService.updateProjectMember(
+                id,
+                request
+        );
     }
 
     // =========================================
-    // Delete Project Member
+    // Leave Project
     // =========================================
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteProjectMember(@PathVariable Long id) {
+    public void deleteProjectMember(
+            @PathVariable Long id) {
 
         projectMemberService.deleteProjectMember(id);
     }
 
+    // =========================================
+    // Remove Member By Project Owner
+    // =========================================
+
+    @DeleteMapping("/project/{projectId}/member/{memberId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeProjectMember(
+            @PathVariable Long projectId,
+            @PathVariable Long memberId) {
+
+        projectMemberService.removeProjectMember(
+                projectId,
+                memberId
+        );
+    }
 }

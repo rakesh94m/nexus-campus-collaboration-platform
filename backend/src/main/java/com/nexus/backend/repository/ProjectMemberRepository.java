@@ -10,12 +10,45 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Long> {
+public interface ProjectMemberRepository
+        extends JpaRepository<ProjectMember, Long> {
+
+    // =========================================
+    // Get memberships of a student
+    // =========================================
 
     List<ProjectMember> findByStudent(Student student);
 
-    Optional<ProjectMember> findByIdAndStudent(Long id, Student student);
+    // =========================================
+    // Get specific membership of a student
+    // =========================================
 
-    boolean existsByProjectAndStudent(Project project, Student student);
+    Optional<ProjectMember> findByIdAndStudent(
+            Long id,
+            Student student
+    );
 
+    // =========================================
+    // Check membership
+    // =========================================
+
+    boolean existsByProjectAndStudent(
+            Project project,
+            Student student
+    );
+
+    // =========================================
+    // Get all members of a project
+    // =========================================
+
+    List<ProjectMember> findByProject(Project project);
+
+    // =========================================
+    // Find specific member in project
+    // =========================================
+
+    Optional<ProjectMember> findByProjectAndStudent(
+            Project project,
+            Student student
+    );
 }

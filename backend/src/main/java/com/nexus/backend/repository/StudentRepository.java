@@ -17,10 +17,15 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     boolean existsByRollNumber(String rollNumber);
 
-    List<Student> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstName,String lastName);
+    List<Student>
+    findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
+            String firstName,
+            String lastName
+    );
 
     List<Student> findByDepartmentIgnoreCase(String department);
 
-    List<Student> findByAvailabilityStatus(AvailabilityStatus availabilityStatus);
-
+    List<Student> findByAvailabilityStatus(
+            AvailabilityStatus availabilityStatus
+    );
 }

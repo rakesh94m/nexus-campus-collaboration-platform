@@ -8,13 +8,49 @@ import java.util.List;
 
 public interface ProjectMemberService {
 
-    ProjectMemberResponse addProjectMember(AddProjectMemberRequest request);
+    // =========================================
+    // Add Project Member
+    // =========================================
+
+    ProjectMemberResponse addProjectMember(
+            AddProjectMemberRequest request
+    );
+
+    // =========================================
+    // Get My Project Memberships
+    // =========================================
 
     List<ProjectMemberResponse> getMyProjects();
 
-    ProjectMemberResponse updateProjectMember(Long id,
-                                              UpdateProjectMemberRequest request);
+    // =========================================
+    // Get All Members Of A Project
+    // =========================================
+
+    List<ProjectMemberResponse> getProjectMembers(
+            Long projectId
+    );
+
+    // =========================================
+    // Update Project Member Role
+    // =========================================
+
+    ProjectMemberResponse updateProjectMember(
+            Long id,
+            UpdateProjectMemberRequest request
+    );
+
+    // =========================================
+    // Leave Project
+    // =========================================
 
     void deleteProjectMember(Long id);
 
+    // =========================================
+    // Remove Member By Project Owner
+    // =========================================
+
+    void removeProjectMember(
+            Long projectId,
+            Long memberId
+    );
 }

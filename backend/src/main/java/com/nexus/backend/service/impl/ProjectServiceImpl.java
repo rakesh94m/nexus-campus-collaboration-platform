@@ -3,9 +3,15 @@ package com.nexus.backend.service.impl;
 import com.nexus.backend.dto.request.AddProjectRequest;
 import com.nexus.backend.dto.request.UpdateProjectRequest;
 import com.nexus.backend.dto.response.ProjectResponse;
+import com.nexus.backend.entity.CollaborationRequest;
+import com.nexus.backend.entity.MatchHistory;
 import com.nexus.backend.entity.Project;
+import com.nexus.backend.entity.ProjectMember;
 import com.nexus.backend.entity.Student;
 import com.nexus.backend.exception.ResourceNotFoundException;
+import com.nexus.backend.repository.CollaborationRequestRepository;
+import com.nexus.backend.repository.MatchHistoryRepository;
+import com.nexus.backend.repository.ProjectMemberRepository;
 import com.nexus.backend.repository.ProjectRepository;
 import com.nexus.backend.repository.StudentRepository;
 import com.nexus.backend.service.ProjectService;
@@ -13,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,6 +29,9 @@ public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
     private final StudentRepository studentRepository;
+    private final ProjectMemberRepository projectMemberRepository;
+    private final CollaborationRequestRepository collaborationRequestRepository;
+    private final MatchHistoryRepository matchHistoryRepository;
 
     // =========================================
     // Get Logged-in Student
@@ -55,7 +65,6 @@ public class ProjectServiceImpl implements ProjectService {
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
                 .build();
-
     }
 
     // =========================================
@@ -81,7 +90,6 @@ public class ProjectServiceImpl implements ProjectService {
         projectRepository.save(project);
 
         return mapToResponse(project);
-
     }
 
     // =========================================
@@ -97,7 +105,6 @@ public class ProjectServiceImpl implements ProjectService {
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
-
     }
 
     // =========================================
@@ -105,15 +112,19 @@ public class ProjectServiceImpl implements ProjectService {
     // =========================================
 
     @Override
-    public ProjectResponse updateProject(Long id,
-                                         UpdateProjectRequest request) {
+    public ProjectResponse updateProject(
+            Long id,
+            UpdateProjectRequest request
+    ) {
 
         Student student = getCurrentStudent();
 
         Project project = projectRepository
                 .findByIdAndStudent(id, student)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Project not found."));
+                        new ResourceNotFoundException(
+                                "Project not found."
+                        ));
 
         project.setProjectTitle(request.getProjectTitle());
         project.setDescription(request.getDescription());
@@ -126,14 +137,27 @@ public class ProjectServiceImpl implements ProjectService {
         projectRepository.save(project);
 
         return mapToResponse(project);
-
     }
 
     // =========================================
     // Delete Project
     // =========================================
 
+        @Override
+        public List<ProjectResponse> getAvailableProjects() {
+
+        Student student = getCurrentStudent();
+
+        return projectRepository.findAll()
+                .stream()
+                .filter(project ->
+                        !project.getStudent().getId()
+                                .equals(student.getId()))
+                .map(this::mapToResponse)
+                .toList();
+        }
     @Override
+    @Transactional
     public void deleteProject(Long id) {
 
         Student student = getCurrentStudent();
@@ -141,10 +165,50 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = projectRepository
                 .findByIdAndStudent(id, student)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Project not found."));
+                        new ResourceNotFoundException(
+                                "Project not found."
+                        ));
+
+        // =========================================
+        // Delete Collaboration Requests
+        // =========================================
+
+        List<CollaborationRequest> collaborationRequests =
+                collaborationRequestRepository
+                        .findByProject(project);
+
+        collaborationRequestRepository.deleteAll(
+                collaborationRequests
+        );
+
+        // =========================================
+        // Delete Project Members
+        // =========================================
+
+        List<ProjectMember> projectMembers =
+                projectMemberRepository
+                        .findByProject(project);
+
+        projectMemberRepository.deleteAll(
+                projectMembers
+        );
+
+        // =========================================
+        // Delete Match History
+        // =========================================
+
+        List<MatchHistory> matchHistories =
+                matchHistoryRepository
+                        .findByProject(project);
+
+        matchHistoryRepository.deleteAll(
+                matchHistories
+        );
+
+        // =========================================
+        // Finally Delete Project
+        // =========================================
 
         projectRepository.delete(project);
-
     }
-
 }

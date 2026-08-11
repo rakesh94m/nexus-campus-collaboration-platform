@@ -12,7 +12,14 @@ import java.time.LocalDateTime;
 @Table(
         name = "notifications",
         indexes = {
-                @Index(name = "idx_notification_status", columnList = "status")
+                @Index(
+                        name = "idx_notification_status",
+                        columnList = "status"
+                ),
+                @Index(
+                        name = "idx_notification_reference",
+                        columnList = "reference_id"
+                )
         }
 )
 @Getter
@@ -41,8 +48,21 @@ public class Notification {
     @Column(nullable = false)
     private NotificationStatus status;
 
+    /*
+     * ID of the related entity.
+     *
+     * Examples:
+     * PROJECT_INVITE     -> CollaborationRequest ID
+     * REQUEST_ACCEPTED   -> CollaborationRequest ID
+     * REQUEST_REJECTED   -> CollaborationRequest ID
+     * MATCH_FOUND        -> Match ID
+     *
+     * SYSTEM notifications can have null referenceId.
+     */
+    @Column(name = "reference_id")
+    private Long referenceId;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
 }

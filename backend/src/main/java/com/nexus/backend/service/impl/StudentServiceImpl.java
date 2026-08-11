@@ -4,6 +4,7 @@ import com.nexus.backend.dto.request.UpdateAvailabilityRequest;
 import com.nexus.backend.dto.request.UpdateProfileRequest;
 import com.nexus.backend.dto.request.UpdateSocialLinksRequest;
 import com.nexus.backend.dto.response.StudentProfileResponse;
+import com.nexus.backend.dto.response.StudentResponse;
 import com.nexus.backend.entity.Student;
 import com.nexus.backend.repository.StudentRepository;
 import com.nexus.backend.service.StudentService;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -63,6 +65,49 @@ public class StudentServiceImpl implements StudentService {
                 .build();
     }
 
+// ===============================
+// Student Discovery Mapper
+// ===============================
+
+    private StudentResponse mapToStudentResponse(Student student) {
+
+        return StudentResponse.builder()
+                .id(student.getId())
+                .fullName(
+                        student.getFirstName() + " " +
+                        student.getLastName()
+                )
+                .rollNumber(student.getRollNumber())
+                .email(student.getEmail())
+                .phoneNumber(student.getPhone())
+                .branch(student.getSpecialization())
+                .year(
+                        student.getYear() != null
+                                ? student.getYear().toString()
+                                : null
+                )
+                .department(student.getDepartment())
+                .bio(student.getBio())
+                .profileImageUrl(student.getProfilePhoto())
+                .linkedinUrl(student.getLinkedinUrl())
+                .githubUrl(student.getGithubUrl())
+                .role(
+                        student.getRole() != null
+                                ? student.getRole().name()
+                                : null
+                )
+                .accountStatus(
+                        student.getAccountStatus() != null
+                                ? student.getAccountStatus().name()
+                                : null
+                )
+                .availabilityStatus(
+                        student.getAvailabilityStatus() != null
+                                ? student.getAvailabilityStatus().name()
+                                : null
+                )
+                .build();
+    }
     // ===============================
     // Get Profile
     // ===============================
@@ -128,4 +173,43 @@ public class StudentServiceImpl implements StudentService {
 
         return mapToResponse(student);
     }
+
+        // ===============================
+        // Get All Students
+        // ===============================
+
+        @Override
+        public List<StudentResponse> getAllStudents() {
+
+            Student currentStudent = getCurrentStudent();
+
+            return studentRepository.findAll()
+                    .stream()
+                    .filter(student ->
+                            !student.getId().equals(currentStudent.getId()))
+                    .map(this::mapToStudentResponse)
+                    .toList();
+        }
+
+        // ===============================
+        // Get Student By ID
+        // ===============================
+
+        @Override
+        public StudentResponse getStudentById(Long id) {
+
+            Student currentStudent = getCurrentStudent();
+
+            Student student = studentRepository.findById(id)
+                    .orElseThrow(() ->
+                            new RuntimeException("Student not found."));
+
+            if (student.getId().equals(currentStudent.getId())) {
+                throw new RuntimeException(
+                        "You cannot view yourself in student discovery."
+                );
+            }
+
+            return mapToStudentResponse(student);
+        }
 }

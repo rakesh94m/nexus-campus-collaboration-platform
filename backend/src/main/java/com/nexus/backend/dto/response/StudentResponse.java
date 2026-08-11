@@ -40,5 +40,4 @@ public class StudentResponse {
     private String accountStatus;
 
     private String availabilityStatus;
-
 }

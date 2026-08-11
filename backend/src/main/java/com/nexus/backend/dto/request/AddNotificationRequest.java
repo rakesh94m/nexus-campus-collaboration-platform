@@ -21,4 +21,11 @@ public class AddNotificationRequest {
     @NotBlank(message = "Message is required.")
     private String message;
 
+    /*
+     * ID of the related entity.
+     *
+     * For collaboration notifications,
+     * this is the CollaborationRequest ID.
+     */
+    private Long referenceId;
 }

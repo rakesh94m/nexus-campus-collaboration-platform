@@ -23,6 +23,7 @@ public class NotificationResponse {
 
     private NotificationStatus status;
 
-    private LocalDateTime createdAt;
+    private Long referenceId;
 
+    private LocalDateTime createdAt;
 }

@@ -42,6 +42,16 @@ public class ProjectController {
 
     }
 
+// =========================================
+// Get Available Projects
+// =========================================
+
+    @GetMapping("/available")
+    public List<ProjectResponse> getAvailableProjects() {
+
+        return projectService.getAvailableProjects();
+    }
+
     // =========================================
     // Update Project
     // =========================================
