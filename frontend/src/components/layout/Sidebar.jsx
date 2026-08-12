@@ -5,6 +5,7 @@ import {
   Users,
   FolderKanban,
   UserSearch,
+  BrainCircuit,
 } from "lucide-react";
 
 const Sidebar = ({
@@ -30,6 +31,7 @@ const Sidebar = ({
           onClick={onClose}
         />
       )}
+
 
       {/* ==========================================
           SIDEBAR
@@ -74,6 +76,7 @@ const Sidebar = ({
             border-slate-200
           "
         >
+
           <span
             className="
               text-xl
@@ -83,13 +86,16 @@ const Sidebar = ({
           >
             NEXUS
           </span>
+
         </div>
+
 
         {/* ==========================================
             NAVIGATION
         ========================================== */}
 
         <nav className="p-4 space-y-1">
+
 
           {/* ==========================================
               DASHBOARD
@@ -118,12 +124,15 @@ const Sidebar = ({
               `
             }
           >
+
             <LayoutDashboard size={18} />
 
             <span>
               Dashboard
             </span>
+
           </NavLink>
+
 
           {/* ==========================================
               PROJECTS
@@ -152,12 +161,52 @@ const Sidebar = ({
               `
             }
           >
+
             <FolderKanban size={18} />
 
             <span>
               Projects
             </span>
+
           </NavLink>
+
+
+          {/* ==========================================
+              CAREER ROADMAP
+          ========================================== */}
+
+          <NavLink
+            to="/career-roadmap"
+            onClick={onClose}
+            className={({ isActive }) =>
+              `
+                flex
+                items-center
+                gap-3
+                px-4
+                py-2.5
+                rounded-lg
+                text-sm
+                font-medium
+                transition-colors
+
+                ${
+                  isActive
+                    ? "bg-blue-50 text-blue-600"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                }
+              `
+            }
+          >
+
+            <BrainCircuit size={18} />
+
+            <span>
+              Career Roadmap
+            </span>
+
+          </NavLink>
+
 
           {/* ==========================================
               COLLABORATION
@@ -186,12 +235,15 @@ const Sidebar = ({
               `
             }
           >
+
             <Users size={18} />
 
             <span>
               Collaboration
             </span>
+
           </NavLink>
+
 
           {/* ==========================================
               FIND STUDENTS
@@ -220,12 +272,15 @@ const Sidebar = ({
               `
             }
           >
+
             <UserSearch size={18} />
 
             <span>
               Find Students
             </span>
+
           </NavLink>
+
 
         </nav>
 

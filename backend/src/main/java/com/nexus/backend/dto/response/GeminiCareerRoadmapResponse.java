@@ -2,18 +2,12 @@ package com.nexus.backend.dto.response;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CareerRoadmapResponse {
-
-    private Long id;
-
-    private Long studentId;
+public class GeminiCareerRoadmapResponse {
 
     private String careerGoal;
 
@@ -26,8 +20,4 @@ public class CareerRoadmapResponse {
     private String careerAdvice;
 
     private String recommendedCertifications;
-
-    private LocalDateTime generatedAt;
-
-    private LocalDateTime updatedAt;
 }

@@ -14,7 +14,7 @@ import Students from "../pages/students/Students";
 
 import Notifications from "../pages/notifications/Notifications";
 import Recommendations from "../pages/recommendations/Recommendations";
-
+import CareerRoadmap from "../pages/career/CareerRoadmap";
 import ProtectedRoute from "./ProtectedRoute";
 
 const AppRoutes = () => {
@@ -129,6 +129,11 @@ const AppRoutes = () => {
         <Route
           path="/recommendations"
           element={<Recommendations />}
+        />
+  
+        <Route
+          path="/career-roadmap"
+          element={<CareerRoadmap />}
         />
 
       </Route>

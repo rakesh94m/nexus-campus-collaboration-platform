@@ -91,40 +91,100 @@ public class Student {
     // Relationships
     // =========================
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "student",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
     private List<StudentSkill> studentSkills;
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "student",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
     private List<StudentInterest> studentInterests;
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "student",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
     private List<Goal> goals;
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "student",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
     private List<Project> createdProjects;
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "student",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
     private List<ProjectMember> projectMemberships;
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "student",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
     private List<Achievement> achievements;
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "student",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
     private List<Certification> certifications;
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "student",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
     private List<Notification> notifications;
 
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "sender",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
     private List<CollaborationRequest> sentRequests;
 
-    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "receiver",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
     private List<CollaborationRequest> receivedRequests;
 
-    @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private CareerRoadmap careerRoadmap;
+    // =========================================
+    // CAREER ROADMAP HISTORY
+    // =========================================
+    //
+    // One student can have multiple AI-generated
+    // career roadmaps.
+    //
+    // CareerRoadmap owns the relationship using:
+    // @ManyToOne
+    //
+    // =========================================
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "student",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
+    private List<CareerRoadmap> careerRoadmaps;
+
+    @OneToMany(
+            mappedBy = "student",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
     private List<MatchHistory> matchHistory;
 
     // =========================
@@ -155,5 +215,4 @@ public class Student {
     public void preUpdate() {
         // UpdateTimestamp handles updatedAt automatically.
     }
-
 }

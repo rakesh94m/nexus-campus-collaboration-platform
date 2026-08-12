@@ -8,15 +8,53 @@ import java.util.List;
 
 public interface CareerRoadmapService {
 
-    CareerRoadmapResponse createCareerRoadmap(AddCareerRoadmapRequest request);
+    // =========================================
+    // Create New Career Roadmap
+    // Every generation creates a new record
+    // =========================================
+
+    CareerRoadmapResponse createCareerRoadmap(
+            AddCareerRoadmapRequest request
+    );
+
+    // =========================================
+    // Get All Roadmaps
+    // =========================================
 
     List<CareerRoadmapResponse> getAllCareerRoadmaps();
 
-    CareerRoadmapResponse getCareerRoadmapById(Long id);
+    // =========================================
+    // Get My Roadmap History
+    // =========================================
 
-    CareerRoadmapResponse updateCareerRoadmap(Long id,
-                                              UpdateCareerRoadmapRequest request);
+    List<CareerRoadmapResponse> getMyCareerRoadmaps();
+
+    // =========================================
+    // Get Latest Roadmap
+    // =========================================
+
+    CareerRoadmapResponse getLatestCareerRoadmap();
+
+    // =========================================
+    // Get Roadmap By ID
+    // =========================================
+
+    CareerRoadmapResponse getCareerRoadmapById(
+            Long id
+    );
+
+    // =========================================
+    // Update Roadmap
+    // =========================================
+
+    CareerRoadmapResponse updateCareerRoadmap(
+            Long id,
+            UpdateCareerRoadmapRequest request
+    );
+
+    // =========================================
+    // Delete Roadmap
+    // =========================================
 
     void deleteCareerRoadmap(Long id);
-
 }
