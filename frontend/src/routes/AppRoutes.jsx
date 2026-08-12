@@ -16,6 +16,7 @@ import Notifications from "../pages/notifications/Notifications";
 import Recommendations from "../pages/recommendations/Recommendations";
 import CareerRoadmap from "../pages/career/CareerRoadmap";
 import ProtectedRoute from "./ProtectedRoute";
+import Goals from "../pages/goals/Goals";
 
 const AppRoutes = () => {
   return (
@@ -134,6 +135,10 @@ const AppRoutes = () => {
         <Route
           path="/career-roadmap"
           element={<CareerRoadmap />}
+        />
+        <Route
+          path="/goals"
+          element={<Goals />}
         />
 
       </Route>

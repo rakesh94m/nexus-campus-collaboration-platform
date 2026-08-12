@@ -1,19 +1,21 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import {
-  Plus,
+  Mail,
+  Phone,
+  GraduationCap,
+  User,
+  FileText,
+  Briefcase,
+  Pencil,
   X,
   Save,
-  FolderKanban,
-  ExternalLink,
-  CalendarDays,
-  Sparkles,
-  Pencil,
+  Link,
+  Target,
+  Plus,
+  CheckCircle2,
+  Clock3,
   Trash2,
-  Users,
-  UserPlus,
-  LogOut,
 } from "lucide-react";
 
 import toast from "react-hot-toast";
@@ -21,180 +23,112 @@ import toast from "react-hot-toast";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 
 import {
-  getMyProjects,
-  getAvailableProjects,
-  addProject,
-  updateProject,
-  deleteProject,
-} from "../../services/projectService";
+  getMyProfile,
+  updateProfile,
+  updateSocialLinks,
+  updateAvailability,
+} from "../../services/studentService";
 
 import {
-  getMyProjectMembers,
-  getProjectMembers,
-  joinProject,
-  updateProjectMember,
-  leaveProject,
-  removeProjectMember,
-} from "../../services/projectMemberService";
+  getMyGoals,
+  addGoal,
+  updateGoal,
+  deleteGoal,
+} from "../../services/goalService";
 
-// ==========================================
-// MEMBER ROLES
-// ==========================================
-
-const MEMBER_ROLES = [
-  {
-    value: "LEADER",
-    label: "Leader",
-  },
-  {
-    value: "BACKEND_DEVELOPER",
-    label: "Backend Developer",
-  },
-  {
-    value: "FRONTEND_DEVELOPER",
-    label: "Frontend Developer",
-  },
-  {
-    value: "AI_ENGINEER",
-    label: "AI Engineer",
-  },
-  {
-    value: "DATABASE_ENGINEER",
-    label: "Database Engineer",
-  },
-  {
-    value: "TESTER",
-    label: "Tester",
-  },
-  {
-    value: "MEMBER",
-    label: "Member",
-  },
-];
-
-// ==========================================
-// PROJECTS COMPONENT
-// ==========================================
-
-const Projects = () => {
-  const navigate = useNavigate();
-
-  // ==========================================
-  // PROJECT STATE
-  // ==========================================
-
-  const [projects, setProjects] = useState([]);
-  const [availableProjects, setAvailableProjects] =
-    useState([]);
+const Profile = () => {
+  const [profile, setProfile] = useState(null);
 
   const [loading, setLoading] = useState(true);
-
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
 
-  const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [socialEditOpen, setSocialEditOpen] =
+    useState(false);
 
-  const [selectedProject, setSelectedProject] =
+  const [availabilitySaving, setAvailabilitySaving] =
+    useState(false);
+
+  // ==========================================
+  // GOALS STATE
+  // ==========================================
+
+  const [goals, setGoals] = useState([]);
+
+  const [goalsLoading, setGoalsLoading] =
+    useState(true);
+
+  const [goalSaving, setGoalSaving] =
+    useState(false);
+
+  const [goalModalOpen, setGoalModalOpen] =
+    useState(false);
+
+  const [editingGoal, setEditingGoal] =
     useState(null);
 
-  // ==========================================
-  // FORM STATE
-  // ==========================================
-
-  const [formData, setFormData] = useState({
-    projectTitle: "",
+  const [goalForm, setGoalForm] = useState({
+    title: "",
     description: "",
-    technologiesUsed: "",
-    githubUrl: "",
-    liveDemoUrl: "",
-    startDate: "",
-    endDate: "",
+    status: "NOT_STARTED",
   });
 
   // ==========================================
-  // MY MEMBERSHIPS
+  // PROFILE FORM
   // ==========================================
 
-  const [memberships, setMemberships] = useState([]);
+  const [formData, setFormData] = useState({
+    bio: "",
+    cgpa: "",
+    phone: "",
+    section: "",
+    specialization: "",
+  });
 
-  const [membersLoading, setMembersLoading] =
-    useState(true);
-
-  const [joinProjectId, setJoinProjectId] =
-    useState(null);
-
-  const [joinRole, setJoinRole] =
-    useState("MEMBER");
-
-  const [joining, setJoining] =
-    useState(false);
-
-  const [editingMemberId, setEditingMemberId] =
-    useState(null);
-
-  const [editingRole, setEditingRole] =
-    useState("MEMBER");
-
-  const [updatingMember, setUpdatingMember] =
-    useState(false);
-
-  const [leavingMemberId, setLeavingMemberId] =
-    useState(null);
+  const [socialData, setSocialData] = useState({
+    githubUrl: "",
+    linkedinUrl: "",
+    resumeUrl: "",
+  });
 
   // ==========================================
-  // PROJECT TEAM MEMBERS
-  // ==========================================
-
-  const [projectMembers, setProjectMembers] =
-    useState({});
-
-  const [projectMembersLoading, setProjectMembersLoading] =
-    useState({});
-
-  // ==========================================
-  // LOAD DATA
+  // INITIAL LOAD
   // ==========================================
 
   useEffect(() => {
-    loadProjects();
-    loadMemberships();
+    loadProfile();
+    loadGoals();
   }, []);
 
   // ==========================================
-  // LOAD PROJECTS
+  // LOAD PROFILE
   // ==========================================
 
-  const loadProjects = async () => {
+  const loadProfile = async () => {
     try {
-      setLoading(true);
+      const data = await getMyProfile();
 
-      const [myProjects, available] =
-        await Promise.all([
-          getMyProjects(),
-          getAvailableProjects(),
-        ]);
+      setProfile(data);
 
-      setProjects(
-        Array.isArray(myProjects)
-          ? myProjects
-          : []
-      );
+      setFormData({
+        bio: data.bio || "",
+        cgpa: data.cgpa ?? "",
+        phone: data.phone || "",
+        section: data.section || "",
+        specialization: data.specialization || "",
+      });
 
-      setAvailableProjects(
-        Array.isArray(available)
-          ? available
-          : []
-      );
+      setSocialData({
+        githubUrl: data.githubUrl || "",
+        linkedinUrl: data.linkedinUrl || "",
+        resumeUrl: data.resumeUrl || "",
+      });
     } catch (error) {
-      console.error(
-        "Projects error:",
-        error
-      );
+      console.error("Profile error:", error);
 
       const message =
         error.response?.data?.message ||
-        "Unable to load projects.";
+        "Unable to load profile.";
 
       toast.error(message);
     } finally {
@@ -203,206 +137,167 @@ const Projects = () => {
   };
 
   // ==========================================
-  // LOAD MY MEMBERSHIPS
+  // LOAD GOALS
   // ==========================================
 
-  const loadMemberships = async () => {
+  const loadGoals = async () => {
     try {
-      setMembersLoading(true);
+      setGoalsLoading(true);
 
-      const data =
-        await getMyProjectMembers();
+      const data = await getMyGoals();
 
-      setMemberships(
-        Array.isArray(data)
-          ? data
-          : []
+      setGoals(
+        Array.isArray(data) ? data : []
       );
     } catch (error) {
-      console.error(
-        "Project memberships error:",
-        error
+      console.error("Goals loading error:", error);
+
+      toast.error(
+        error.response?.data?.message ||
+          "Unable to load goals."
       );
 
-      const message =
-        error.response?.data?.message ||
-        "Unable to load project memberships.";
-
-      toast.error(message);
+      setGoals([]);
     } finally {
-      setMembersLoading(false);
+      setGoalsLoading(false);
     }
   };
 
   // ==========================================
-  // LOAD ALL MEMBERS OF A PROJECT
-  // ==========================================
-
-  const loadProjectMembers = async (
-    projectId
-  ) => {
-    setProjectMembersLoading(
-      (previous) => ({
-        ...previous,
-        [projectId]: true,
-      })
-    );
-
-    try {
-      const data =
-        await getProjectMembers(projectId);
-
-      setProjectMembers(
-        (previous) => ({
-          ...previous,
-          [projectId]: Array.isArray(data)
-            ? data
-            : [],
-        })
-      );
-    } catch (error) {
-      console.error(
-        "Project members error:",
-        error
-      );
-
-      const message =
-        error.response?.data?.message ||
-        "Unable to load project members.";
-
-      toast.error(message);
-    } finally {
-      setProjectMembersLoading(
-        (previous) => ({
-          ...previous,
-          [projectId]: false,
-        })
-      );
-    }
-  };
-
-  // ==========================================
-  // FORM CHANGE
+  // BASIC PROFILE
   // ==========================================
 
   const handleChange = (event) => {
-    const {
-      name,
-      value,
-    } = event.target;
+    const { name, value } = event.target;
 
-    setFormData(
-      (previous) => ({
-        ...previous,
-        [name]: value,
-      })
-    );
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
   };
 
-  // ==========================================
-  // RESET FORM
-  // ==========================================
-
-  const resetForm = () => {
-    setFormData({
-      projectTitle: "",
-      description: "",
-      technologiesUsed: "",
-      githubUrl: "",
-      liveDemoUrl: "",
-      startDate: "",
-      endDate: "",
-    });
-  };
-
-  // ==========================================
-  // OPEN ADD PROJECT
-  // ==========================================
-
-  const openAddProject = () => {
-    resetForm();
-    setAddOpen(true);
-  };
-
-  // ==========================================
-  // CLOSE ADD PROJECT
-  // ==========================================
-
-  const closeAddModal = () => {
-    if (saving) return;
-
-    setAddOpen(false);
-    resetForm();
-  };
-
-  // ==========================================
-  // ADD PROJECT
-  // ==========================================
-
-  const handleAddProject = async (
-    event
-  ) => {
+  const handleSaveProfile = async (event) => {
     event.preventDefault();
-
-    if (!formData.projectTitle.trim()) {
-      toast.error(
-        "Project title is required."
-      );
-      return;
-    }
 
     setSaving(true);
 
     try {
-      const newProject =
-        await addProject({
-          projectTitle:
-            formData.projectTitle.trim(),
+      const payload = {
+        bio: formData.bio,
+        cgpa:
+          formData.cgpa === ""
+            ? null
+            : Number(formData.cgpa),
+        phone: formData.phone,
+        section: formData.section,
+        specialization: formData.specialization,
+      };
 
-          description:
-            formData.description.trim() ||
-            null,
+      const updatedProfile =
+        await updateProfile(payload);
 
-          technologiesUsed:
-            formData.technologiesUsed.trim() ||
-            null,
+      setProfile(updatedProfile);
 
-          githubUrl:
-            formData.githubUrl.trim() ||
-            null,
+      setFormData({
+        bio: updatedProfile.bio || "",
+        cgpa: updatedProfile.cgpa ?? "",
+        phone: updatedProfile.phone || "",
+        section: updatedProfile.section || "",
+        specialization:
+          updatedProfile.specialization || "",
+      });
 
-          liveDemoUrl:
-            formData.liveDemoUrl.trim() ||
-            null,
-
-          startDate:
-            formData.startDate || null,
-
-          endDate:
-            formData.endDate || null,
-        });
-
-      setProjects(
-        (previous) => [
-          ...previous,
-          newProject,
-        ]
-      );
-
-      closeAddModal();
+      setEditOpen(false);
 
       toast.success(
-        "Project added successfully!"
+        "Profile updated successfully!"
       );
     } catch (error) {
       console.error(
-        "Add project error:",
+        "Update profile error:",
         error
       );
 
       const message =
         error.response?.data?.message ||
-        "Unable to add project.";
+        "Unable to update profile.";
+
+      toast.error(message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const openEditProfile = () => {
+    setFormData({
+      bio: profile.bio || "",
+      cgpa: profile.cgpa ?? "",
+      phone: profile.phone || "",
+      section: profile.section || "",
+      specialization:
+        profile.specialization || "",
+    });
+
+    setEditOpen(true);
+  };
+
+  // ==========================================
+  // SOCIAL LINKS
+  // ==========================================
+
+  const handleSocialChange = (event) => {
+    const { name, value } = event.target;
+
+    setSocialData((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+  };
+
+  const openSocialEdit = () => {
+    setSocialData({
+      githubUrl: profile.githubUrl || "",
+      linkedinUrl: profile.linkedinUrl || "",
+      resumeUrl: profile.resumeUrl || "",
+    });
+
+    setSocialEditOpen(true);
+  };
+
+  const handleSaveSocialLinks = async (event) => {
+    event.preventDefault();
+
+    setSaving(true);
+
+    try {
+      const updatedProfile =
+        await updateSocialLinks(socialData);
+
+      setProfile(updatedProfile);
+
+      setSocialData({
+        githubUrl:
+          updatedProfile.githubUrl || "",
+        linkedinUrl:
+          updatedProfile.linkedinUrl || "",
+        resumeUrl:
+          updatedProfile.resumeUrl || "",
+      });
+
+      setSocialEditOpen(false);
+
+      toast.success(
+        "Career links updated successfully!"
+      );
+    } catch (error) {
+      console.error(
+        "Social links error:",
+        error
+      );
+
+      const message =
+        error.response?.data?.message ||
+        "Unable to update career links.";
 
       toast.error(message);
     } finally {
@@ -411,509 +306,243 @@ const Projects = () => {
   };
 
   // ==========================================
-  // OPEN EDIT PROJECT
+  // AVAILABILITY
   // ==========================================
 
-  const openEditProject = (
-    project
+  const handleAvailabilityChange = async (
+    event
   ) => {
-    setSelectedProject(project);
+    const newStatus = event.target.value;
 
-    setFormData({
-      projectTitle:
-        project.projectTitle || "",
-
-      description:
-        project.description || "",
-
-      technologiesUsed:
-        project.technologiesUsed || "",
-
-      githubUrl:
-        project.githubUrl || "",
-
-      liveDemoUrl:
-        project.liveDemoUrl || "",
-
-      startDate:
-        project.startDate || "",
-
-      endDate:
-        project.endDate || "",
-    });
-
-    setEditOpen(true);
-  };
-
-  // ==========================================
-  // CLOSE EDIT PROJECT
-  // ==========================================
-
-  const closeEditModal = () => {
-    if (saving) return;
-
-    setEditOpen(false);
-    setSelectedProject(null);
-    resetForm();
-  };
-
-  // ==========================================
-  // UPDATE PROJECT
-  // ==========================================
-
-  const handleUpdateProject =
-    async (event) => {
-      event.preventDefault();
-
-      if (!selectedProject) return;
-
-      if (!formData.projectTitle.trim()) {
-        toast.error(
-          "Project title is required."
-        );
-        return;
-      }
-
-      setSaving(true);
-
-      try {
-        const updatedProject =
-          await updateProject(
-            selectedProject.id,
-            {
-              projectTitle:
-                formData.projectTitle.trim(),
-
-              description:
-                formData.description.trim() ||
-                null,
-
-              technologiesUsed:
-                formData.technologiesUsed.trim() ||
-                null,
-
-              githubUrl:
-                formData.githubUrl.trim() ||
-                null,
-
-              liveDemoUrl:
-                formData.liveDemoUrl.trim() ||
-                null,
-
-              startDate:
-                formData.startDate || null,
-
-              endDate:
-                formData.endDate || null,
-            }
-          );
-
-        setProjects(
-          (previous) =>
-            previous.map(
-              (project) =>
-                project.id ===
-                updatedProject.id
-                  ? updatedProject
-                  : project
-            )
-        );
-
-        closeEditModal();
-
-        toast.success(
-          "Project updated successfully!"
-        );
-      } catch (error) {
-        console.error(
-          "Update project error:",
-          error
-        );
-
-        const message =
-          error.response?.data?.message ||
-          "Unable to update project.";
-
-        toast.error(message);
-      } finally {
-        setSaving(false);
-      }
-    };
-
-  // ==========================================
-  // DELETE PROJECT
-  // ==========================================
-
-  const handleDeleteProject =
-    async (project) => {
-      const confirmed =
-        window.confirm(
-          `Are you sure you want to delete "${project.projectTitle}"?\n\nThis will also remove its collaboration requests, members, and match history.`
-        );
-
-      if (!confirmed) return;
-
-      setDeleting(true);
-
-      try {
-        await deleteProject(
-          project.id
-        );
-
-        setProjects(
-          (previous) =>
-            previous.filter(
-              (item) =>
-                item.id !== project.id
-            )
-        );
-
-        setMemberships(
-          (previous) =>
-            previous.filter(
-              (item) =>
-                item.projectTitle !==
-                project.projectTitle
-            )
-        );
-
-        setProjectMembers(
-          (previous) => {
-            const updated = {
-              ...previous,
-            };
-
-            delete updated[project.id];
-
-            return updated;
-          }
-        );
-
-        toast.success(
-          "Project deleted successfully!"
-        );
-      } catch (error) {
-        console.error(
-          "Delete project error:",
-          error
-        );
-
-        const message =
-          error.response?.data?.message ||
-          "Unable to delete project.";
-
-        toast.error(message);
-      } finally {
-        setDeleting(false);
-      }
-    };
-
-  // ==========================================
-  // OPEN JOIN PROJECT
-  // ==========================================
-
-  const openJoinProject = (
-    projectId
-  ) => {
-    setJoinProjectId(projectId);
-    setJoinRole("MEMBER");
-  };
-
-  // ==========================================
-  // CANCEL JOIN
-  // ==========================================
-
-  const cancelJoin = () => {
-    if (joining) return;
-
-    setJoinProjectId(null);
-    setJoinRole("MEMBER");
-  };
-
-  // ==========================================
-  // JOIN PROJECT
-  // ==========================================
-
-  const handleJoinProject =
-    async (projectId) => {
-      setJoining(true);
-
-      try {
-        const membership =
-          await joinProject(
-            projectId,
-            joinRole
-          );
-
-        setMemberships(
-          (previous) => [
-            ...previous,
-            membership,
-          ]
-        );
-
-        setAvailableProjects(
-          (previous) =>
-            previous.filter(
-              (project) =>
-                project.id !==
-                projectId
-            )
-        );
-
-        setJoinProjectId(null);
-        setJoinRole("MEMBER");
-
-        toast.success(
-          "You joined the project successfully!"
-        );
-
-        // Refresh project members if
-        // they were already loaded
-        if (projectMembers[projectId]) {
-          await loadProjectMembers(
-            projectId
-          );
-        }
-      } catch (error) {
-        console.error(
-          "Join project error:",
-          error
-        );
-
-        const message =
-          error.response?.data?.message ||
-          "Unable to join project.";
-
-        toast.error(message);
-      } finally {
-        setJoining(false);
-      }
-    };
-
-  // ==========================================
-  // START EDIT MEMBER ROLE
-  // ==========================================
-
-  const startEditMember = (
-    membership
-  ) => {
-    setEditingMemberId(
-      membership.id
-    );
-
-    setEditingRole(
-      membership.role
-    );
-  };
-
-  // ==========================================
-  // CANCEL EDIT MEMBER
-  // ==========================================
-
-  const cancelEditMember = () => {
-    if (updatingMember) return;
-
-    setEditingMemberId(null);
-    setEditingRole("MEMBER");
-  };
-
-  // ==========================================
-  // UPDATE MEMBER ROLE
-  // ==========================================
-
-  const handleUpdateMember =
-    async (membership) => {
-      setUpdatingMember(true);
-
-      try {
-        const updatedMembership =
-          await updateProjectMember(
-            membership.id,
-            editingRole
-          );
-
-        setMemberships(
-          (previous) =>
-            previous.map(
-              (item) =>
-                item.id ===
-                updatedMembership.id
-                  ? updatedMembership
-                  : item
-            )
-        );
-
-        // Refresh team members for
-        // this project if already loaded
-        const projectId =
-          membership.projectId;
-
-        if (
-          projectId &&
-          projectMembers[projectId]
-        ) {
-          await loadProjectMembers(
-            projectId
-          );
-        }
-
-        setEditingMemberId(null);
-
-        toast.success(
-          "Project role updated!"
-        );
-      } catch (error) {
-        console.error(
-          "Update project member error:",
-          error
-        );
-
-        const message =
-          error.response?.data?.message ||
-          "Unable to update project role.";
-
-        toast.error(message);
-      } finally {
-        setUpdatingMember(false);
-      }
-    };
-
-  // ==========================================
-  // LEAVE PROJECT
-  // ==========================================
-
-  const handleLeaveProject =
-    async (membership) => {
-      const confirmed =
-        window.confirm(
-          `Are you sure you want to leave "${membership.projectTitle}"?`
-        );
-
-      if (!confirmed) return;
-
-      setLeavingMemberId(
-        membership.id
-      );
-
-      try {
-        await leaveProject(
-          membership.id
-        );
-
-        setMemberships(
-          (previous) =>
-            previous.filter(
-              (item) =>
-                item.id !==
-                membership.id
-            )
-        );
-
-        toast.success(
-          "You left the project."
-        );
-      } catch (error) {
-        console.error(
-          "Leave project error:",
-          error
-        );
-
-        const message =
-          error.response?.data?.message ||
-          "Unable to leave project.";
-
-        toast.error(message);
-      } finally {
-        setLeavingMemberId(null);
-      }
-    };
-
-  // ==========================================
-  // REMOVE PROJECT MEMBER
-  // ==========================================
-
-  const handleRemoveMember = async (
-    projectId,
-    memberId,
-    memberName
-  ) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to remove ${memberName} from this project?`
-    );
-
-    if (!confirmed) return;
+    setAvailabilitySaving(true);
 
     try {
-      await removeProjectMember(
-        projectId,
-        memberId
-      );
+      const updatedProfile =
+        await updateAvailability({
+          availabilityStatus: newStatus,
+        });
+
+      setProfile(updatedProfile);
 
       toast.success(
-        `${memberName} removed from the project.`
+        "Availability updated successfully!"
       );
-
-      // Refresh the members list if it is already open.
-      await loadProjectMembers(projectId);
     } catch (error) {
       console.error(
-        "Remove project member error:",
+        "Availability error:",
         error
       );
 
       const message =
         error.response?.data?.message ||
-        "Unable to remove project member.";
+        "Unable to update availability.";
 
       toast.error(message);
+    } finally {
+      setAvailabilitySaving(false);
     }
   };
 
   // ==========================================
-  // FORMAT DATE
+  // GOAL HELPERS
   // ==========================================
 
-  const formatDate = (date) => {
-    if (!date) return null;
+  const resetGoalForm = () => {
+    setGoalForm({
+      title: "",
+      description: "",
+      status: "NOT_STARTED",
+    });
 
-    const parsedDate =
-      new Date(date);
+    setEditingGoal(null);
+  };
 
-    if (
-      Number.isNaN(
-        parsedDate.getTime()
-      )
-    ) {
-      return date;
+  const openAddGoal = () => {
+    resetGoalForm();
+    setGoalModalOpen(true);
+  };
+
+  const openEditGoal = (goal) => {
+    setEditingGoal(goal);
+
+    setGoalForm({
+      title: goal.title || "",
+      description: goal.description || "",
+      status: goal.status || "NOT_STARTED",
+    });
+
+    setGoalModalOpen(true);
+  };
+
+  const handleGoalChange = (event) => {
+    const { name, value } = event.target;
+
+    setGoalForm((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+  };
+
+  // ==========================================
+  // SAVE GOAL
+  // ==========================================
+
+  const handleSaveGoal = async (event) => {
+    event.preventDefault();
+
+    if (!goalForm.title.trim()) {
+      toast.error("Please enter a goal title.");
+      return;
     }
 
-    return parsedDate.toLocaleDateString(
-      "en-IN",
-      {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
+    setGoalSaving(true);
+
+    try {
+      const payload = {
+        title: goalForm.title.trim(),
+        description:
+          goalForm.description.trim(),
+        status: goalForm.status,
+      };
+
+      if (editingGoal) {
+        const updatedGoal =
+          await updateGoal(
+            editingGoal.id,
+            payload
+          );
+
+        setGoals((previous) =>
+          previous.map((goal) =>
+            goal.id === updatedGoal.id
+              ? updatedGoal
+              : goal
+          )
+        );
+
+        toast.success(
+          "Goal updated successfully!"
+        );
+      } else {
+        const createdGoal =
+          await addGoal(payload);
+
+        setGoals((previous) => [
+          createdGoal,
+          ...previous,
+        ]);
+
+        toast.success(
+          "Goal added successfully!"
+        );
       }
-    );
-  };
 
-  // ==========================================
-  // ROLE LABEL
-  // ==========================================
-
-  const getRoleLabel = (
-    role
-  ) => {
-    const found =
-      MEMBER_ROLES.find(
-        (item) =>
-          item.value === role
+      setGoalModalOpen(false);
+      resetGoalForm();
+    } catch (error) {
+      console.error(
+        "Goal save error:",
+        error
       );
 
-    return found
-      ? found.label
-      : role;
+      toast.error(
+        error.response?.data?.message ||
+          "Unable to save goal."
+      );
+    } finally {
+      setGoalSaving(false);
+    }
+  };
+
+  // ==========================================
+  // DELETE GOAL
+  // ==========================================
+
+  const handleDeleteGoal = async (goal) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${goal.title}"?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await deleteGoal(goal.id);
+
+      setGoals((previous) =>
+        previous.filter(
+          (item) => item.id !== goal.id
+        )
+      );
+
+      toast.success(
+        "Goal deleted successfully."
+      );
+    } catch (error) {
+      console.error(
+        "Goal delete error:",
+        error
+      );
+
+      toast.error(
+        error.response?.data?.message ||
+          "Unable to delete goal."
+      );
+    }
+  };
+
+  // ==========================================
+  // GOAL STATUS DISPLAY
+  // ==========================================
+
+  const getGoalStatusLabel = (status) => {
+    switch (status) {
+      case "IN_PROGRESS":
+        return "In Progress";
+
+      case "COMPLETED":
+        return "Completed";
+
+      case "NOT_STARTED":
+      default:
+        return "Not Started";
+    }
+  };
+
+  const getGoalStatusClasses = (status) => {
+    switch (status) {
+      case "COMPLETED":
+        return {
+          wrapper:
+            "bg-green-50 border-green-100",
+          icon:
+            "bg-green-100 text-green-600",
+          badge:
+            "bg-green-100 text-green-700",
+        };
+
+      case "IN_PROGRESS":
+        return {
+          wrapper:
+            "bg-blue-50 border-blue-100",
+          icon:
+            "bg-blue-100 text-blue-600",
+          badge:
+            "bg-blue-100 text-blue-700",
+        };
+
+      case "NOT_STARTED":
+      default:
+        return {
+          wrapper:
+            "bg-slate-50 border-slate-200",
+          icon:
+            "bg-slate-100 text-slate-500",
+          badge:
+            "bg-slate-100 text-slate-600",
+        };
+    }
   };
 
   // ==========================================
@@ -922,35 +551,53 @@ const Projects = () => {
 
   if (loading) {
     return (
-      <div
-        className="min-h-screen
-                   bg-slate-50
-                   flex
-                   items-center
-                   justify-center"
-      >
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
 
           <div
-            className="w-10 h-10
-                       border-4
-                       border-blue-600
-                       border-t-transparent
-                       rounded-full
-                       animate-spin
-                       mx-auto
-                       mb-4"
+            className="
+              w-10
+              h-10
+              border-4
+              border-blue-600
+              border-t-transparent
+              rounded-full
+              animate-spin
+              mx-auto
+              mb-4
+            "
           />
 
-          <p
-            className="text-slate-600
-                       font-medium"
-          >
-            Loading your projects...
+          <p className="text-slate-600 font-medium">
+            Loading your profile...
           </p>
 
         </div>
       </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <DashboardLayout>
+
+        <div
+          className="
+            bg-white
+            rounded-2xl
+            border
+            border-slate-200
+            p-8
+            text-center
+          "
+        >
+          <p className="text-slate-600">
+            Profile information could not be
+            loaded.
+          </p>
+        </div>
+
+      </DashboardLayout>
     );
   }
 
@@ -961,216 +608,388 @@ const Projects = () => {
           PAGE HEADER
       ========================================== */}
 
-      <section
-        className="flex flex-col
-                   sm:flex-row
-                   sm:items-center
-                   justify-between
-                   gap-4
-                   mb-8"
-      >
-        <div>
+      <section className="mb-8">
 
-          <p
-            className="text-sm
-                       font-medium
-                       text-blue-600
-                       mb-1"
-          >
-            Campus Projects
-          </p>
+        <p className="text-sm font-medium text-blue-600 mb-1">
+          Account
+        </p>
 
-          <h1
-            className="text-3xl
-                       font-bold
-                       text-slate-900"
-          >
-            My Projects
-          </h1>
+        <h1 className="text-3xl font-bold text-slate-900">
+          My Profile
+        </h1>
 
-          <p
-            className="mt-2
-                       text-slate-500"
-          >
-            Create and manage your projects
-            on NEXUS.
-          </p>
-
-        </div>
-
-        <div
-          className="flex
-                     flex-col
-                     sm:flex-row
-                     items-stretch
-                     sm:items-center
-                     gap-3"
-        >
-
-          <button
-            type="button"
-            onClick={() => navigate("/recommendations")}
-            className="inline-flex
-                       items-center
-                       justify-center
-                       gap-2
-                       px-5
-                       py-3
-                       bg-purple-600
-                       text-white
-                       rounded-xl
-                       font-semibold
-                       hover:bg-purple-700
-                       transition
-                       shadow-sm"
-          >
-            <Sparkles size={19} />
-            AI Recommendations
-          </button>
-
-          <button
-            type="button"
-            onClick={openAddProject}
-            className="inline-flex
-                       items-center
-                       justify-center
-                       gap-2
-                       px-5
-                       py-3
-                       bg-blue-600
-                       text-white
-                       rounded-xl
-                       font-semibold
-                       hover:bg-blue-700
-                       transition"
-          >
-            <Plus size={19} />
-            Add Project
-          </button>
-
-        </div>
+        <p className="mt-2 text-slate-500">
+          View and manage your NEXUS student profile.
+        </p>
 
       </section>
 
       {/* ==========================================
-          SUMMARY
+          PROFILE HEADER
       ========================================== */}
 
       <section
-        className="grid
-                   grid-cols-1
-                   sm:grid-cols-3
-                   gap-4
-                   mb-6"
-      >
-
-        <SummaryCard
-          title="My Projects"
-          value={projects.length}
-          icon={
-            <FolderKanban
-              size={21}
-            />
-          }
-        />
-
-        <SummaryCard
-          title="Joined Projects"
-          value={memberships.length}
-          icon={
-            <Users size={21} />
-          }
-        />
-
-        <SummaryCard
-          title="Portfolio"
-          value={
-            projects.length > 0
-              ? "Active"
-              : "Add Project"
-          }
-          icon={
-            <Sparkles size={21} />
-          }
-        />
-
-      </section>
-
-      {/* ==========================================
-          AI PROJECT RECOMMENDATIONS
-      ========================================== */}
-
-      <section
-        className="mb-6
-                   rounded-2xl
-                   border
-                   border-purple-200
-                   bg-gradient-to-r
-                   from-purple-50
-                   via-white
-                   to-blue-50
-                   p-6
-                   shadow-sm"
+        className="
+          bg-white
+          rounded-2xl
+          border
+          border-slate-200
+          p-6
+          mb-6
+        "
       >
 
         <div
-          className="flex
-                     flex-col
-                     md:flex-row
-                     md:items-center
-                     md:justify-between
-                     gap-5"
+          className="
+            flex
+            flex-col
+            sm:flex-row
+            items-start
+            sm:items-center
+            gap-5
+          "
         >
+
+          {/* Avatar */}
 
           <div
-            className="flex
-                       items-start
-                       gap-4"
+            className="
+              w-24
+              h-24
+              rounded-2xl
+              bg-blue-600
+              text-white
+              flex
+              items-center
+              justify-center
+              text-4xl
+              font-bold
+              shrink-0
+            "
           >
+            {profile.firstName
+              ?.charAt(0)
+              ?.toUpperCase()}
+          </div>
 
-            <div
-              className="w-12 h-12
-                         rounded-xl
-                         bg-purple-100
-                         text-purple-600
-                         flex
-                         items-center
-                         justify-center
-                         shrink-0"
+          {/* Student Information */}
+
+          <div className="flex-1">
+
+            <h2
+              className="
+                text-2xl
+                font-bold
+                text-slate-900
+              "
             >
-              <Sparkles size={24} />
+              {profile.firstName}{" "}
+              {profile.lastName}
+            </h2>
+
+            <p className="text-slate-500 mt-1">
+              {profile.email}
+            </p>
+
+            <div className="flex flex-wrap gap-2 mt-3">
+
+              <span
+                className="
+                  px-3
+                  py-1
+                  rounded-full
+                  bg-blue-50
+                  text-blue-700
+                  text-xs
+                  font-semibold
+                "
+              >
+                {profile.role}
+              </span>
+
+              <span
+                className="
+                  px-3
+                  py-1
+                  rounded-full
+                  bg-green-50
+                  text-green-700
+                  text-xs
+                  font-semibold
+                "
+              >
+                {profile.availabilityStatus}
+              </span>
+
+              <span
+                className="
+                  px-3
+                  py-1
+                  rounded-full
+                  bg-slate-100
+                  text-slate-600
+                  text-xs
+                  font-semibold
+                "
+              >
+                {profile.accountStatus}
+              </span>
+
+            </div>
+
+          </div>
+
+          {/* Edit Profile */}
+
+          <button
+            onClick={openEditProfile}
+            className="
+              flex
+              items-center
+              gap-2
+              px-4
+              py-2.5
+              bg-blue-600
+              text-white
+              rounded-xl
+              text-sm
+              font-semibold
+              hover:bg-blue-700
+              transition
+            "
+          >
+            <Pencil size={17} />
+            Edit Profile
+          </button>
+
+        </div>
+
+      </section>
+
+      {/* ==========================================
+          PERSONAL INFORMATION
+      ========================================== */}
+
+      <section
+        className="
+          bg-white
+          rounded-2xl
+          border
+          border-slate-200
+          p-6
+          mb-6
+        "
+      >
+
+        <div className="flex items-center gap-3 mb-6">
+
+          <div className="p-3 rounded-xl bg-blue-50">
+
+            <User
+              size={21}
+              className="text-blue-600"
+            />
+
+          </div>
+
+          <div>
+
+            <h2
+              className="
+                text-lg
+                font-bold
+                text-slate-900
+              "
+            >
+              Personal Information
+            </h2>
+
+            <p className="text-sm text-slate-500">
+              Your basic student information.
+            </p>
+
+          </div>
+
+        </div>
+
+        <div
+          className="
+            grid
+            grid-cols-1
+            md:grid-cols-2
+            gap-5
+          "
+        >
+
+          <InfoItem
+            label="First Name"
+            value={profile.firstName}
+          />
+
+          <InfoItem
+            label="Last Name"
+            value={profile.lastName}
+          />
+
+          <InfoItem
+            label="Email"
+            value={profile.email}
+            icon={<Mail size={16} />}
+          />
+
+          <InfoItem
+            label="Phone"
+            value={profile.phone}
+            icon={<Phone size={16} />}
+          />
+
+          <InfoItem
+            label="Roll Number"
+            value={profile.rollNumber}
+          />
+
+          <InfoItem
+            label="Department"
+            value={profile.department}
+            icon={
+              <GraduationCap size={16} />
+            }
+          />
+
+          <InfoItem
+            label="Year"
+            value={profile.year}
+          />
+
+          <InfoItem
+            label="Section"
+            value={profile.section}
+          />
+
+          <InfoItem
+            label="Specialization"
+            value={profile.specialization}
+          />
+
+          <InfoItem
+            label="CGPA"
+            value={profile.cgpa}
+          />
+
+        </div>
+
+      </section>
+
+      {/* ==========================================
+          ABOUT
+      ========================================== */}
+
+      <section
+        className="
+          bg-white
+          rounded-2xl
+          border
+          border-slate-200
+          p-6
+          mb-6
+        "
+      >
+
+        <div className="flex items-center gap-3 mb-5">
+
+          <div className="p-3 rounded-xl bg-purple-50">
+
+            <FileText
+              size={21}
+              className="text-purple-600"
+            />
+
+          </div>
+
+          <div>
+
+            <h2
+              className="
+                text-lg
+                font-bold
+                text-slate-900
+              "
+            >
+              About
+            </h2>
+
+            <p className="text-sm text-slate-500">
+              Your professional introduction.
+            </p>
+
+          </div>
+
+        </div>
+
+        <p
+          className="
+            text-slate-600
+            leading-relaxed
+          "
+        >
+          {profile.bio ||
+            "No bio has been added yet."}
+        </p>
+
+      </section>
+
+      {/* ==========================================
+          GOALS
+      ========================================== */}
+
+      <section
+        className="
+          bg-white
+          rounded-2xl
+          border
+          border-slate-200
+          p-6
+          mb-6
+        "
+      >
+
+        <div
+          className="
+            flex
+            flex-col
+            sm:flex-row
+            sm:items-center
+            justify-between
+            gap-4
+            mb-6
+          "
+        >
+
+          <div className="flex items-center gap-3">
+
+            <div className="p-3 rounded-xl bg-blue-50">
+
+              <Target
+                size={21}
+                className="text-blue-600"
+              />
+
             </div>
 
             <div>
 
-              <p
-                className="text-xs
-                           font-bold
-                           uppercase
-                           tracking-wider
-                           text-purple-600"
-              >
-                NEXUS AI
-              </p>
-
               <h2
-                className="text-xl
-                           font-bold
-                           text-slate-900
-                           mt-1"
+                className="
+                  text-lg
+                  font-bold
+                  text-slate-900
+                "
               >
-                Find projects that fit you
+                My Goals
               </h2>
 
-              <p
-                className="text-sm
-                           text-slate-600
-                           mt-1
-                           max-w-2xl"
-              >
-                Get AI-powered project recommendations
-                based on your skills, interests, profile,
-                and career goals.
+              <p className="text-sm text-slate-500">
+                Set and track your academic and career goals.
               </p>
 
             </div>
@@ -1178,1143 +997,306 @@ const Projects = () => {
           </div>
 
           <button
-            type="button"
-            onClick={() => navigate("/recommendations")}
-            className="inline-flex
-                       items-center
-                       justify-center
-                       gap-2
-                       px-5
-                       py-2.5
-                       rounded-xl
-                       bg-purple-600
-                       text-white
-                       text-sm
-                       font-semibold
-                       hover:bg-purple-700
-                       transition
-                       whitespace-nowrap"
+            onClick={openAddGoal}
+            className="
+              flex
+              items-center
+              justify-center
+              gap-2
+              px-4
+              py-2.5
+              bg-blue-600
+              text-white
+              rounded-xl
+              text-sm
+              font-semibold
+              hover:bg-blue-700
+              transition
+            "
           >
-            <Sparkles size={17} />
-            View Recommendations
+            <Plus size={17} />
+            Add Goal
           </button>
 
         </div>
 
-      </section>
-
-      {/* ==========================================
-          MY PROJECTS
-      ========================================== */}
-
-      <section
-        className="bg-white
-                   rounded-2xl
-                   border
-                   border-slate-200
-                   p-6"
-      >
-
-        <div className="mb-6">
-
-          <h2
-            className="text-lg
-                       font-bold
-                       text-slate-900"
-          >
-            Your Projects
-          </h2>
-
-          <p
-            className="text-sm
-                       text-slate-500
-                       mt-1"
-          >
-            Projects you have created.
-          </p>
-
-        </div>
-
-        {projects.length === 0 ? (
+        {goalsLoading ? (
 
           <div
-            className="py-16
-                       text-center"
+            className="
+              flex
+              items-center
+              justify-center
+              gap-3
+              py-8
+            "
           >
 
             <div
-              className="w-16 h-16
-                         rounded-2xl
-                         bg-blue-50
-                         text-blue-600
-                         flex
-                         items-center
-                         justify-center
-                         mx-auto
-                         mb-4"
+              className="
+                w-5
+                h-5
+                border-2
+                border-blue-600
+                border-t-transparent
+                rounded-full
+                animate-spin
+              "
+            />
+
+            <p className="text-sm text-slate-500">
+              Loading your goals...
+            </p>
+
+          </div>
+
+        ) : goals.length === 0 ? (
+
+          <div
+            className="
+              rounded-xl
+              border
+              border-dashed
+              border-slate-300
+              bg-slate-50
+              p-8
+              text-center
+            "
+          >
+
+            <div
+              className="
+                w-12
+                h-12
+                mx-auto
+                rounded-xl
+                bg-blue-50
+                text-blue-600
+                flex
+                items-center
+                justify-center
+              "
             >
-              <FolderKanban
-                size={30}
-              />
+              <Target size={24} />
             </div>
 
             <h3
-              className="text-lg
-                         font-bold
-                         text-slate-900"
+              className="
+                mt-4
+                font-semibold
+                text-slate-900
+              "
             >
-              No projects yet
+              No goals yet
             </h3>
 
             <p
-              className="text-sm
-                         text-slate-500
-                         mt-2
-                         max-w-md
-                         mx-auto"
+              className="
+                mt-1
+                text-sm
+                text-slate-500
+              "
             >
-              Add your first project to build
-              your NEXUS project portfolio.
+              Add your first goal and start tracking your progress.
             </p>
 
             <button
-              onClick={
-                openAddProject
-              }
-              className="mt-5
-                         inline-flex
-                         items-center
-                         gap-2
-                         px-4
-                         py-2.5
-                         bg-blue-600
-                         text-white
-                         rounded-xl
-                         text-sm
-                         font-semibold
-                         hover:bg-blue-700"
+              onClick={openAddGoal}
+              className="
+                mt-4
+                inline-flex
+                items-center
+                gap-2
+                px-4
+                py-2
+                rounded-lg
+                bg-white
+                border
+                border-slate-200
+                text-blue-600
+                text-sm
+                font-semibold
+                hover:bg-blue-50
+                transition
+              "
             >
-              <Plus size={17} />
-              Add Your First Project
+              <Plus size={16} />
+              Add Your First Goal
             </button>
 
           </div>
 
         ) : (
 
-          <div
-            className="grid
-                       grid-cols-1
-                       lg:grid-cols-2
-                       gap-5"
-          >
+          <div className="space-y-3">
 
-            {projects.map(
-              (project) => (
+            {goals.map((goal) => {
 
+              const statusClasses =
+                getGoalStatusClasses(
+                  goal.status
+                );
+
+              return (
                 <div
-                  key={project.id}
-                  className="border
-                             border-slate-200
-                             rounded-2xl
-                             p-6
-                             hover:shadow-md
-                             transition"
-                >
-
-                  {/* PROJECT HEADER */}
-
-                  <div
-                    className="flex
-                               items-start
-                               justify-between
-                               gap-3"
-                  >
-
-                    <div
-                      className="flex
-                                 items-start
-                                 gap-3
-                                 min-w-0"
-                    >
-
-                      <div
-                        className="w-12 h-12
-                                   rounded-xl
-                                   bg-blue-50
-                                   text-blue-600
-                                   flex
-                                   items-center
-                                   justify-center
-                                   shrink-0"
-                      >
-                        <FolderKanban
-                          size={23}
-                        />
-                      </div>
-
-                      <div
-                        className="min-w-0"
-                      >
-
-                        <h3
-                          className="text-lg
-                                     font-bold
-                                     text-slate-900
-                                     break-words"
-                        >
-                          {
-                            project.projectTitle
-                          }
-                        </h3>
-
-                        <p
-                          className="text-xs
-                                     text-slate-400
-                                     mt-1"
-                        >
-                          Project #{project.id}
-                        </p>
-
-                      </div>
-
-                    </div>
-
-                    {/* ACTION BUTTONS */}
-
-                    <div
-                      className="flex
-                                 gap-1
-                                 shrink-0"
-                    >
-
-                      <button
-                        onClick={() =>
-                          openEditProject(
-                            project
-                          )
-                        }
-                        className="p-2
-                                   rounded-lg
-                                   text-slate-500
-                                   hover:bg-blue-50
-                                   hover:text-blue-600
-                                   transition"
-                        title="Edit project"
-                      >
-                        <Pencil
-                          size={17}
-                        />
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          handleDeleteProject(
-                            project
-                          )
-                        }
-                        disabled={
-                          deleting
-                        }
-                        className="p-2
-                                   rounded-lg
-                                   text-slate-500
-                                   hover:bg-red-50
-                                   hover:text-red-600
-                                   transition
-                                   disabled:opacity-50"
-                        title="Delete project"
-                      >
-                        <Trash2
-                          size={17}
-                        />
-                      </button>
-
-                    </div>
-
-                  </div>
-
-                  {/* DESCRIPTION */}
-
-                  {project.description && (
-                    <p
-                      className="mt-5
-                                 text-sm
-                                 text-slate-600
-                                 leading-relaxed"
-                    >
-                      {
-                        project.description
-                      }
-                    </p>
-                  )}
-
-                  {/* TECHNOLOGIES */}
-
-                  {project.technologiesUsed && (
-                    <div
-                      className="mt-5"
-                    >
-
-                      <p
-                        className="text-xs
-                                   font-semibold
-                                   text-slate-500
-                                   uppercase
-                                   tracking-wide
-                                   mb-2"
-                      >
-                        Technologies
-                      </p>
-
-                      <div
-                        className="flex
-                                   flex-wrap
-                                   gap-2"
-                      >
-
-                        {project
-                          .technologiesUsed
-                          .split(",")
-                          .map(
-                            (
-                              technology,
-                              index
-                            ) => (
-                              <span
-                                key={`${technology}-${index}`}
-                                className="px-3
-                                           py-1.5
-                                           rounded-lg
-                                           bg-slate-100
-                                           text-slate-700
-                                           text-xs
-                                           font-medium"
-                              >
-                                {
-                                  technology.trim()
-                                }
-                              </span>
-                            )
-                          )}
-
-                      </div>
-
-                    </div>
-                  )}
-
-                  {/* DATES */}
-
-                  {(project.startDate ||
-                    project.endDate) && (
-                    <div
-                      className="mt-5
-                                 flex
-                                 flex-wrap
-                                 gap-4"
-                    >
-
-                      {project.startDate && (
-                        <div
-                          className="flex
-                                     items-center
-                                     gap-2
-                                     text-xs
-                                     text-slate-500"
-                        >
-                          <CalendarDays
-                            size={15}
-                          />
-
-                          <span>
-                            Start:{" "}
-
-                            <span
-                              className="font-medium
-                                         text-slate-700"
-                            >
-                              {formatDate(
-                                project.startDate
-                              )}
-                            </span>
-
-                          </span>
-
-                        </div>
-                      )}
-
-                      {project.endDate && (
-                        <div
-                          className="flex
-                                     items-center
-                                     gap-2
-                                     text-xs
-                                     text-slate-500"
-                        >
-
-                          <CalendarDays
-                            size={15}
-                          />
-
-                          <span>
-                            End:{" "}
-
-                            <span
-                              className="font-medium
-                                         text-slate-700"
-                            >
-                              {formatDate(
-                                project.endDate
-                              )}
-                            </span>
-
-                          </span>
-
-                        </div>
-                      )}
-
-                    </div>
-                  )}
-
-                  {/* ==========================================
-                      PROJECT MEMBERS
-                  ========================================== */}
-
-                  <div
-                    className="mt-6
-                               pt-5
-                               border-t
-                               border-slate-100"
-                  >
-
-                    <div
-                      className="flex
-                                 items-center
-                                 justify-between
-                                 gap-3"
-                    >
-
-                      <div
-                        className="flex
-                                   items-center
-                                   gap-2"
-                      >
-
-                        <Users
-                          size={17}
-                          className="text-blue-600"
-                        />
-
-                        <p
-                          className="text-sm
-                                     font-semibold
-                                     text-slate-800"
-                        >
-                          Team Members
-                        </p>
-
-                        {projectMembers[
-                          project.id
-                        ] && (
-                          <span
-                            className="px-2
-                                       py-0.5
-                                       rounded-full
-                                       bg-blue-50
-                                       text-blue-700
-                                       text-xs
-                                       font-semibold"
-                          >
-                            {
-                              projectMembers[
-                                project.id
-                              ].length
-                            }
-                          </span>
-                        )}
-
-                      </div>
-
-                      <button
-                        onClick={() =>
-                          loadProjectMembers(
-                            project.id
-                          )
-                        }
-                        disabled={
-                          projectMembersLoading[
-                            project.id
-                          ]
-                        }
-                        className="inline-flex
-                                   items-center
-                                   gap-1.5
-                                   px-3
-                                   py-1.5
-                                   rounded-lg
-                                   border
-                                   border-slate-300
-                                   text-slate-600
-                                   text-xs
-                                   font-semibold
-                                   hover:bg-slate-50
-                                   disabled:opacity-50"
-                      >
-
-                        <Users
-                          size={14}
-                        />
-
-                        {projectMembersLoading[
-                          project.id
-                        ]
-                          ? "Loading..."
-                          : projectMembers[
-                              project.id
-                            ]
-                            ? "Refresh"
-                            : "View Members"}
-
-                      </button>
-
-                    </div>
-
-                    {/* MEMBERS LIST */}
-
-                    {projectMembers[
-                      project.id
-                    ] && (
-
-                      <div
-                        className="mt-4
-                                   space-y-2"
-                      >
-
-                        {projectMembers[
-                          project.id
-                        ].length === 0 ? (
-
-                          <div
-                            className="p-4
-                                       rounded-xl
-                                       bg-slate-50
-                                       text-center"
-                          >
-
-                            <p
-                              className="text-sm
-                                         text-slate-500"
-                            >
-                              No members found.
-                            </p>
-
-                          </div>
-
-                        ) : (
-
-                          projectMembers[
-                            project.id
-                          ].map(
-                            (member) => (
-
-                              <div
-                                key={
-                                  member.id
-                                }
-                                className="flex
-                                           items-center
-                                           justify-between
-                                           gap-3
-                                           p-3
-                                           rounded-xl
-                                           bg-slate-50"
-                              >
-
-                                <div
-                                  className="flex
-                                             items-center
-                                             gap-3
-                                             min-w-0"
-                                >
-
-                                  <div
-                                    className="w-9 h-9
-                                               rounded-lg
-                                               bg-blue-100
-                                               text-blue-700
-                                               flex
-                                               items-center
-                                               justify-center
-                                               shrink-0"
-                                  >
-                                    <Users
-                                      size={17}
-                                    />
-                                  </div>
-
-                                  <div
-                                    className="min-w-0"
-                                  >
-
-                                    <p
-                                      className="text-sm
-                                                 font-semibold
-                                                 text-slate-800
-                                                 truncate"
-                                    >
-                                      {
-                                        member.studentName
-                                      }
-                                    </p>
-
-                                    <p
-                                      className="text-xs
-                                                 text-slate-500
-                                                 truncate"
-                                    >
-                                      {
-                                        member.studentEmail
-                                      }
-                                    </p>
-
-                                  </div>
-
-                                </div>
-
-                                <div
-                                  className="flex
-                                            items-center
-                                            gap-2
-                                            shrink-0"
-                                >
-
-                                  <span
-                                    className="px-2.5
-                                                py-1
-                                                rounded-lg
-                                                bg-blue-50
-                                                text-blue-700
-                                                text-xs
-                                                font-semibold
-                                                whitespace-nowrap"
-                                  >
-                                    {getRoleLabel(
-                                      member.role
-                                    )}
-                                  </span>
-
-                                  {member.role !== "LEADER" && (
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        handleRemoveMember(
-                                          project.id,
-                                          member.id,
-                                          member.studentName
-                                        )
-                                      }
-                                      className="inline-flex
-                                                 items-center
-                                                 gap-1.5
-                                                 px-2.5
-                                                 py-1.5
-                                                 rounded-lg
-                                                 border
-                                                 border-red-200
-                                                 text-red-600
-                                                 text-xs
-                                                 font-semibold
-                                                 hover:bg-red-50
-                                                 transition"
-                                      title="Remove member"
-                                    >
-                                      <Trash2 size={13} />
-                                      Remove
-                                    </button>
-                                  )}
-
-                                </div>
-
-                              </div>
-
-                            )
-                          )
-
-                        )}
-
-                      </div>
-                    )}
-
-                  </div>
-
-                  {/* LINKS */}
-
-                  {(project.githubUrl ||
-                    project.liveDemoUrl) && (
-                    <div
-                      className="mt-6
-                                 pt-5
-                                 border-t
-                                 border-slate-100
-                                 flex
-                                 flex-wrap
-                                 gap-3"
-                    >
-
-                      {project.githubUrl && (
-                        <a
-                          href={
-                            project.githubUrl
-                          }
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex
-                                     items-center
-                                     gap-2
-                                     px-3.5
-                                     py-2
-                                     rounded-lg
-                                     bg-slate-900
-                                     text-white
-                                     text-xs
-                                     font-semibold
-                                     hover:bg-slate-800
-                                     transition"
-                        >
-                          <ExternalLink
-                            size={15}
-                          />
-                          GitHub
-                        </a>
-                      )}
-
-                      {project.liveDemoUrl && (
-                        <a
-                          href={
-                            project.liveDemoUrl
-                          }
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex
-                                     items-center
-                                     gap-2
-                                     px-3.5
-                                     py-2
-                                     rounded-lg
-                                     bg-blue-600
-                                     text-white
-                                     text-xs
-                                     font-semibold
-                                     hover:bg-blue-700
-                                     transition"
-                        >
-                          <ExternalLink
-                            size={15}
-                          />
-                          Live Demo
-                        </a>
-                      )}
-
-                    </div>
-                  )}
-
-                </div>
-              )
-            )}
-
-          </div>
-        )}
-
-      </section>
-
-      {/* ==========================================
-          MY PROJECT MEMBERSHIPS
-      ========================================== */}
-
-      <section
-        className="bg-white
-                   rounded-2xl
-                   border
-                   border-slate-200
-                   p-6
-                   mt-6"
-      >
-
-        <div
-          className="flex
-                     items-center
-                     gap-3
-                     mb-6"
-        >
-
-          <div
-            className="p-3
-                       rounded-xl
-                       bg-purple-50
-                       text-purple-600"
-          >
-            <Users
-              size={21}
-            />
-          </div>
-
-          <div>
-
-            <h2
-              className="text-lg
-                         font-bold
-                         text-slate-900"
-            >
-              My Project Memberships
-            </h2>
-
-            <p
-              className="text-sm
-                         text-slate-500
-                         mt-1"
-            >
-              Projects you have joined as a member.
-            </p>
-
-          </div>
-
-        </div>
-
-        {membersLoading ? (
-
-          <div
-            className="py-10
-                       text-center"
-          >
-
-            <div
-              className="w-8 h-8
-                         border-4
-                         border-blue-600
-                         border-t-transparent
-                         rounded-full
-                         animate-spin
-                         mx-auto
-                         mb-3"
-            />
-
-            <p
-              className="text-sm
-                         text-slate-500"
-            >
-              Loading memberships...
-            </p>
-
-          </div>
-
-        ) : memberships.length === 0 ? (
-
-          <div
-            className="py-12
-                       text-center
-                       bg-slate-50
-                       rounded-xl"
-          >
-
-            <Users
-              size={32}
-              className="mx-auto
-                         text-slate-400
-                         mb-3"
-            />
-
-            <h3
-              className="font-semibold
-                         text-slate-800"
-            >
-              No project memberships
-            </h3>
-
-            <p
-              className="text-sm
-                         text-slate-500
-                         mt-1"
-            >
-              Join a project above to see it here.
-            </p>
-
-          </div>
-
-        ) : (
-
-          <div
-            className="space-y-3"
-          >
-
-            {memberships.map(
-              (membership) => (
-
-                <div
-                  key={membership.id}
-                  className="border
-                             border-slate-200
-                             rounded-xl
-                             p-4"
+                  key={goal.id}
+                  className={`
+                    rounded-xl
+                    border
+                    p-4
+                    transition
+                    ${statusClasses.wrapper}
+                  `}
                 >
 
                   <div
-                    className="flex
-                               flex-col
-                               sm:flex-row
-                               sm:items-center
-                               justify-between
-                               gap-4"
+                    className="
+                      flex
+                      items-start
+                      gap-4
+                    "
                   >
 
                     <div
-                      className="flex
-                                 items-center
-                                 gap-3"
+                      className={`
+                        w-10
+                        h-10
+                        rounded-xl
+                        flex
+                        items-center
+                        justify-center
+                        shrink-0
+                        ${statusClasses.icon}
+                      `}
                     >
-
-                      <div
-                        className="w-11 h-11
-                                   rounded-xl
-                                   bg-purple-50
-                                   text-purple-600
-                                   flex
-                                   items-center
-                                   justify-center
-                                   shrink-0"
-                      >
-                        <Users
+                      {goal.status ===
+                      "COMPLETED" ? (
+                        <CheckCircle2
                           size={20}
                         />
-                      </div>
-
-                      <div>
-
-                        <h3
-                          className="font-semibold
-                                     text-slate-900"
-                        >
-                          {
-                            membership.projectTitle
-                          }
-                        </h3>
-
-                        <p
-                          className="text-xs
-                                     text-slate-500
-                                     mt-1"
-                        >
-                          Joined{" "}
-
-                          {formatDate(
-                            membership.joinedAt
-                          )}
-
-                        </p>
-
-                      </div>
-
+                      ) : goal.status ===
+                        "IN_PROGRESS" ? (
+                        <Clock3
+                          size={20}
+                        />
+                      ) : (
+                        <Target
+                          size={20}
+                        />
+                      )}
                     </div>
 
-                    {/* ROLE */}
-
-                    {editingMemberId ===
-                    membership.id ? (
+                    <div className="flex-1 min-w-0">
 
                       <div
-                        className="flex
-                                   flex-col
-                                   sm:flex-row
-                                   gap-2"
+                        className="
+                          flex
+                          flex-col
+                          sm:flex-row
+                          sm:items-center
+                          gap-2
+                        "
                       >
 
-                        <select
-                          value={
-                            editingRole
-                          }
-                          onChange={(
-                            event
-                          ) =>
-                            setEditingRole(
-                              event.target.value
-                            )
-                          }
-                          disabled={
-                            updatingMember
-                          }
-                          className="px-3
-                                     py-2
-                                     rounded-lg
-                                     border
-                                     border-slate-300
-                                     text-sm
-                                     focus:outline-none
-                                     focus:ring-2
-                                     focus:ring-blue-500"
+                        <h3
+                          className="
+                            text-sm
+                            font-bold
+                            text-slate-900
+                          "
                         >
-
-                          {MEMBER_ROLES.map(
-                            (role) => (
-                              <option
-                                key={
-                                  role.value
-                                }
-                                value={
-                                  role.value
-                                }
-                              >
-                                {
-                                  role.label
-                                }
-                              </option>
-                            )
-                          )}
-
-                        </select>
-
-                        <button
-                          onClick={() =>
-                            handleUpdateMember(
-                              membership
-                            )
-                          }
-                          disabled={
-                            updatingMember
-                          }
-                          className="inline-flex
-                                     items-center
-                                     justify-center
-                                     gap-2
-                                     px-3
-                                     py-2
-                                     rounded-lg
-                                     bg-blue-600
-                                     text-white
-                                     text-sm
-                                     font-semibold
-                                     hover:bg-blue-700
-                                     disabled:opacity-50"
-                        >
-                          <Save
-                            size={15}
-                          />
-                          Save
-                        </button>
-
-                        <button
-                          onClick={
-                            cancelEditMember
-                          }
-                          disabled={
-                            updatingMember
-                          }
-                          className="px-3
-                                     py-2
-                                     rounded-lg
-                                     border
-                                     border-slate-300
-                                     text-slate-600
-                                     text-sm
-                                     font-semibold
-                                     hover:bg-slate-50"
-                        >
-                          Cancel
-                        </button>
-
-                      </div>
-
-                    ) : (
-
-                      <div
-                        className="flex
-                                   flex-wrap
-                                   items-center
-                                   gap-2"
-                      >
+                          {goal.title}
+                        </h3>
 
                         <span
-                          className="px-3
-                                     py-1.5
-                                     rounded-lg
-                                     bg-blue-50
-                                     text-blue-700
-                                     text-xs
-                                     font-semibold"
+                          className={`
+                            self-start
+                            px-2.5
+                            py-1
+                            rounded-full
+                            text-[11px]
+                            font-semibold
+                            ${statusClasses.badge}
+                          `}
                         >
-                          {getRoleLabel(
-                            membership.role
+                          {getGoalStatusLabel(
+                            goal.status
                           )}
                         </span>
 
-                        <button
-                          onClick={() =>
-                            startEditMember(
-                              membership
-                            )
-                          }
-                          className="inline-flex
-                                     items-center
-                                     gap-1.5
-                                     px-3
-                                     py-1.5
-                                     rounded-lg
-                                     border
-                                     border-slate-300
-                                     text-slate-600
-                                     text-xs
-                                     font-semibold
-                                     hover:bg-slate-50"
-                        >
-                          <Pencil
-                            size={13}
-                          />
-                          Edit Role
-                        </button>
-
-                        <button
-                          onClick={() =>
-                            handleLeaveProject(
-                              membership
-                            )
-                          }
-                          disabled={
-                            leavingMemberId ===
-                            membership.id
-                          }
-                          className="inline-flex
-                                     items-center
-                                     gap-1.5
-                                     px-3
-                                     py-1.5
-                                     rounded-lg
-                                     border
-                                     border-red-200
-                                     text-red-600
-                                     text-xs
-                                     font-semibold
-                                     hover:bg-red-50
-                                     disabled:opacity-50"
-                        >
-                          <LogOut
-                            size={13}
-                          />
-
-                          {leavingMemberId ===
-                          membership.id
-                            ? "Leaving..."
-                            : "Leave"}
-
-                        </button>
-
                       </div>
 
-                    )}
+                      {goal.description && (
+
+                        <p
+                          className="
+                            mt-2
+                            text-sm
+                            leading-6
+                            text-slate-600
+                          "
+                        >
+                          {goal.description}
+                        </p>
+
+                      )}
+
+                    </div>
+
+                    <div
+                      className="
+                        flex
+                        items-center
+                        gap-1
+                        shrink-0
+                      "
+                    >
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          openEditGoal(goal)
+                        }
+                        className="
+                          p-2
+                          rounded-lg
+                          text-slate-500
+                          hover:bg-white
+                          hover:text-blue-600
+                          transition
+                        "
+                        title="Edit goal"
+                      >
+                        <Pencil size={16} />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleDeleteGoal(
+                            goal
+                          )
+                        }
+                        className="
+                          p-2
+                          rounded-lg
+                          text-slate-500
+                          hover:bg-white
+                          hover:text-red-600
+                          transition
+                        "
+                        title="Delete goal"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+
+                    </div>
 
                   </div>
 
                 </div>
-
-              )
-            )}
+              );
+            })}
 
           </div>
 
@@ -2323,772 +1305,1440 @@ const Projects = () => {
       </section>
 
       {/* ==========================================
-          JOIN PROJECT SECTION
+          AVAILABILITY
       ========================================== */}
 
       <section
-        className="bg-white
-                   rounded-2xl
-                   border
-                   border-slate-200
-                   p-6
-                   mt-6"
+        className="
+          bg-white
+          rounded-2xl
+          border
+          border-slate-200
+          p-6
+          mb-6
+        "
       >
 
         <div
-          className="flex
-                     items-center
-                     gap-3
-                     mb-6"
+          className="
+            flex
+            flex-col
+            sm:flex-row
+            sm:items-center
+            justify-between
+            gap-4
+          "
         >
-
-          <div
-            className="p-3
-                       rounded-xl
-                       bg-green-50
-                       text-green-600"
-          >
-            <UserPlus
-              size={21}
-            />
-          </div>
 
           <div>
 
             <h2
-              className="text-lg
-                         font-bold
-                         text-slate-900"
+              className="
+                text-lg
+                font-bold
+                text-slate-900
+              "
             >
-              Join a Project
+              Availability
             </h2>
 
             <p
-              className="text-sm
-                         text-slate-500
-                         mt-1"
+              className="
+                text-sm
+                text-slate-500
+                mt-1
+              "
             >
-              Join one of your available campus projects.
+              Let other students know when you
+              are available for collaboration.
             </p>
+
+          </div>
+
+          <select
+            value={
+              profile.availabilityStatus || ""
+            }
+            onChange={
+              handleAvailabilityChange
+            }
+            disabled={availabilitySaving}
+            className="
+              w-full
+              sm:w-48
+              px-4
+              py-2.5
+              rounded-xl
+              border
+              border-slate-300
+              bg-white
+              text-sm
+              font-medium
+              text-slate-700
+              focus:outline-none
+              focus:ring-2
+              focus:ring-blue-500
+              disabled:opacity-60
+            "
+          >
+
+            <option value="">
+              Select availability
+            </option>
+
+            <option value="AVAILABLE">
+              Available
+            </option>
+
+            <option value="BUSY">
+              Busy
+            </option>
+
+            <option value="LOOKING_FOR_TEAM">
+              Looking for Team
+            </option>
+
+            <option value="NOT_AVAILABLE">
+              Not Available
+            </option>
+
+          </select>
+
+        </div>
+
+      </section>
+
+      {/* ==========================================
+          CAREER LINKS
+      ========================================== */}
+
+      <section
+        className="
+          bg-white
+          rounded-2xl
+          border
+          border-slate-200
+          p-6
+        "
+      >
+
+        <div
+          className="
+            flex
+            flex-col
+            sm:flex-row
+            sm:items-center
+            justify-between
+            gap-4
+            mb-6
+          "
+        >
+
+          <div className="flex items-center gap-3">
+
+            <div className="p-3 rounded-xl bg-slate-100">
+
+              <Briefcase
+                size={21}
+                className="text-slate-700"
+              />
+
+            </div>
+
+            <div>
+
+              <h2
+                className="
+                  text-lg
+                  font-bold
+                  text-slate-900
+                "
+              >
+                Career Links
+              </h2>
+
+              <p className="text-sm text-slate-500">
+                Your professional and career resources.
+              </p>
+
+            </div>
+
+          </div>
+
+          <button
+            onClick={openSocialEdit}
+            className="
+              flex
+              items-center
+              justify-center
+              gap-2
+              px-4
+              py-2.5
+              border
+              border-slate-300
+              text-slate-700
+              rounded-xl
+              text-sm
+              font-semibold
+              hover:bg-slate-50
+              transition
+            "
+          >
+            <Pencil size={16} />
+            Edit Links
+          </button>
+
+        </div>
+
+        <div
+          className="
+            grid
+            grid-cols-1
+            md:grid-cols-3
+            gap-4
+          "
+        >
+
+          <LinkCard
+            label="GitHub"
+            value={profile.githubUrl}
+          />
+
+          <LinkCard
+            label="LinkedIn"
+            value={profile.linkedinUrl}
+          />
+
+          <LinkCard
+            label="Resume"
+            value={profile.resumeUrl}
+          />
+
+        </div>
+
+      </section>
+
+      {/* ==========================================
+          EDIT PROFILE MODAL
+      ========================================== */}
+
+      {editOpen && (
+
+        <div
+          className="
+            fixed
+            inset-0
+            z-[100]
+            bg-black/50
+            flex
+            items-center
+            justify-center
+            p-4
+          "
+          onMouseDown={(event) => {
+
+            if (
+              event.target ===
+              event.currentTarget
+            ) {
+              setEditOpen(false);
+            }
+
+          }}
+        >
+
+          <div
+            className="
+              w-full
+              max-w-2xl
+              bg-white
+              rounded-2xl
+              shadow-2xl
+              max-h-[90vh]
+              overflow-y-auto
+            "
+          >
+
+            <div
+              className="
+                flex
+                items-center
+                justify-between
+                px-6
+                py-5
+                border-b
+                border-slate-200
+              "
+            >
+
+              <div>
+
+                <h2
+                  className="
+                    text-xl
+                    font-bold
+                    text-slate-900
+                  "
+                >
+                  Edit Profile
+                </h2>
+
+                <p
+                  className="
+                    text-sm
+                    text-slate-500
+                    mt-1
+                  "
+                >
+                  Update your profile information.
+                </p>
+
+              </div>
+
+              <button
+                onClick={() =>
+                  setEditOpen(false)
+                }
+                disabled={saving}
+                className="
+                  p-2
+                  rounded-lg
+                  hover:bg-slate-100
+                  text-slate-500
+                  disabled:opacity-50
+                "
+              >
+                <X size={20} />
+              </button>
+
+            </div>
+
+            <form
+              onSubmit={handleSaveProfile}
+              className="p-6 space-y-5"
+            >
+
+              <div>
+
+                <label
+                  htmlFor="bio"
+                  className="
+                    block
+                    text-sm
+                    font-semibold
+                    text-slate-700
+                    mb-2
+                  "
+                >
+                  Bio
+                </label>
+
+                <textarea
+                  id="bio"
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleChange}
+                  rows={4}
+                  placeholder="Tell others about yourself..."
+                  className="
+                    w-full
+                    px-4
+                    py-3
+                    rounded-xl
+                    border
+                    border-slate-300
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-blue-500
+                    resize-none
+                  "
+                />
+
+              </div>
+
+              <div
+                className="
+                  grid
+                  grid-cols-1
+                  md:grid-cols-2
+                  gap-5
+                "
+              >
+
+                <div>
+
+                  <label
+                    htmlFor="cgpa"
+                    className="
+                      block
+                      text-sm
+                      font-semibold
+                      text-slate-700
+                      mb-2
+                    "
+                  >
+                    CGPA
+                  </label>
+
+                  <input
+                    id="cgpa"
+                    name="cgpa"
+                    type="number"
+                    min="0"
+                    max="10"
+                    step="0.01"
+                    value={formData.cgpa}
+                    onChange={handleChange}
+                    placeholder="e.g. 8.91"
+                    className="
+                      w-full
+                      px-4
+                      py-3
+                      rounded-xl
+                      border
+                      border-slate-300
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-blue-500
+                    "
+                  />
+
+                </div>
+
+                <div>
+
+                  <label
+                    htmlFor="phone"
+                    className="
+                      block
+                      text-sm
+                      font-semibold
+                      text-slate-700
+                      mb-2
+                    "
+                  >
+                    Phone
+                  </label>
+
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    maxLength={10}
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="10 digit phone number"
+                    className="
+                      w-full
+                      px-4
+                      py-3
+                      rounded-xl
+                      border
+                      border-slate-300
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-blue-500
+                    "
+                  />
+
+                  <p
+                    className="
+                      text-xs
+                      text-slate-400
+                      mt-1
+                    "
+                  >
+                    Must contain exactly 10 digits.
+                  </p>
+
+                </div>
+
+              </div>
+
+              <div
+                className="
+                  grid
+                  grid-cols-1
+                  md:grid-cols-2
+                  gap-5
+                "
+              >
+
+                <div>
+
+                  <label
+                    htmlFor="section"
+                    className="
+                      block
+                      text-sm
+                      font-semibold
+                      text-slate-700
+                      mb-2
+                    "
+                  >
+                    Section
+                  </label>
+
+                  <input
+                    id="section"
+                    name="section"
+                    value={formData.section}
+                    onChange={handleChange}
+                    placeholder="e.g. A"
+                    className="
+                      w-full
+                      px-4
+                      py-3
+                      rounded-xl
+                      border
+                      border-slate-300
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-blue-500
+                    "
+                  />
+
+                </div>
+
+                <div>
+
+                  <label
+                    htmlFor="specialization"
+                    className="
+                      block
+                      text-sm
+                      font-semibold
+                      text-slate-700
+                      mb-2
+                    "
+                  >
+                    Specialization
+                  </label>
+
+                  <input
+                    id="specialization"
+                    name="specialization"
+                    value={
+                      formData.specialization
+                    }
+                    onChange={handleChange}
+                    placeholder="e.g. Artificial Intelligence"
+                    className="
+                      w-full
+                      px-4
+                      py-3
+                      rounded-xl
+                      border
+                      border-slate-300
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-blue-500
+                    "
+                  />
+
+                </div>
+
+              </div>
+
+              <div
+                className="
+                  flex
+                  justify-end
+                  gap-3
+                  pt-4
+                  border-t
+                  border-slate-200
+                "
+              >
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditOpen(false)
+                  }
+                  disabled={saving}
+                  className="
+                    px-5
+                    py-2.5
+                    rounded-xl
+                    border
+                    border-slate-300
+                    text-slate-700
+                    font-semibold
+                    hover:bg-slate-50
+                  "
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="
+                    flex
+                    items-center
+                    gap-2
+                    px-5
+                    py-2.5
+                    rounded-xl
+                    bg-blue-600
+                    text-white
+                    font-semibold
+                    hover:bg-blue-700
+                    disabled:opacity-60
+                  "
+                >
+
+                  {saving ? (
+                    <>
+                      <div
+                        className="
+                          w-4
+                          h-4
+                          border-2
+                          border-white
+                          border-t-transparent
+                          rounded-full
+                          animate-spin
+                        "
+                      />
+
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save size={17} />
+                      Save Changes
+                    </>
+                  )}
+
+                </button>
+
+              </div>
+
+            </form>
 
           </div>
 
         </div>
 
-        {availableProjects.length === 0 ? (
-
-          <div
-            className="p-5
-                       rounded-xl
-                       bg-slate-50
-                       text-sm
-                       text-slate-500"
-          >
-            No projects are currently available to
-            join.
-          </div>
-
-        ) : (
-
-          <div
-            className="grid
-                       grid-cols-1
-                       lg:grid-cols-2
-                       gap-4"
-          >
-
-            {availableProjects.map(
-              (project) => {
-
-                const alreadyJoined =
-                  memberships.some(
-                    (membership) =>
-                      membership.projectTitle ===
-                      project.projectTitle
-                  );
-
-                return (
-                  <div
-                    key={`join-${project.id}`}
-                    className="border
-                               border-slate-200
-                               rounded-xl
-                               p-5"
-                  >
-
-                    <div
-                      className="flex
-                                 items-start
-                                 justify-between
-                                 gap-3"
-                    >
-
-                      <div>
-
-                        <h3
-                          className="font-semibold
-                                     text-slate-900"
-                        >
-                          {
-                            project.projectTitle
-                          }
-                        </h3>
-
-                        {project.description && (
-                          <p
-                            className="text-sm
-                                       text-slate-500
-                                       mt-1
-                                       line-clamp-2"
-                          >
-                            {
-                              project.description
-                            }
-                          </p>
-                        )}
-
-                      </div>
-
-                      <FolderKanban
-                        size={20}
-                        className="text-blue-600
-                                   shrink-0"
-                      />
-
-                    </div>
-
-                    {joinProjectId ===
-                    project.id ? (
-
-                      <div
-                        className="mt-4
-                                   pt-4
-                                   border-t
-                                   border-slate-200"
-                      >
-
-                        <label
-                          className="block
-                                     text-xs
-                                     font-semibold
-                                     text-slate-600
-                                     mb-2"
-                        >
-                          Select your role
-                        </label>
-
-                        <select
-                          value={joinRole}
-                          onChange={(
-                            event
-                          ) =>
-                            setJoinRole(
-                              event.target.value
-                            )
-                          }
-                          disabled={
-                            joining
-                          }
-                          className="w-full
-                                     px-3
-                                     py-2.5
-                                     rounded-lg
-                                     border
-                                     border-slate-300
-                                     text-sm
-                                     focus:outline-none
-                                     focus:ring-2
-                                     focus:ring-blue-500"
-                        >
-
-                          {MEMBER_ROLES.map(
-                            (role) => (
-                              <option
-                                key={
-                                  role.value
-                                }
-                                value={
-                                  role.value
-                                }
-                              >
-                                {
-                                  role.label
-                                }
-                              </option>
-                            )
-                          )}
-
-                        </select>
-
-                        <div
-                          className="flex
-                                     gap-2
-                                     mt-3"
-                        >
-
-                          <button
-                            onClick={() =>
-                              handleJoinProject(
-                                project.id
-                              )
-                            }
-                            disabled={
-                              joining
-                            }
-                            className="flex-1
-                                       inline-flex
-                                       items-center
-                                       justify-center
-                                       gap-2
-                                       px-4
-                                       py-2.5
-                                       bg-blue-600
-                                       text-white
-                                       rounded-lg
-                                       text-sm
-                                       font-semibold
-                                       hover:bg-blue-700
-                                       disabled:opacity-50"
-                          >
-
-                            <UserPlus
-                              size={16}
-                            />
-
-                            {joining
-                              ? "Joining..."
-                              : "Confirm Join"}
-
-                          </button>
-
-                          <button
-                            onClick={
-                              cancelJoin
-                            }
-                            disabled={
-                              joining
-                            }
-                            className="px-4
-                                       py-2.5
-                                       rounded-lg
-                                       border
-                                       border-slate-300
-                                       text-slate-600
-                                       text-sm
-                                       font-semibold
-                                       hover:bg-slate-50"
-                          >
-                            Cancel
-                          </button>
-
-                        </div>
-
-                      </div>
-
-                    ) : alreadyJoined ? (
-
-                      <div
-                        className="mt-4
-                                   px-3
-                                   py-2.5
-                                   rounded-lg
-                                   bg-green-50
-                                   text-green-700
-                                   text-xs
-                                   font-semibold
-                                   text-center"
-                      >
-                        Already a member
-                      </div>
-
-                    ) : (
-
-                      <button
-                        onClick={() =>
-                          openJoinProject(
-                            project.id
-                          )
-                        }
-                        className="mt-4
-                                   w-full
-                                   inline-flex
-                                   items-center
-                                   justify-center
-                                   gap-2
-                                   px-4
-                                   py-2.5
-                                   rounded-lg
-                                   bg-blue-600
-                                   text-white
-                                   text-sm
-                                   font-semibold
-                                   hover:bg-blue-700
-                                   transition"
-                      >
-                        <UserPlus
-                          size={16}
-                        />
-                        Join Project
-                      </button>
-
-                    )}
-
-                  </div>
-                );
-              }
-            )}
-
-          </div>
-
-        )}
-
-      </section>
-
-      {/* ==========================================
-          ADD PROJECT MODAL
-      ========================================== */}
-
-      {addOpen && (
-        <ProjectModal
-          title="Add Project"
-          subtitle="Add your project details to NEXUS."
-          formData={formData}
-          handleChange={handleChange}
-          handleSubmit={handleAddProject}
-          onClose={closeAddModal}
-          saving={saving}
-          submitText="Add Project"
-        />
       )}
 
       {/* ==========================================
-          EDIT PROJECT MODAL
+          EDIT SOCIAL LINKS MODAL
       ========================================== */}
 
-      {editOpen && (
-        <ProjectModal
-          title="Edit Project"
-          subtitle="Update your project information."
-          formData={formData}
-          handleChange={handleChange}
-          handleSubmit={handleUpdateProject}
-          onClose={closeEditModal}
-          saving={saving}
-          submitText="Save Changes"
-        />
+      {socialEditOpen && (
+
+        <div
+          className="
+            fixed
+            inset-0
+            z-[100]
+            bg-black/50
+            flex
+            items-center
+            justify-center
+            p-4
+          "
+          onMouseDown={(event) => {
+
+            if (
+              event.target ===
+              event.currentTarget
+            ) {
+              setSocialEditOpen(false);
+            }
+
+          }}
+        >
+
+          <div
+            className="
+              w-full
+              max-w-lg
+              bg-white
+              rounded-2xl
+              shadow-2xl
+            "
+          >
+
+            <div
+              className="
+                flex
+                items-center
+                justify-between
+                px-6
+                py-5
+                border-b
+                border-slate-200
+              "
+            >
+
+              <div>
+
+                <h2
+                  className="
+                    text-xl
+                    font-bold
+                    text-slate-900
+                  "
+                >
+                  Edit Career Links
+                </h2>
+
+                <p
+                  className="
+                    text-sm
+                    text-slate-500
+                    mt-1
+                  "
+                >
+                  Add your professional links.
+                </p>
+
+              </div>
+
+              <button
+                onClick={() =>
+                  setSocialEditOpen(false)
+                }
+                disabled={saving}
+                className="
+                  p-2
+                  rounded-lg
+                  hover:bg-slate-100
+                  text-slate-500
+                "
+              >
+                <X size={20} />
+              </button>
+
+            </div>
+
+            <form
+              onSubmit={handleSaveSocialLinks}
+              className="p-6 space-y-5"
+            >
+
+              <div>
+
+                <label
+                  htmlFor="githubUrl"
+                  className="
+                    block
+                    text-sm
+                    font-semibold
+                    text-slate-700
+                    mb-2
+                  "
+                >
+                  GitHub URL
+                </label>
+
+                <div className="relative">
+
+                  <Link
+                    size={17}
+                    className="
+                      absolute
+                      left-3
+                      top-1/2
+                      -translate-y-1/2
+                      text-slate-400
+                    "
+                  />
+
+                  <input
+                    id="githubUrl"
+                    name="githubUrl"
+                    type="url"
+                    value={
+                      socialData.githubUrl
+                    }
+                    onChange={
+                      handleSocialChange
+                    }
+                    placeholder="https://github.com/username"
+                    className="
+                      w-full
+                      pl-10
+                      pr-4
+                      py-3
+                      rounded-xl
+                      border
+                      border-slate-300
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-blue-500
+                    "
+                  />
+
+                </div>
+
+              </div>
+
+              <div>
+
+                <label
+                  htmlFor="linkedinUrl"
+                  className="
+                    block
+                    text-sm
+                    font-semibold
+                    text-slate-700
+                    mb-2
+                  "
+                >
+                  LinkedIn URL
+                </label>
+
+                <div className="relative">
+
+                  <Link
+                    size={17}
+                    className="
+                      absolute
+                      left-3
+                      top-1/2
+                      -translate-y-1/2
+                      text-slate-400
+                    "
+                  />
+
+                  <input
+                    id="linkedinUrl"
+                    name="linkedinUrl"
+                    type="url"
+                    value={
+                      socialData.linkedinUrl
+                    }
+                    onChange={
+                      handleSocialChange
+                    }
+                    placeholder="https://linkedin.com/in/username"
+                    className="
+                      w-full
+                      pl-10
+                      pr-4
+                      py-3
+                      rounded-xl
+                      border
+                      border-slate-300
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-blue-500
+                    "
+                  />
+
+                </div>
+
+              </div>
+
+              <div>
+
+                <label
+                  htmlFor="resumeUrl"
+                  className="
+                    block
+                    text-sm
+                    font-semibold
+                    text-slate-700
+                    mb-2
+                  "
+                >
+                  Resume URL
+                </label>
+
+                <div className="relative">
+
+                  <FileText
+                    size={17}
+                    className="
+                      absolute
+                      left-3
+                      top-1/2
+                      -translate-y-1/2
+                      text-slate-400
+                    "
+                  />
+
+                  <input
+                    id="resumeUrl"
+                    name="resumeUrl"
+                    type="url"
+                    value={
+                      socialData.resumeUrl
+                    }
+                    onChange={
+                      handleSocialChange
+                    }
+                    placeholder="https://example.com/resume.pdf"
+                    className="
+                      w-full
+                      pl-10
+                      pr-4
+                      py-3
+                      rounded-xl
+                      border
+                      border-slate-300
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-blue-500
+                    "
+                  />
+
+                </div>
+
+              </div>
+
+              <div
+                className="
+                  flex
+                  justify-end
+                  gap-3
+                  pt-4
+                  border-t
+                  border-slate-200
+                "
+              >
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSocialEditOpen(
+                      false
+                    )
+                  }
+                  disabled={saving}
+                  className="
+                    px-5
+                    py-2.5
+                    rounded-xl
+                    border
+                    border-slate-300
+                    text-slate-700
+                    font-semibold
+                    hover:bg-slate-50
+                  "
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="
+                    flex
+                    items-center
+                    gap-2
+                    px-5
+                    py-2.5
+                    rounded-xl
+                    bg-blue-600
+                    text-white
+                    font-semibold
+                    hover:bg-blue-700
+                    disabled:opacity-60
+                  "
+                >
+
+                  {saving ? (
+                    <>
+                      <div
+                        className="
+                          w-4
+                          h-4
+                          border-2
+                          border-white
+                          border-t-transparent
+                          rounded-full
+                          animate-spin
+                        "
+                      />
+
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save size={17} />
+                      Save Links
+                    </>
+                  )}
+
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
+
+        </div>
+
+      )}
+
+      {/* ==========================================
+          ADD / EDIT GOAL MODAL
+      ========================================== */}
+
+      {goalModalOpen && (
+
+        <div
+          className="
+            fixed
+            inset-0
+            z-[100]
+            bg-black/50
+            flex
+            items-center
+            justify-center
+            p-4
+          "
+          onMouseDown={(event) => {
+
+            if (
+              event.target ===
+              event.currentTarget
+            ) {
+              if (!goalSaving) {
+                setGoalModalOpen(false);
+                resetGoalForm();
+              }
+            }
+
+          }}
+        >
+
+          <div
+            className="
+              w-full
+              max-w-lg
+              bg-white
+              rounded-2xl
+              shadow-2xl
+            "
+          >
+
+            {/* MODAL HEADER */}
+
+            <div
+              className="
+                flex
+                items-center
+                justify-between
+                px-6
+                py-5
+                border-b
+                border-slate-200
+              "
+            >
+
+              <div>
+
+                <h2
+                  className="
+                    text-xl
+                    font-bold
+                    text-slate-900
+                  "
+                >
+                  {editingGoal
+                    ? "Edit Goal"
+                    : "Add Goal"}
+                </h2>
+
+                <p
+                  className="
+                    text-sm
+                    text-slate-500
+                    mt-1
+                  "
+                >
+                  {editingGoal
+                    ? "Update your goal and track its progress."
+                    : "Add a new academic or career goal."}
+                </p>
+
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (!goalSaving) {
+                    setGoalModalOpen(false);
+                    resetGoalForm();
+                  }
+                }}
+                disabled={goalSaving}
+                className="
+                  p-2
+                  rounded-lg
+                  hover:bg-slate-100
+                  text-slate-500
+                  disabled:opacity-50
+                "
+              >
+                <X size={20} />
+              </button>
+
+            </div>
+
+            {/* MODAL FORM */}
+
+            <form
+              onSubmit={handleSaveGoal}
+              className="p-6 space-y-5"
+            >
+
+              {/* TITLE */}
+
+              <div>
+
+                <label
+                  htmlFor="goalTitle"
+                  className="
+                    block
+                    text-sm
+                    font-semibold
+                    text-slate-700
+                    mb-2
+                  "
+                >
+                  Goal Title
+                </label>
+
+                <input
+                  id="goalTitle"
+                  name="title"
+                  value={goalForm.title}
+                  onChange={handleGoalChange}
+                  placeholder="e.g. Complete AWS Certification"
+                  maxLength={200}
+                  required
+                  className="
+                    w-full
+                    px-4
+                    py-3
+                    rounded-xl
+                    border
+                    border-slate-300
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-blue-500
+                  "
+                />
+
+              </div>
+
+              {/* DESCRIPTION */}
+
+              <div>
+
+                <label
+                  htmlFor="goalDescription"
+                  className="
+                    block
+                    text-sm
+                    font-semibold
+                    text-slate-700
+                    mb-2
+                  "
+                >
+                  Description
+                </label>
+
+                <textarea
+                  id="goalDescription"
+                  name="description"
+                  value={
+                    goalForm.description
+                  }
+                  onChange={handleGoalChange}
+                  rows={4}
+                  placeholder="Describe what you want to achieve..."
+                  className="
+                    w-full
+                    px-4
+                    py-3
+                    rounded-xl
+                    border
+                    border-slate-300
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-blue-500
+                    resize-none
+                  "
+                />
+
+              </div>
+
+              {/* STATUS */}
+
+              <div>
+
+                <label
+                  htmlFor="goalStatus"
+                  className="
+                    block
+                    text-sm
+                    font-semibold
+                    text-slate-700
+                    mb-2
+                  "
+                >
+                  Status
+                </label>
+
+                <select
+                  id="goalStatus"
+                  name="status"
+                  value={goalForm.status}
+                  onChange={handleGoalChange}
+                  className="
+                    w-full
+                    px-4
+                    py-3
+                    rounded-xl
+                    border
+                    border-slate-300
+                    bg-white
+                    text-slate-700
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-blue-500
+                  "
+                >
+
+                  <option value="NOT_STARTED">
+                    Not Started
+                  </option>
+
+                  <option value="IN_PROGRESS">
+                    In Progress
+                  </option>
+
+                  <option value="COMPLETED">
+                    Completed
+                  </option>
+
+                </select>
+
+              </div>
+
+              {/* ACTIONS */}
+
+              <div
+                className="
+                  flex
+                  justify-end
+                  gap-3
+                  pt-4
+                  border-t
+                  border-slate-200
+                "
+              >
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGoalModalOpen(false);
+                    resetGoalForm();
+                  }}
+                  disabled={goalSaving}
+                  className="
+                    px-5
+                    py-2.5
+                    rounded-xl
+                    border
+                    border-slate-300
+                    text-slate-700
+                    font-semibold
+                    hover:bg-slate-50
+                    disabled:opacity-60
+                  "
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={goalSaving}
+                  className="
+                    flex
+                    items-center
+                    gap-2
+                    px-5
+                    py-2.5
+                    rounded-xl
+                    bg-blue-600
+                    text-white
+                    font-semibold
+                    hover:bg-blue-700
+                    disabled:opacity-60
+                  "
+                >
+
+                  {goalSaving ? (
+                    <>
+                      <div
+                        className="
+                          w-4
+                          h-4
+                          border-2
+                          border-white
+                          border-t-transparent
+                          rounded-full
+                          animate-spin
+                        "
+                      />
+
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save size={17} />
+
+                      {editingGoal
+                        ? "Update Goal"
+                        : "Add Goal"}
+                    </>
+                  )}
+
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
+
+        </div>
+
       )}
 
     </DashboardLayout>
   );
 };
 
-// ==========================================
-// PROJECT MODAL
-// ==========================================
+/* ==========================================
+   INFO ITEM
+========================================== */
 
-const ProjectModal = ({
-  title,
-  subtitle,
-  formData,
-  handleChange,
-  handleSubmit,
-  onClose,
-  saving,
-  submitText,
-}) => {
-  return (
-    <div
-      className="fixed
-                 inset-0
-                 z-[100]
-                 bg-black/50
-                 flex
-                 items-center
-                 justify-center
-                 p-4"
-      onMouseDown={(event) => {
-        if (
-          event.target ===
-          event.currentTarget
-        ) {
-          onClose();
-        }
-      }}
-    >
-
-      <div
-        className="w-full
-                   max-w-2xl
-                   max-h-[90vh]
-                   overflow-y-auto
-                   bg-white
-                   rounded-2xl
-                   shadow-2xl"
-      >
-
-        {/* HEADER */}
-
-        <div
-          className="sticky
-                     top-0
-                     z-10
-                     bg-white
-                     flex
-                     items-center
-                     justify-between
-                     px-6
-                     py-5
-                     border-b
-                     border-slate-200"
-        >
-
-          <div>
-
-            <h2
-              className="text-xl
-                         font-bold
-                         text-slate-900"
-            >
-              {title}
-            </h2>
-
-            <p
-              className="text-sm
-                         text-slate-500
-                         mt-1"
-            >
-              {subtitle}
-            </p>
-
-          </div>
-
-          <button
-            onClick={onClose}
-            disabled={saving}
-            className="p-2
-                       rounded-lg
-                       hover:bg-slate-100
-                       text-slate-500
-                       disabled:opacity-50"
-          >
-            <X size={20} />
-          </button>
-
-        </div>
-
-        {/* FORM */}
-
-        <form
-          onSubmit={handleSubmit}
-          className="p-6 space-y-5"
-        >
-
-          <FormField
-            label="Project Title"
-            required
-          >
-            <input
-              name="projectTitle"
-              type="text"
-              value={
-                formData.projectTitle
-              }
-              onChange={
-                handleChange
-              }
-              placeholder="e.g. Smart Queue Management"
-              className="input-field"
-            />
-          </FormField>
-
-          <FormField label="Description">
-            <textarea
-              name="description"
-              value={
-                formData.description
-              }
-              onChange={
-                handleChange
-              }
-              placeholder="Describe your project..."
-              rows={4}
-              className="input-field resize-none"
-            />
-          </FormField>
-
-          <FormField label="Technologies Used">
-            <input
-              name="technologiesUsed"
-              type="text"
-              value={
-                formData.technologiesUsed
-              }
-              onChange={
-                handleChange
-              }
-              placeholder="Java, Spring Boot, PostgreSQL, React"
-              className="input-field"
-            />
-
-            <p
-              className="text-xs
-                         text-slate-400
-                         mt-1"
-            >
-              Separate technologies with commas.
-            </p>
-          </FormField>
-
-          <div
-            className="grid
-                       grid-cols-1
-                       md:grid-cols-2
-                       gap-4"
-          >
-
-            <FormField label="GitHub URL">
-              <input
-                name="githubUrl"
-                type="url"
-                value={
-                  formData.githubUrl
-                }
-                onChange={
-                  handleChange
-                }
-                placeholder="https://github.com/..."
-                className="input-field"
-              />
-            </FormField>
-
-            <FormField label="Live Demo URL">
-              <input
-                name="liveDemoUrl"
-                type="url"
-                value={
-                  formData.liveDemoUrl
-                }
-                onChange={
-                  handleChange
-                }
-                placeholder="https://..."
-                className="input-field"
-              />
-            </FormField>
-
-          </div>
-
-          <div
-            className="grid
-                       grid-cols-1
-                       md:grid-cols-2
-                       gap-4"
-          >
-
-            <FormField label="Start Date">
-              <input
-                name="startDate"
-                type="date"
-                value={
-                  formData.startDate
-                }
-                onChange={
-                  handleChange
-                }
-                className="input-field"
-              />
-            </FormField>
-
-            <FormField label="End Date">
-              <input
-                name="endDate"
-                type="date"
-                value={
-                  formData.endDate
-                }
-                onChange={
-                  handleChange
-                }
-                className="input-field"
-              />
-            </FormField>
-
-          </div>
-
-          {/* BUTTONS */}
-
-          <div
-            className="flex
-                       justify-end
-                       gap-3
-                       pt-5
-                       border-t
-                       border-slate-200"
-          >
-
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={saving}
-              className="px-5
-                         py-2.5
-                         rounded-xl
-                         border
-                         border-slate-300
-                         text-slate-700
-                         font-semibold
-                         hover:bg-slate-50
-                         disabled:opacity-50"
-            >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex
-                         items-center
-                         gap-2
-                         px-5
-                         py-2.5
-                         rounded-xl
-                         bg-blue-600
-                         text-white
-                         font-semibold
-                         hover:bg-blue-700
-                         disabled:opacity-60"
-            >
-
-              {saving ? (
-                <>
-                  <div
-                    className="w-4 h-4
-                               border-2
-                               border-white
-                               border-t-transparent
-                               rounded-full
-                               animate-spin"
-                  />
-
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save
-                    size={17}
-                  />
-                  {submitText}
-                </>
-              )}
-
-            </button>
-
-          </div>
-
-        </form>
-
-      </div>
-
-    </div>
-  );
-};
-
-// ==========================================
-// SUMMARY CARD
-// ==========================================
-
-const SummaryCard = ({
-  title,
+const InfoItem = ({
+  label,
   value,
   icon,
 }) => {
   return (
     <div
-      className="bg-white
-                 rounded-2xl
-                 border
-                 border-slate-200
-                 p-5"
+      className="
+        rounded-xl
+        bg-slate-50
+        p-4
+      "
     >
 
       <div
-        className="flex
-                   items-center
-                   justify-between"
+        className="
+          flex
+          items-center
+          gap-2
+          text-xs
+          font-medium
+          text-slate-500
+          mb-2
+        "
       >
+        {icon}
 
-        <div>
-
-          <p
-            className="text-sm
-                       text-slate-500"
-          >
-            {title}
-          </p>
-
-          <p
-            className="text-2xl
-                       font-bold
-                       text-slate-900
-                       mt-2"
-          >
-            {value}
-          </p>
-
-        </div>
-
-        <div
-          className="p-3
-                     rounded-xl
-                     bg-blue-50
-                     text-blue-600"
-        >
-          {icon}
-        </div>
+        <span>
+          {label}
+        </span>
 
       </div>
 
+      <p
+        className="
+          text-sm
+          font-semibold
+          text-slate-900
+        "
+      >
+        {value || "Not provided"}
+      </p>
+
     </div>
   );
 };
 
-// ==========================================
-// FORM FIELD
-// ==========================================
+/* ==========================================
+   LINK CARD
+========================================== */
 
-const FormField = ({
+const LinkCard = ({
   label,
-  required = false,
-  children,
+  value,
 }) => {
   return (
-    <div>
+    <div
+      className="
+        rounded-xl
+        border
+        border-slate-200
+        p-4
+      "
+    >
 
-      <label
-        className="block
-                   text-sm
-                   font-semibold
-                   text-slate-700
-                   mb-2"
+      <div
+        className="
+          flex
+          items-center
+          gap-2
+          text-slate-700
+          mb-2
+        "
       >
 
-        {label}
+        <Link size={19} />
 
-        {required && (
-          <span
-            className="text-red-500
-                       ml-1"
-          >
-            *
-          </span>
-        )}
+        <span
+          className="
+            text-sm
+            font-semibold
+          "
+        >
+          {label}
+        </span>
 
-      </label>
+      </div>
 
-      {children}
+      {value ? (
+
+        <a
+          href={value}
+          target="_blank"
+          rel="noreferrer"
+          className="
+            text-sm
+            text-blue-600
+            hover:underline
+            break-all
+          "
+        >
+          {value}
+        </a>
+
+      ) : (
+
+        <p className="text-sm text-slate-400">
+          Not provided
+        </p>
+
+      )}
 
     </div>
   );
 };
 
-export default Projects;
+export default Profile;
