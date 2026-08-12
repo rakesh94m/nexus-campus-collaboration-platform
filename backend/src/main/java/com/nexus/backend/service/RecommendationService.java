@@ -6,6 +6,9 @@ import java.util.List;
 
 public interface RecommendationService {
 
-    List<RecommendationResponse> recommendProjects(Long studentId);
+    // =========================================
+    // Get AI Project Recommendations
+    // =========================================
 
+    List<RecommendationResponse> recommendProjects();
 }

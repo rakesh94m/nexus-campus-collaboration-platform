@@ -13,6 +13,7 @@ import Collaboration from "../pages/collaboration/Collaboration";
 import Students from "../pages/students/Students";
 
 import Notifications from "../pages/notifications/Notifications";
+import Recommendations from "../pages/recommendations/Recommendations";
 
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -41,7 +42,9 @@ const AppRoutes = () => {
 
       <Route element={<ProtectedRoute />}>
 
-        {/* Dashboard */}
+        {/* ==========================================
+            DASHBOARD
+        ========================================== */}
 
         <Route
           path="/dashboard"
@@ -49,7 +52,9 @@ const AppRoutes = () => {
         />
 
 
-        {/* Profile */}
+        {/* ==========================================
+            PROFILE
+        ========================================== */}
 
         <Route
           path="/profile"
@@ -57,7 +62,9 @@ const AppRoutes = () => {
         />
 
 
-        {/* Skills */}
+        {/* ==========================================
+            SKILLS
+        ========================================== */}
 
         <Route
           path="/skills"
@@ -65,7 +72,9 @@ const AppRoutes = () => {
         />
 
 
-        {/* Interests */}
+        {/* ==========================================
+            INTERESTS
+        ========================================== */}
 
         <Route
           path="/interests"
@@ -73,7 +82,9 @@ const AppRoutes = () => {
         />
 
 
-        {/* Projects */}
+        {/* ==========================================
+            PROJECTS
+        ========================================== */}
 
         <Route
           path="/projects"
@@ -81,7 +92,9 @@ const AppRoutes = () => {
         />
 
 
-        {/* Collaboration */}
+        {/* ==========================================
+            COLLABORATION
+        ========================================== */}
 
         <Route
           path="/collaboration"
@@ -89,7 +102,9 @@ const AppRoutes = () => {
         />
 
 
-        {/* Students */}
+        {/* ==========================================
+            STUDENTS
+        ========================================== */}
 
         <Route
           path="/students"
@@ -97,11 +112,23 @@ const AppRoutes = () => {
         />
 
 
-        {/* Notifications */}
+        {/* ==========================================
+            NOTIFICATIONS
+        ========================================== */}
 
         <Route
           path="/notifications"
           element={<Notifications />}
+        />
+
+
+        {/* ==========================================
+            AI RECOMMENDATIONS
+        ========================================== */}
+
+        <Route
+          path="/recommendations"
+          element={<Recommendations />}
         />
 
       </Route>

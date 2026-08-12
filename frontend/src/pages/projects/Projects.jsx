@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
   Plus,
@@ -76,6 +77,8 @@ const MEMBER_ROLES = [
 // ==========================================
 
 const Projects = () => {
+  const navigate = useNavigate();
+
   // ==========================================
   // PROJECT STATE
   // ==========================================
@@ -995,24 +998,57 @@ const Projects = () => {
 
         </div>
 
-        <button
-          onClick={openAddProject}
+        <div
           className="flex
-                     items-center
-                     justify-center
-                     gap-2
-                     px-5
-                     py-3
-                     bg-blue-600
-                     text-white
-                     rounded-xl
-                     font-semibold
-                     hover:bg-blue-700
-                     transition"
+                     flex-col
+                     sm:flex-row
+                     items-stretch
+                     sm:items-center
+                     gap-3"
         >
-          <Plus size={19} />
-          Add Project
-        </button>
+
+          <button
+            type="button"
+            onClick={() => navigate("/recommendations")}
+            className="inline-flex
+                       items-center
+                       justify-center
+                       gap-2
+                       px-5
+                       py-3
+                       bg-purple-600
+                       text-white
+                       rounded-xl
+                       font-semibold
+                       hover:bg-purple-700
+                       transition
+                       shadow-sm"
+          >
+            <Sparkles size={19} />
+            AI Recommendations
+          </button>
+
+          <button
+            type="button"
+            onClick={openAddProject}
+            className="inline-flex
+                       items-center
+                       justify-center
+                       gap-2
+                       px-5
+                       py-3
+                       bg-blue-600
+                       text-white
+                       rounded-xl
+                       font-semibold
+                       hover:bg-blue-700
+                       transition"
+          >
+            <Plus size={19} />
+            Add Project
+          </button>
+
+        </div>
 
       </section>
 
@@ -1057,6 +1093,113 @@ const Projects = () => {
             <Sparkles size={21} />
           }
         />
+
+      </section>
+
+      {/* ==========================================
+          AI PROJECT RECOMMENDATIONS
+      ========================================== */}
+
+      <section
+        className="mb-6
+                   rounded-2xl
+                   border
+                   border-purple-200
+                   bg-gradient-to-r
+                   from-purple-50
+                   via-white
+                   to-blue-50
+                   p-6
+                   shadow-sm"
+      >
+
+        <div
+          className="flex
+                     flex-col
+                     md:flex-row
+                     md:items-center
+                     md:justify-between
+                     gap-5"
+        >
+
+          <div
+            className="flex
+                       items-start
+                       gap-4"
+          >
+
+            <div
+              className="w-12 h-12
+                         rounded-xl
+                         bg-purple-100
+                         text-purple-600
+                         flex
+                         items-center
+                         justify-center
+                         shrink-0"
+            >
+              <Sparkles size={24} />
+            </div>
+
+            <div>
+
+              <p
+                className="text-xs
+                           font-bold
+                           uppercase
+                           tracking-wider
+                           text-purple-600"
+              >
+                NEXUS AI
+              </p>
+
+              <h2
+                className="text-xl
+                           font-bold
+                           text-slate-900
+                           mt-1"
+              >
+                Find projects that fit you
+              </h2>
+
+              <p
+                className="text-sm
+                           text-slate-600
+                           mt-1
+                           max-w-2xl"
+              >
+                Get AI-powered project recommendations
+                based on your skills, interests, profile,
+                and career goals.
+              </p>
+
+            </div>
+
+          </div>
+
+          <button
+            type="button"
+            onClick={() => navigate("/recommendations")}
+            className="inline-flex
+                       items-center
+                       justify-center
+                       gap-2
+                       px-5
+                       py-2.5
+                       rounded-xl
+                       bg-purple-600
+                       text-white
+                       text-sm
+                       font-semibold
+                       hover:bg-purple-700
+                       transition
+                       whitespace-nowrap"
+          >
+            <Sparkles size={17} />
+            View Recommendations
+          </button>
+
+        </div>
 
       </section>
 

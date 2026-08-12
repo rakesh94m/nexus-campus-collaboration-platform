@@ -13,14 +13,12 @@ const Sidebar = ({
 }) => {
 
   return (
-
     <>
       {/* ==========================================
           MOBILE OVERLAY
       ========================================== */}
 
       {isOpen && (
-
         <div
           className="
             fixed
@@ -31,9 +29,7 @@ const Sidebar = ({
           "
           onClick={onClose}
         />
-
       )}
-
 
       {/* ==========================================
           SIDEBAR
@@ -78,7 +74,6 @@ const Sidebar = ({
             border-slate-200
           "
         >
-
           <span
             className="
               text-xl
@@ -88,16 +83,13 @@ const Sidebar = ({
           >
             NEXUS
           </span>
-
         </div>
-
 
         {/* ==========================================
             NAVIGATION
         ========================================== */}
 
         <nav className="p-4 space-y-1">
-
 
           {/* ==========================================
               DASHBOARD
@@ -126,15 +118,12 @@ const Sidebar = ({
               `
             }
           >
-
             <LayoutDashboard size={18} />
 
             <span>
               Dashboard
             </span>
-
           </NavLink>
-
 
           {/* ==========================================
               PROJECTS
@@ -163,15 +152,12 @@ const Sidebar = ({
               `
             }
           >
-
             <FolderKanban size={18} />
 
             <span>
               Projects
             </span>
-
           </NavLink>
-
 
           {/* ==========================================
               COLLABORATION
@@ -200,15 +186,12 @@ const Sidebar = ({
               `
             }
           >
-
             <Users size={18} />
 
             <span>
               Collaboration
             </span>
-
           </NavLink>
-
 
           {/* ==========================================
               FIND STUDENTS
@@ -237,19 +220,16 @@ const Sidebar = ({
               `
             }
           >
-
             <UserSearch size={18} />
 
             <span>
               Find Students
             </span>
-
           </NavLink>
 
         </nav>
 
       </aside>
-
     </>
   );
 };

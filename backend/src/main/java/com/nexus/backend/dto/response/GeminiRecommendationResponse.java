@@ -1,6 +1,10 @@
 package com.nexus.backend.dto.response;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -16,6 +20,6 @@ public class GeminiRecommendationResponse {
     private String learningRoadmap;
 
     private String careerAdvice;
-    private String recommendedCertification;
 
+    private String recommendedCertification;
 }

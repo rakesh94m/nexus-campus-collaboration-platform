@@ -2,7 +2,11 @@ package com.nexus.backend.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nexus.backend.entity.Project;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -19,7 +23,10 @@ public class RecommendationResponse {
 
     private Double matchScore;
 
-    // Gemini Output
+    // =========================================
+    // Gemini AI Output
+    // =========================================
+
     private String reason;
 
     private String missingSkills;
@@ -28,8 +35,12 @@ public class RecommendationResponse {
 
     private String careerAdvice;
 
-    // Internal relationship for quick access (Hidden from Postman/Frontend)
+    private String recommendedCertification;
+
+    // =========================================
+    // Internal Project Object
+    // =========================================
+
     @JsonIgnore
     private Project project;
-    private String recommendedCertification;
 }

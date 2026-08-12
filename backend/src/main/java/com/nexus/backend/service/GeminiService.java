@@ -6,10 +6,13 @@ import com.nexus.backend.entity.Student;
 
 public interface GeminiService {
 
+    // =========================================
+    // Generate AI Recommendation
+    // =========================================
+
     GeminiRecommendationResponse generateRecommendation(
             Student student,
             Project project,
             Double matchScore
     );
-
 }
