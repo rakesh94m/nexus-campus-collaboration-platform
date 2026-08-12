@@ -6,6 +6,11 @@ import java.util.List;
 
 public interface MatchingService {
 
-    List<MatchResponse> getProjectMatches(Long studentId);
+    // =========================================
+    // Get AI Recommended Projects
+    // for logged-in student
+    // =========================================
+
+    List<MatchResponse> getProjectMatches();
 
 }

@@ -47,14 +47,16 @@ public class SkillServiceImpl implements SkillService {
     // Mapper
     // =========================================
 
-    private SkillResponse mapToResponse(StudentSkill studentSkill) {
+
+        private SkillResponse mapToResponse(StudentSkill studentSkill) {
 
         return SkillResponse.builder()
                 .id(studentSkill.getId())
+                .skillId(studentSkill.getSkill().getId())
                 .skillName(studentSkill.getSkill().getSkillName())
                 .proficiency(studentSkill.getProficiency())
                 .build();
-    }
+        }
 
     // =========================================
     // Add Skill

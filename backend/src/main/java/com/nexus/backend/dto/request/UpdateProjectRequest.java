@@ -1,9 +1,11 @@
 package com.nexus.backend.dto.request;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -11,6 +13,10 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class UpdateProjectRequest {
+
+    // =========================================
+    // Project Information
+    // =========================================
 
     @NotBlank(message = "Project title is required.")
     private String projectTitle;
@@ -26,4 +32,11 @@ public class UpdateProjectRequest {
     private LocalDate startDate;
 
     private LocalDate endDate;
+
+    // =========================================
+    // Required Project Skills
+    // =========================================
+
+    @Valid
+    private List<ProjectSkillRequest> requiredSkills;
 }

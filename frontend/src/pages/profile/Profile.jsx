@@ -10,10 +10,16 @@ import {
   X,
   Save,
   Link,
+  Award,
+  Heart,
+  Target,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
 import DashboardLayout from "../../components/layout/DashboardLayout";
+
 import {
   getMyProfile,
   updateProfile,
@@ -21,8 +27,16 @@ import {
   updateAvailability,
 } from "../../services/studentService";
 
+import { getMySkills } from "../../services/skillService";
+import { getMyInterests } from "../../services/interestService";
+import { getMyGoals } from "../../services/goalService";
+
 const Profile = () => {
   const [profile, setProfile] = useState(null);
+
+  const [skills, setSkills] = useState([]);
+  const [interests, setInterests] = useState([]);
+  const [goals, setGoals] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -30,7 +44,8 @@ const Profile = () => {
   const [editOpen, setEditOpen] = useState(false);
   const [socialEditOpen, setSocialEditOpen] = useState(false);
 
-  const [availabilitySaving, setAvailabilitySaving] = useState(false);
+  const [availabilitySaving, setAvailabilitySaving] =
+    useState(false);
 
   const [formData, setFormData] = useState({
     bio: "",
@@ -50,33 +65,111 @@ const Profile = () => {
     loadProfile();
   }, []);
 
+  // ==========================================
+  // LOAD PROFILE + SKILLS + INTERESTS + GOALS
+  // ==========================================
+
   const loadProfile = async () => {
     try {
-      const data = await getMyProfile();
+      const [
+        profileResult,
+        skillsResult,
+        interestsResult,
+        goalsResult,
+      ] = await Promise.allSettled([
+        getMyProfile(),
+        getMySkills(),
+        getMyInterests(),
+        getMyGoals(),
+      ]);
 
-      setProfile(data);
+      // ========================================
+      // PROFILE
+      // ========================================
 
-      setFormData({
-        bio: data.bio || "",
-        cgpa: data.cgpa ?? "",
-        phone: data.phone || "",
-        section: data.section || "",
-        specialization: data.specialization || "",
-      });
+      if (profileResult.status === "fulfilled") {
+        const data = profileResult.value;
 
-      setSocialData({
-        githubUrl: data.githubUrl || "",
-        linkedinUrl: data.linkedinUrl || "",
-        resumeUrl: data.resumeUrl || "",
-      });
+        setProfile(data);
+
+        setFormData({
+          bio: data.bio || "",
+          cgpa: data.cgpa ?? "",
+          phone: data.phone || "",
+          section: data.section || "",
+          specialization:
+            data.specialization || "",
+        });
+
+        setSocialData({
+          githubUrl: data.githubUrl || "",
+          linkedinUrl: data.linkedinUrl || "",
+          resumeUrl: data.resumeUrl || "",
+        });
+      } else {
+        console.error(
+          "Profile error:",
+          profileResult.reason
+        );
+
+        const message =
+          profileResult.reason?.response?.data?.message ||
+          "Unable to load profile.";
+
+        toast.error(message);
+      }
+
+      // ========================================
+      // SKILLS
+      // ========================================
+
+      if (skillsResult.status === "fulfilled") {
+        setSkills(skillsResult.value || []);
+      } else {
+        console.error(
+          "Skills error:",
+          skillsResult.reason
+        );
+
+        setSkills([]);
+      }
+
+      // ========================================
+      // INTERESTS
+      // ========================================
+
+      if (interestsResult.status === "fulfilled") {
+        setInterests(interestsResult.value || []);
+      } else {
+        console.error(
+          "Interests error:",
+          interestsResult.reason
+        );
+
+        setInterests([]);
+      }
+
+      // ========================================
+      // GOALS
+      // ========================================
+
+      if (goalsResult.status === "fulfilled") {
+        setGoals(goalsResult.value || []);
+      } else {
+        console.error(
+          "Goals error:",
+          goalsResult.reason
+        );
+
+        setGoals([]);
+      }
     } catch (error) {
-      console.error("Profile error:", error);
+      console.error("Profile loading error:", error);
 
-      const message =
+      toast.error(
         error.response?.data?.message ||
-        "Unable to load profile.";
-
-      toast.error(message);
+          "Unable to load profile."
+      );
     } finally {
       setLoading(false);
     }
@@ -112,7 +205,8 @@ const Profile = () => {
         specialization: formData.specialization,
       };
 
-      const updatedProfile = await updateProfile(payload);
+      const updatedProfile =
+        await updateProfile(payload);
 
       setProfile(updatedProfile);
 
@@ -127,9 +221,14 @@ const Profile = () => {
 
       setEditOpen(false);
 
-      toast.success("Profile updated successfully!");
+      toast.success(
+        "Profile updated successfully!"
+      );
     } catch (error) {
-      console.error("Update profile error:", error);
+      console.error(
+        "Update profile error:",
+        error
+      );
 
       const message =
         error.response?.data?.message ||
@@ -147,7 +246,8 @@ const Profile = () => {
       cgpa: profile.cgpa ?? "",
       phone: profile.phone || "",
       section: profile.section || "",
-      specialization: profile.specialization || "",
+      specialization:
+        profile.specialization || "",
     });
 
     setEditOpen(true);
@@ -188,16 +288,24 @@ const Profile = () => {
       setProfile(updatedProfile);
 
       setSocialData({
-        githubUrl: updatedProfile.githubUrl || "",
-        linkedinUrl: updatedProfile.linkedinUrl || "",
-        resumeUrl: updatedProfile.resumeUrl || "",
+        githubUrl:
+          updatedProfile.githubUrl || "",
+        linkedinUrl:
+          updatedProfile.linkedinUrl || "",
+        resumeUrl:
+          updatedProfile.resumeUrl || "",
       });
 
       setSocialEditOpen(false);
 
-      toast.success("Career links updated successfully!");
+      toast.success(
+        "Career links updated successfully!"
+      );
     } catch (error) {
-      console.error("Social links error:", error);
+      console.error(
+        "Social links error:",
+        error
+      );
 
       const message =
         error.response?.data?.message ||
@@ -213,7 +321,9 @@ const Profile = () => {
   // AVAILABILITY
   // ==========================================
 
-  const handleAvailabilityChange = async (event) => {
+  const handleAvailabilityChange = async (
+    event
+  ) => {
     const newStatus = event.target.value;
 
     setAvailabilitySaving(true);
@@ -226,9 +336,14 @@ const Profile = () => {
 
       setProfile(updatedProfile);
 
-      toast.success("Availability updated successfully!");
+      toast.success(
+        "Availability updated successfully!"
+      );
     } catch (error) {
-      console.error("Availability error:", error);
+      console.error(
+        "Availability error:",
+        error
+      );
 
       const message =
         error.response?.data?.message ||
@@ -237,6 +352,37 @@ const Profile = () => {
       toast.error(message);
     } finally {
       setAvailabilitySaving(false);
+    }
+  };
+
+  // ==========================================
+  // HELPERS
+  // ==========================================
+
+  const formatGoalStatus = (status) => {
+    if (!status) return "Not specified";
+
+    return status
+      .replaceAll("_", " ")
+      .toLowerCase()
+      .replace(/\b\w/g, (letter) =>
+        letter.toUpperCase()
+      );
+  };
+
+  const getGoalStatusStyle = (status) => {
+    switch (status) {
+      case "COMPLETED":
+        return "bg-green-50 text-green-700";
+
+      case "IN_PROGRESS":
+        return "bg-blue-50 text-blue-700";
+
+      case "NOT_STARTED":
+        return "bg-slate-100 text-slate-700";
+
+      default:
+        return "bg-slate-100 text-slate-700";
     }
   };
 
@@ -250,9 +396,15 @@ const Profile = () => {
         <div className="text-center">
 
           <div
-            className="w-10 h-10 border-4 border-blue-600
-                       border-t-transparent rounded-full
-                       animate-spin mx-auto mb-4"
+            className="
+              w-10 h-10
+              border-4
+              border-blue-600
+              border-t-transparent
+              rounded-full
+              animate-spin
+              mx-auto mb-4
+            "
           />
 
           <p className="text-slate-600 font-medium">
@@ -264,14 +416,22 @@ const Profile = () => {
     );
   }
 
+  // ==========================================
+  // PROFILE NOT FOUND
+  // ==========================================
+
   if (!profile) {
     return (
       <DashboardLayout>
 
         <div
-          className="bg-white rounded-2xl
-                     border border-slate-200
-                     p-8 text-center"
+          className="
+            bg-white
+            rounded-2xl
+            border border-slate-200
+            p-8
+            text-center
+          "
         >
           <p className="text-slate-600">
             Profile information could not be loaded.
@@ -310,24 +470,41 @@ const Profile = () => {
       ========================================== */}
 
       <section
-        className="bg-white rounded-2xl
-                   border border-slate-200
-                   p-6 mb-6"
+        className="
+          bg-white
+          rounded-2xl
+          border border-slate-200
+          p-6
+          mb-6
+        "
       >
 
         <div
-          className="flex flex-col sm:flex-row
-                     items-start sm:items-center
-                     gap-5"
+          className="
+            flex
+            flex-col
+            sm:flex-row
+            items-start
+            sm:items-center
+            gap-5
+          "
         >
 
           {/* Avatar */}
 
           <div
-            className="w-24 h-24 rounded-2xl
-                       bg-blue-600 text-white
-                       flex items-center justify-center
-                       text-4xl font-bold shrink-0"
+            className="
+              w-24 h-24
+              rounded-2xl
+              bg-blue-600
+              text-white
+              flex
+              items-center
+              justify-center
+              text-4xl
+              font-bold
+              shrink-0
+            "
           >
             {profile.firstName
               ?.charAt(0)
@@ -339,38 +516,64 @@ const Profile = () => {
           <div className="flex-1">
 
             <h2
-              className="text-2xl font-bold
-                         text-slate-900"
+              className="
+                text-2xl
+                font-bold
+                text-slate-900
+              "
             >
-              {profile.firstName} {profile.lastName}
+              {profile.firstName}{" "}
+              {profile.lastName}
             </h2>
 
             <p className="text-slate-500 mt-1">
               {profile.email}
             </p>
 
-            <div className="flex flex-wrap gap-2 mt-3">
+            <div
+              className="
+                flex
+                flex-wrap
+                gap-2
+                mt-3
+              "
+            >
 
               <span
-                className="px-3 py-1 rounded-full
-                           bg-blue-50 text-blue-700
-                           text-xs font-semibold"
+                className="
+                  px-3 py-1
+                  rounded-full
+                  bg-blue-50
+                  text-blue-700
+                  text-xs
+                  font-semibold
+                "
               >
                 {profile.role}
               </span>
 
               <span
-                className="px-3 py-1 rounded-full
-                           bg-green-50 text-green-700
-                           text-xs font-semibold"
+                className="
+                  px-3 py-1
+                  rounded-full
+                  bg-green-50
+                  text-green-700
+                  text-xs
+                  font-semibold
+                "
               >
                 {profile.availabilityStatus}
               </span>
 
               <span
-                className="px-3 py-1 rounded-full
-                           bg-slate-100 text-slate-600
-                           text-xs font-semibold"
+                className="
+                  px-3 py-1
+                  rounded-full
+                  bg-slate-100
+                  text-slate-600
+                  text-xs
+                  font-semibold
+                "
               >
                 {profile.accountStatus}
               </span>
@@ -383,13 +586,20 @@ const Profile = () => {
 
           <button
             onClick={openEditProfile}
-            className="flex items-center gap-2
-                       px-4 py-2.5
-                       bg-blue-600 text-white
-                       rounded-xl text-sm
-                       font-semibold
-                       hover:bg-blue-700
-                       transition"
+            className="
+              flex
+              items-center
+              gap-2
+              px-4
+              py-2.5
+              bg-blue-600
+              text-white
+              rounded-xl
+              text-sm
+              font-semibold
+              hover:bg-blue-700
+              transition
+            "
           >
             <Pencil size={17} />
             Edit Profile
@@ -404,25 +614,34 @@ const Profile = () => {
       ========================================== */}
 
       <section
-        className="bg-white rounded-2xl
-                   border border-slate-200
-                   p-6 mb-6"
+        className="
+          bg-white
+          rounded-2xl
+          border border-slate-200
+          p-6
+          mb-6
+        "
       >
 
         <div className="flex items-center gap-3 mb-6">
 
           <div className="p-3 rounded-xl bg-blue-50">
+
             <User
               size={21}
               className="text-blue-600"
             />
+
           </div>
 
           <div>
 
             <h2
-              className="text-lg font-bold
-                         text-slate-900"
+              className="
+                text-lg
+                font-bold
+                text-slate-900
+              "
             >
               Personal Information
             </h2>
@@ -436,8 +655,12 @@ const Profile = () => {
         </div>
 
         <div
-          className="grid grid-cols-1
-                     md:grid-cols-2 gap-5"
+          className="
+            grid
+            grid-cols-1
+            md:grid-cols-2
+            gap-5
+          "
         >
 
           <InfoItem
@@ -502,25 +725,34 @@ const Profile = () => {
       ========================================== */}
 
       <section
-        className="bg-white rounded-2xl
-                   border border-slate-200
-                   p-6 mb-6"
+        className="
+          bg-white
+          rounded-2xl
+          border border-slate-200
+          p-6
+          mb-6
+        "
       >
 
         <div className="flex items-center gap-3 mb-5">
 
           <div className="p-3 rounded-xl bg-purple-50">
+
             <FileText
               size={21}
               className="text-purple-600"
             />
+
           </div>
 
           <div>
 
             <h2
-              className="text-lg font-bold
-                         text-slate-900"
+              className="
+                text-lg
+                font-bold
+                text-slate-900
+              "
             >
               About
             </h2>
@@ -534,8 +766,10 @@ const Profile = () => {
         </div>
 
         <p
-          className="text-slate-600
-                     leading-relaxed"
+          className="
+            text-slate-600
+            leading-relaxed
+          "
         >
           {profile.bio ||
             "No bio has been added yet."}
@@ -544,26 +778,660 @@ const Profile = () => {
       </section>
 
       {/* ==========================================
+          SKILLS
+      ========================================== */}
+
+      <section
+        className="
+          bg-white
+          rounded-2xl
+          border border-slate-200
+          p-6
+          mb-6
+        "
+      >
+
+        <div
+          className="
+            flex
+            flex-col
+            sm:flex-row
+            sm:items-center
+            justify-between
+            gap-4
+            mb-6
+          "
+        >
+
+          <div className="flex items-center gap-3">
+
+            <div
+              className="
+                p-3
+                rounded-xl
+                bg-blue-50
+              "
+            >
+
+              <Award
+                size={21}
+                className="text-blue-600"
+              />
+
+            </div>
+
+            <div>
+
+              <h2
+                className="
+                  text-lg
+                  font-bold
+                  text-slate-900
+                "
+              >
+                Skills
+              </h2>
+
+              <p className="text-sm text-slate-500">
+                Your technical and professional skills.
+              </p>
+
+            </div>
+
+          </div>
+
+          <a
+            href="/skills"
+            className="
+              inline-flex
+              items-center
+              justify-center
+              gap-2
+              px-4
+              py-2.5
+              border
+              border-slate-300
+              text-slate-700
+              rounded-xl
+              text-sm
+              font-semibold
+              hover:bg-slate-50
+              transition
+            "
+          >
+            Manage Skills
+            <ArrowRight size={16} />
+          </a>
+
+        </div>
+
+        {skills.length === 0 ? (
+
+          <div
+            className="
+              rounded-xl
+              bg-slate-50
+              p-8
+              text-center
+            "
+          >
+
+            <Award
+              size={30}
+              className="
+                mx-auto
+                text-slate-400
+                mb-3
+              "
+            />
+
+            <h3
+              className="
+                font-semibold
+                text-slate-800
+              "
+            >
+              No skills added yet
+            </h3>
+
+            <p
+              className="
+                text-sm
+                text-slate-500
+                mt-1
+              "
+            >
+              Add skills to improve your
+              project matching and recommendations.
+            </p>
+
+          </div>
+
+        ) : (
+
+          <div
+            className="
+              flex
+              flex-wrap
+              gap-3
+            "
+          >
+
+            {skills.map((skill) => (
+
+              <div
+                key={skill.id}
+                className="
+                  flex
+                  items-center
+                  gap-3
+                  px-4
+                  py-3
+                  rounded-xl
+                  border
+                  border-slate-200
+                  bg-slate-50
+                "
+              >
+
+                <div
+                  className="
+                    w-9
+                    h-9
+                    rounded-lg
+                    bg-blue-50
+                    text-blue-600
+                    flex
+                    items-center
+                    justify-center
+                    font-bold
+                  "
+                >
+                  {skill.skillName
+                    ?.charAt(0)
+                    ?.toUpperCase()}
+                </div>
+
+                <div>
+
+                  <p
+                    className="
+                      text-sm
+                      font-bold
+                      text-slate-900
+                    "
+                  >
+                    {skill.skillName}
+                  </p>
+
+                  <p
+                    className="
+                      text-xs
+                      text-slate-500
+                      mt-0.5
+                    "
+                  >
+                    {formatGoalStatus(
+                      skill.proficiency
+                    )}
+                  </p>
+
+                </div>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        )}
+
+      </section>
+
+      {/* ==========================================
+          INTERESTS
+      ========================================== */}
+
+      <section
+        className="
+          bg-white
+          rounded-2xl
+          border border-slate-200
+          p-6
+          mb-6
+        "
+      >
+
+        <div
+          className="
+            flex
+            flex-col
+            sm:flex-row
+            sm:items-center
+            justify-between
+            gap-4
+            mb-6
+          "
+        >
+
+          <div className="flex items-center gap-3">
+
+            <div
+              className="
+                p-3
+                rounded-xl
+                bg-pink-50
+              "
+            >
+
+              <Heart
+                size={21}
+                className="text-pink-600"
+              />
+
+            </div>
+
+            <div>
+
+              <h2
+                className="
+                  text-lg
+                  font-bold
+                  text-slate-900
+                "
+              >
+                Interests
+              </h2>
+
+              <p className="text-sm text-slate-500">
+                Areas and topics you are interested in.
+              </p>
+
+            </div>
+
+          </div>
+
+          <a
+            href="/interests"
+            className="
+              inline-flex
+              items-center
+              justify-center
+              gap-2
+              px-4
+              py-2.5
+              border
+              border-slate-300
+              text-slate-700
+              rounded-xl
+              text-sm
+              font-semibold
+              hover:bg-slate-50
+              transition
+            "
+          >
+            Manage Interests
+            <ArrowRight size={16} />
+          </a>
+
+        </div>
+
+        {interests.length === 0 ? (
+
+          <div
+            className="
+              rounded-xl
+              bg-slate-50
+              p-8
+              text-center
+            "
+          >
+
+            <Heart
+              size={30}
+              className="
+                mx-auto
+                text-slate-400
+                mb-3
+              "
+            />
+
+            <h3
+              className="
+                font-semibold
+                text-slate-800
+              "
+            >
+              No interests added yet
+            </h3>
+
+            <p
+              className="
+                text-sm
+                text-slate-500
+                mt-1
+              "
+            >
+              Add your interests to improve
+              recommendations and matching.
+            </p>
+
+          </div>
+
+        ) : (
+
+          <div
+            className="
+              flex
+              flex-wrap
+              gap-3
+            "
+          >
+
+            {interests.map((interest) => (
+
+              <div
+                key={interest.id}
+                className="
+                  flex
+                  items-center
+                  gap-3
+                  px-4
+                  py-3
+                  rounded-xl
+                  border
+                  border-slate-200
+                  bg-slate-50
+                "
+              >
+
+                <div
+                  className="
+                    w-9
+                    h-9
+                    rounded-lg
+                    bg-pink-50
+                    text-pink-600
+                    flex
+                    items-center
+                    justify-center
+                  "
+                >
+                  <Heart size={17} />
+                </div>
+
+                <p
+                  className="
+                    text-sm
+                    font-bold
+                    text-slate-900
+                  "
+                >
+                  {interest.interestName}
+                </p>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        )}
+
+      </section>
+
+      {/* ==========================================
+          GOALS
+      ========================================== */}
+
+      <section
+        className="
+          bg-white
+          rounded-2xl
+          border border-slate-200
+          p-6
+          mb-6
+        "
+      >
+
+        <div
+          className="
+            flex
+            flex-col
+            sm:flex-row
+            sm:items-center
+            justify-between
+            gap-4
+            mb-6
+          "
+        >
+
+          <div className="flex items-center gap-3">
+
+            <div
+              className="
+                p-3
+                rounded-xl
+                bg-amber-50
+              "
+            >
+
+              <Target
+                size={21}
+                className="text-amber-600"
+              />
+
+            </div>
+
+            <div>
+
+              <h2
+                className="
+                  text-lg
+                  font-bold
+                  text-slate-900
+                "
+              >
+                Goals
+              </h2>
+
+              <p className="text-sm text-slate-500">
+                Your current academic and career goals.
+              </p>
+
+            </div>
+
+          </div>
+
+          <a
+            href="/goals"
+            className="
+              inline-flex
+              items-center
+              justify-center
+              gap-2
+              px-4
+              py-2.5
+              border
+              border-slate-300
+              text-slate-700
+              rounded-xl
+              text-sm
+              font-semibold
+              hover:bg-slate-50
+              transition
+            "
+          >
+            Manage Goals
+            <ArrowRight size={16} />
+          </a>
+
+        </div>
+
+        {goals.length === 0 ? (
+
+          <div
+            className="
+              rounded-xl
+              bg-slate-50
+              p-8
+              text-center
+            "
+          >
+
+            <Target
+              size={30}
+              className="
+                mx-auto
+                text-slate-400
+                mb-3
+              "
+            />
+
+            <h3
+              className="
+                font-semibold
+                text-slate-800
+              "
+            >
+              No goals added yet
+            </h3>
+
+            <p
+              className="
+                text-sm
+                text-slate-500
+                mt-1
+              "
+            >
+              Add goals to make your profile
+              more complete.
+            </p>
+
+          </div>
+
+        ) : (
+
+          <div className="space-y-3">
+
+            {goals.map((goal) => (
+
+              <div
+                key={goal.id}
+                className="
+                  border
+                  border-slate-200
+                  rounded-xl
+                  p-4
+                  hover:shadow-sm
+                  transition
+                "
+              >
+
+                <div
+                  className="
+                    flex
+                    flex-col
+                    sm:flex-row
+                    sm:items-start
+                    justify-between
+                    gap-3
+                  "
+                >
+
+                  <div className="flex-1">
+
+                    <h3
+                      className="
+                        font-bold
+                        text-slate-900
+                      "
+                    >
+                      {goal.title}
+                    </h3>
+
+                    {goal.description && (
+
+                      <p
+                        className="
+                          text-sm
+                          text-slate-500
+                          mt-1
+                          leading-relaxed
+                        "
+                      >
+                        {goal.description}
+                      </p>
+
+                    )}
+
+                  </div>
+
+                  <span
+                    className={`
+                      inline-flex
+                      items-center
+                      px-3
+                      py-1.5
+                      rounded-full
+                      text-xs
+                      font-semibold
+                      shrink-0
+                      ${getGoalStatusStyle(
+                        goal.status
+                      )}
+                    `}
+                  >
+                    {formatGoalStatus(
+                      goal.status
+                    )}
+                  </span>
+
+                </div>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        )}
+
+      </section>
+
+      {/* ==========================================
           AVAILABILITY
       ========================================== */}
 
       <section
-        className="bg-white rounded-2xl
-                   border border-slate-200
-                   p-6 mb-6"
+        className="
+          bg-white
+          rounded-2xl
+          border border-slate-200
+          p-6
+          mb-6
+        "
       >
 
         <div
-          className="flex flex-col sm:flex-row
-                     sm:items-center
-                     justify-between gap-4"
+          className="
+            flex
+            flex-col
+            sm:flex-row
+            sm:items-center
+            justify-between
+            gap-4
+          "
         >
 
           <div>
 
             <h2
-              className="text-lg font-bold
-                         text-slate-900"
+              className="
+                text-lg
+                font-bold
+                text-slate-900
+              "
             >
               Availability
             </h2>
@@ -576,20 +1444,28 @@ const Profile = () => {
           </div>
 
           <select
-            value={profile.availabilityStatus || ""}
+            value={
+              profile.availabilityStatus || ""
+            }
             onChange={handleAvailabilityChange}
             disabled={availabilitySaving}
-            className="w-full sm:w-48
-                       px-4 py-2.5
-                       rounded-xl
-                       border border-slate-300
-                       bg-white
-                       text-sm font-medium
-                       text-slate-700
-                       focus:outline-none
-                       focus:ring-2
-                       focus:ring-blue-500
-                       disabled:opacity-60"
+            className="
+              w-full
+              sm:w-48
+              px-4
+              py-2.5
+              rounded-xl
+              border
+              border-slate-300
+              bg-white
+              text-sm
+              font-medium
+              text-slate-700
+              focus:outline-none
+              focus:ring-2
+              focus:ring-blue-500
+              disabled:opacity-60
+            "
           >
 
             <option value="">
@@ -597,19 +1473,19 @@ const Profile = () => {
             </option>
 
             <option value="AVAILABLE">
-            Available
+              Available
             </option>
 
             <option value="BUSY">
-            Busy
+              Busy
             </option>
 
             <option value="LOOKING_FOR_TEAM">
-            Looking for Team
+              Looking for Team
             </option>
 
             <option value="NOT_AVAILABLE">
-            Not Available
+              Not Available
             </option>
 
           </select>
@@ -623,20 +1499,35 @@ const Profile = () => {
       ========================================== */}
 
       <section
-        className="bg-white rounded-2xl
-                   border border-slate-200
-                   p-6"
+        className="
+          bg-white
+          rounded-2xl
+          border border-slate-200
+          p-6
+        "
       >
 
         <div
-          className="flex flex-col sm:flex-row
-                     sm:items-center
-                     justify-between gap-4 mb-6"
+          className="
+            flex
+            flex-col
+            sm:flex-row
+            sm:items-center
+            justify-between
+            gap-4
+            mb-6
+          "
         >
 
           <div className="flex items-center gap-3">
 
-            <div className="p-3 rounded-xl bg-slate-100">
+            <div
+              className="
+                p-3
+                rounded-xl
+                bg-slate-100
+              "
+            >
 
               <Briefcase
                 size={21}
@@ -648,8 +1539,11 @@ const Profile = () => {
             <div>
 
               <h2
-                className="text-lg font-bold
-                           text-slate-900"
+                className="
+                  text-lg
+                  font-bold
+                  text-slate-900
+                "
               >
                 Career Links
               </h2>
@@ -664,15 +1558,22 @@ const Profile = () => {
 
           <button
             onClick={openSocialEdit}
-            className="flex items-center
-                       justify-center gap-2
-                       px-4 py-2.5
-                       border border-slate-300
-                       text-slate-700
-                       rounded-xl
-                       text-sm font-semibold
-                       hover:bg-slate-50
-                       transition"
+            className="
+              flex
+              items-center
+              justify-center
+              gap-2
+              px-4
+              py-2.5
+              border
+              border-slate-300
+              text-slate-700
+              rounded-xl
+              text-sm
+              font-semibold
+              hover:bg-slate-50
+              transition
+            "
           >
             <Pencil size={16} />
             Edit Links
@@ -681,8 +1582,12 @@ const Profile = () => {
         </div>
 
         <div
-          className="grid grid-cols-1
-                     md:grid-cols-3 gap-4"
+          className="
+            grid
+            grid-cols-1
+            md:grid-cols-3
+            gap-4
+          "
         >
 
           <LinkCard
@@ -711,10 +1616,16 @@ const Profile = () => {
       {editOpen && (
 
         <div
-          className="fixed inset-0 z-[100]
-                     bg-black/50
-                     flex items-center
-                     justify-center p-4"
+          className="
+            fixed
+            inset-0
+            z-[100]
+            bg-black/50
+            flex
+            items-center
+            justify-center
+            p-4
+          "
           onMouseDown={(event) => {
 
             if (
@@ -728,33 +1639,47 @@ const Profile = () => {
         >
 
           <div
-            className="w-full max-w-2xl
-                       bg-white rounded-2xl
-                       shadow-2xl
-                       max-h-[90vh]
-                       overflow-y-auto"
+            className="
+              w-full
+              max-w-2xl
+              bg-white
+              rounded-2xl
+              shadow-2xl
+              max-h-[90vh]
+              overflow-y-auto
+            "
           >
 
             <div
-              className="flex items-center
-                         justify-between
-                         px-6 py-5
-                         border-b
-                         border-slate-200"
+              className="
+                flex
+                items-center
+                justify-between
+                px-6
+                py-5
+                border-b
+                border-slate-200
+              "
             >
 
               <div>
 
                 <h2
-                  className="text-xl font-bold
-                             text-slate-900"
+                  className="
+                    text-xl
+                    font-bold
+                    text-slate-900
+                  "
                 >
                   Edit Profile
                 </h2>
 
                 <p
-                  className="text-sm text-slate-500
-                             mt-1"
+                  className="
+                    text-sm
+                    text-slate-500
+                    mt-1
+                  "
                 >
                   Update your profile information.
                 </p>
@@ -764,10 +1689,13 @@ const Profile = () => {
               <button
                 onClick={() => setEditOpen(false)}
                 disabled={saving}
-                className="p-2 rounded-lg
-                           hover:bg-slate-100
-                           text-slate-500
-                           disabled:opacity-50"
+                className="
+                  p-2
+                  rounded-lg
+                  hover:bg-slate-100
+                  text-slate-500
+                  disabled:opacity-50
+                "
               >
                 <X size={20} />
               </button>
@@ -783,9 +1711,13 @@ const Profile = () => {
 
                 <label
                   htmlFor="bio"
-                  className="block text-sm
-                             font-semibold
-                             text-slate-700 mb-2"
+                  className="
+                    block
+                    text-sm
+                    font-semibold
+                    text-slate-700
+                    mb-2
+                  "
                 >
                   Bio
                 </label>
@@ -797,29 +1729,42 @@ const Profile = () => {
                   onChange={handleChange}
                   rows={4}
                   placeholder="Tell others about yourself..."
-                  className="w-full px-4 py-3
-                             rounded-xl
-                             border border-slate-300
-                             focus:outline-none
-                             focus:ring-2
-                             focus:ring-blue-500
-                             resize-none"
+                  className="
+                    w-full
+                    px-4
+                    py-3
+                    rounded-xl
+                    border
+                    border-slate-300
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-blue-500
+                    resize-none
+                  "
                 />
 
               </div>
 
               <div
-                className="grid grid-cols-1
-                           md:grid-cols-2 gap-5"
+                className="
+                  grid
+                  grid-cols-1
+                  md:grid-cols-2
+                  gap-5
+                "
               >
 
                 <div>
 
                   <label
                     htmlFor="cgpa"
-                    className="block text-sm
-                               font-semibold
-                               text-slate-700 mb-2"
+                    className="
+                      block
+                      text-sm
+                      font-semibold
+                      text-slate-700
+                      mb-2
+                    "
                   >
                     CGPA
                   </label>
@@ -834,12 +1779,17 @@ const Profile = () => {
                     value={formData.cgpa}
                     onChange={handleChange}
                     placeholder="e.g. 8.91"
-                    className="w-full px-4 py-3
-                               rounded-xl
-                               border border-slate-300
-                               focus:outline-none
-                               focus:ring-2
-                               focus:ring-blue-500"
+                    className="
+                      w-full
+                      px-4
+                      py-3
+                      rounded-xl
+                      border
+                      border-slate-300
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-blue-500
+                    "
                   />
 
                 </div>
@@ -848,9 +1798,13 @@ const Profile = () => {
 
                   <label
                     htmlFor="phone"
-                    className="block text-sm
-                               font-semibold
-                               text-slate-700 mb-2"
+                    className="
+                      block
+                      text-sm
+                      font-semibold
+                      text-slate-700
+                      mb-2
+                    "
                   >
                     Phone
                   </label>
@@ -863,17 +1817,25 @@ const Profile = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="10 digit phone number"
-                    className="w-full px-4 py-3
-                               rounded-xl
-                               border border-slate-300
-                               focus:outline-none
-                               focus:ring-2
-                               focus:ring-blue-500"
+                    className="
+                      w-full
+                      px-4
+                      py-3
+                      rounded-xl
+                      border
+                      border-slate-300
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-blue-500
+                    "
                   />
 
                   <p
-                    className="text-xs
-                               text-slate-400 mt-1"
+                    className="
+                      text-xs
+                      text-slate-400
+                      mt-1
+                    "
                   >
                     Must contain exactly 10 digits.
                   </p>
@@ -883,17 +1845,25 @@ const Profile = () => {
               </div>
 
               <div
-                className="grid grid-cols-1
-                           md:grid-cols-2 gap-5"
+                className="
+                  grid
+                  grid-cols-1
+                  md:grid-cols-2
+                  gap-5
+                "
               >
 
                 <div>
 
                   <label
                     htmlFor="section"
-                    className="block text-sm
-                               font-semibold
-                               text-slate-700 mb-2"
+                    className="
+                      block
+                      text-sm
+                      font-semibold
+                      text-slate-700
+                      mb-2
+                    "
                   >
                     Section
                   </label>
@@ -904,12 +1874,17 @@ const Profile = () => {
                     value={formData.section}
                     onChange={handleChange}
                     placeholder="e.g. A"
-                    className="w-full px-4 py-3
-                               rounded-xl
-                               border border-slate-300
-                               focus:outline-none
-                               focus:ring-2
-                               focus:ring-blue-500"
+                    className="
+                      w-full
+                      px-4
+                      py-3
+                      rounded-xl
+                      border
+                      border-slate-300
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-blue-500
+                    "
                   />
 
                 </div>
@@ -918,9 +1893,13 @@ const Profile = () => {
 
                   <label
                     htmlFor="specialization"
-                    className="block text-sm
-                               font-semibold
-                               text-slate-700 mb-2"
+                    className="
+                      block
+                      text-sm
+                      font-semibold
+                      text-slate-700
+                      mb-2
+                    "
                   >
                     Specialization
                   </label>
@@ -928,15 +1907,22 @@ const Profile = () => {
                   <input
                     id="specialization"
                     name="specialization"
-                    value={formData.specialization}
+                    value={
+                      formData.specialization
+                    }
                     onChange={handleChange}
                     placeholder="e.g. Artificial Intelligence"
-                    className="w-full px-4 py-3
-                               rounded-xl
-                               border border-slate-300
-                               focus:outline-none
-                               focus:ring-2
-                               focus:ring-blue-500"
+                    className="
+                      w-full
+                      px-4
+                      py-3
+                      rounded-xl
+                      border
+                      border-slate-300
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-blue-500
+                    "
                   />
 
                 </div>
@@ -944,21 +1930,32 @@ const Profile = () => {
               </div>
 
               <div
-                className="flex justify-end gap-3
-                           pt-4 border-t
-                           border-slate-200"
+                className="
+                  flex
+                  justify-end
+                  gap-3
+                  pt-4
+                  border-t
+                  border-slate-200
+                "
               >
 
                 <button
                   type="button"
-                  onClick={() => setEditOpen(false)}
+                  onClick={() =>
+                    setEditOpen(false)
+                  }
                   disabled={saving}
-                  className="px-5 py-2.5
-                             rounded-xl
-                             border border-slate-300
-                             text-slate-700
-                             font-semibold
-                             hover:bg-slate-50"
+                  className="
+                    px-5
+                    py-2.5
+                    rounded-xl
+                    border
+                    border-slate-300
+                    text-slate-700
+                    font-semibold
+                    hover:bg-slate-50
+                  "
                 >
                   Cancel
                 </button>
@@ -966,25 +1963,33 @@ const Profile = () => {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex items-center
-                             gap-2 px-5 py-2.5
-                             rounded-xl
-                             bg-blue-600
-                             text-white
-                             font-semibold
-                             hover:bg-blue-700
-                             disabled:opacity-60"
+                  className="
+                    flex
+                    items-center
+                    gap-2
+                    px-5
+                    py-2.5
+                    rounded-xl
+                    bg-blue-600
+                    text-white
+                    font-semibold
+                    hover:bg-blue-700
+                    disabled:opacity-60
+                  "
                 >
 
                   {saving ? (
                     <>
                       <div
-                        className="w-4 h-4
-                                   border-2
-                                   border-white
-                                   border-t-transparent
-                                   rounded-full
-                                   animate-spin"
+                        className="
+                          w-4
+                          h-4
+                          border-2
+                          border-white
+                          border-t-transparent
+                          rounded-full
+                          animate-spin
+                        "
                       />
 
                       Saving...
@@ -1015,10 +2020,16 @@ const Profile = () => {
       {socialEditOpen && (
 
         <div
-          className="fixed inset-0 z-[100]
-                     bg-black/50
-                     flex items-center
-                     justify-center p-4"
+          className="
+            fixed
+            inset-0
+            z-[100]
+            bg-black/50
+            flex
+            items-center
+            justify-center
+            p-4
+          "
           onMouseDown={(event) => {
 
             if (
@@ -1032,31 +2043,45 @@ const Profile = () => {
         >
 
           <div
-            className="w-full max-w-lg
-                       bg-white rounded-2xl
-                       shadow-2xl"
+            className="
+              w-full
+              max-w-lg
+              bg-white
+              rounded-2xl
+              shadow-2xl
+            "
           >
 
             <div
-              className="flex items-center
-                         justify-between
-                         px-6 py-5
-                         border-b
-                         border-slate-200"
+              className="
+                flex
+                items-center
+                justify-between
+                px-6
+                py-5
+                border-b
+                border-slate-200
+              "
             >
 
               <div>
 
                 <h2
-                  className="text-xl font-bold
-                             text-slate-900"
+                  className="
+                    text-xl
+                    font-bold
+                    text-slate-900
+                  "
                 >
                   Edit Career Links
                 </h2>
 
                 <p
-                  className="text-sm
-                             text-slate-500 mt-1"
+                  className="
+                    text-sm
+                    text-slate-500
+                    mt-1
+                  "
                 >
                   Add your professional links.
                 </p>
@@ -1064,11 +2089,16 @@ const Profile = () => {
               </div>
 
               <button
-                onClick={() => setSocialEditOpen(false)}
+                onClick={() =>
+                  setSocialEditOpen(false)
+                }
                 disabled={saving}
-                className="p-2 rounded-lg
-                           hover:bg-slate-100
-                           text-slate-500"
+                className="
+                  p-2
+                  rounded-lg
+                  hover:bg-slate-100
+                  text-slate-500
+                "
               >
                 <X size={20} />
               </button>
@@ -1084,9 +2114,13 @@ const Profile = () => {
 
                 <label
                   htmlFor="githubUrl"
-                  className="block text-sm
-                             font-semibold
-                             text-slate-700 mb-2"
+                  className="
+                    block
+                    text-sm
+                    font-semibold
+                    text-slate-700
+                    mb-2
+                  "
                 >
                   GitHub URL
                 </label>
@@ -1095,10 +2129,13 @@ const Profile = () => {
 
                   <Link
                     size={17}
-                    className="absolute
-                               left-3 top-1/2
-                               -translate-y-1/2
-                               text-slate-400"
+                    className="
+                      absolute
+                      left-3
+                      top-1/2
+                      -translate-y-1/2
+                      text-slate-400
+                    "
                   />
 
                   <input
@@ -1108,13 +2145,18 @@ const Profile = () => {
                     value={socialData.githubUrl}
                     onChange={handleSocialChange}
                     placeholder="https://github.com/username"
-                    className="w-full
-                               pl-10 pr-4 py-3
-                               rounded-xl
-                               border border-slate-300
-                               focus:outline-none
-                               focus:ring-2
-                               focus:ring-blue-500"
+                    className="
+                      w-full
+                      pl-10
+                      pr-4
+                      py-3
+                      rounded-xl
+                      border
+                      border-slate-300
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-blue-500
+                    "
                   />
 
                 </div>
@@ -1125,9 +2167,13 @@ const Profile = () => {
 
                 <label
                   htmlFor="linkedinUrl"
-                  className="block text-sm
-                             font-semibold
-                             text-slate-700 mb-2"
+                  className="
+                    block
+                    text-sm
+                    font-semibold
+                    text-slate-700
+                    mb-2
+                  "
                 >
                   LinkedIn URL
                 </label>
@@ -1136,26 +2182,36 @@ const Profile = () => {
 
                   <Link
                     size={17}
-                    className="absolute
-                               left-3 top-1/2
-                               -translate-y-1/2
-                               text-slate-400"
+                    className="
+                      absolute
+                      left-3
+                      top-1/2
+                      -translate-y-1/2
+                      text-slate-400
+                    "
                   />
 
                   <input
                     id="linkedinUrl"
                     name="linkedinUrl"
                     type="url"
-                    value={socialData.linkedinUrl}
+                    value={
+                      socialData.linkedinUrl
+                    }
                     onChange={handleSocialChange}
                     placeholder="https://linkedin.com/in/username"
-                    className="w-full
-                               pl-10 pr-4 py-3
-                               rounded-xl
-                               border border-slate-300
-                               focus:outline-none
-                               focus:ring-2
-                               focus:ring-blue-500"
+                    className="
+                      w-full
+                      pl-10
+                      pr-4
+                      py-3
+                      rounded-xl
+                      border
+                      border-slate-300
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-blue-500
+                    "
                   />
 
                 </div>
@@ -1166,9 +2222,13 @@ const Profile = () => {
 
                 <label
                   htmlFor="resumeUrl"
-                  className="block text-sm
-                             font-semibold
-                             text-slate-700 mb-2"
+                  className="
+                    block
+                    text-sm
+                    font-semibold
+                    text-slate-700
+                    mb-2
+                  "
                 >
                   Resume URL
                 </label>
@@ -1177,10 +2237,13 @@ const Profile = () => {
 
                   <FileText
                     size={17}
-                    className="absolute
-                               left-3 top-1/2
-                               -translate-y-1/2
-                               text-slate-400"
+                    className="
+                      absolute
+                      left-3
+                      top-1/2
+                      -translate-y-1/2
+                      text-slate-400
+                    "
                   />
 
                   <input
@@ -1190,13 +2253,18 @@ const Profile = () => {
                     value={socialData.resumeUrl}
                     onChange={handleSocialChange}
                     placeholder="https://example.com/resume.pdf"
-                    className="w-full
-                               pl-10 pr-4 py-3
-                               rounded-xl
-                               border border-slate-300
-                               focus:outline-none
-                               focus:ring-2
-                               focus:ring-blue-500"
+                    className="
+                      w-full
+                      pl-10
+                      pr-4
+                      py-3
+                      rounded-xl
+                      border
+                      border-slate-300
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-blue-500
+                    "
                   />
 
                 </div>
@@ -1204,21 +2272,32 @@ const Profile = () => {
               </div>
 
               <div
-                className="flex justify-end gap-3
-                           pt-4 border-t
-                           border-slate-200"
+                className="
+                  flex
+                  justify-end
+                  gap-3
+                  pt-4
+                  border-t
+                  border-slate-200
+                "
               >
 
                 <button
                   type="button"
-                  onClick={() => setSocialEditOpen(false)}
+                  onClick={() =>
+                    setSocialEditOpen(false)
+                  }
                   disabled={saving}
-                  className="px-5 py-2.5
-                             rounded-xl
-                             border border-slate-300
-                             text-slate-700
-                             font-semibold
-                             hover:bg-slate-50"
+                  className="
+                    px-5
+                    py-2.5
+                    rounded-xl
+                    border
+                    border-slate-300
+                    text-slate-700
+                    font-semibold
+                    hover:bg-slate-50
+                  "
                 >
                   Cancel
                 </button>
@@ -1226,25 +2305,33 @@ const Profile = () => {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex items-center
-                             gap-2 px-5 py-2.5
-                             rounded-xl
-                             bg-blue-600
-                             text-white
-                             font-semibold
-                             hover:bg-blue-700
-                             disabled:opacity-60"
+                  className="
+                    flex
+                    items-center
+                    gap-2
+                    px-5
+                    py-2.5
+                    rounded-xl
+                    bg-blue-600
+                    text-white
+                    font-semibold
+                    hover:bg-blue-700
+                    disabled:opacity-60
+                  "
                 >
 
                   {saving ? (
                     <>
                       <div
-                        className="w-4 h-4
-                                   border-2
-                                   border-white
-                                   border-t-transparent
-                                   rounded-full
-                                   animate-spin"
+                        className="
+                          w-4
+                          h-4
+                          border-2
+                          border-white
+                          border-t-transparent
+                          rounded-full
+                          animate-spin
+                        "
                       />
 
                       Saving...
@@ -1276,28 +2363,44 @@ const Profile = () => {
    INFO ITEM
 ========================================== */
 
-const InfoItem = ({ label, value, icon }) => {
+const InfoItem = ({
+  label,
+  value,
+  icon,
+}) => {
   return (
     <div
-      className="rounded-xl
-                 bg-slate-50 p-4"
+      className="
+        rounded-xl
+        bg-slate-50
+        p-4
+      "
     >
 
       <div
-        className="flex items-center
-                   gap-2 text-xs
-                   font-medium
-                   text-slate-500 mb-2"
+        className="
+          flex
+          items-center
+          gap-2
+          text-xs
+          font-medium
+          text-slate-500
+          mb-2
+        "
       >
+
         {icon}
 
         <span>{label}</span>
+
       </div>
 
       <p
-        className="text-sm
-                   font-semibold
-                   text-slate-900"
+        className="
+          text-sm
+          font-semibold
+          text-slate-900
+        "
       >
         {value || "Not provided"}
       </p>
@@ -1310,24 +2413,37 @@ const InfoItem = ({ label, value, icon }) => {
    LINK CARD
 ========================================== */
 
-const LinkCard = ({ label, value }) => {
+const LinkCard = ({
+  label,
+  value,
+}) => {
   return (
     <div
-      className="rounded-xl
-                 border border-slate-200
-                 p-4"
+      className="
+        rounded-xl
+        border
+        border-slate-200
+        p-4
+      "
     >
 
       <div
-        className="flex items-center
-                   gap-2 text-slate-700 mb-2"
+        className="
+          flex
+          items-center
+          gap-2
+          text-slate-700
+          mb-2
+        "
       >
 
         <Link size={19} />
 
         <span
-          className="text-sm
-                     font-semibold"
+          className="
+            text-sm
+            font-semibold
+          "
         >
           {label}
         </span>
@@ -1335,21 +2451,27 @@ const LinkCard = ({ label, value }) => {
       </div>
 
       {value ? (
+
         <a
           href={value}
           target="_blank"
           rel="noreferrer"
-          className="text-sm
-                     text-blue-600
-                     hover:underline
-                     break-all"
+          className="
+            text-sm
+            text-blue-600
+            hover:underline
+            break-all
+          "
         >
           {value}
         </a>
+
       ) : (
+
         <p className="text-sm text-slate-400">
           Not provided
         </p>
+
       )}
 
     </div>

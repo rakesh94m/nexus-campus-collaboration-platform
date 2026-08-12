@@ -1,18 +1,24 @@
 package com.nexus.backend.service.impl;
 
 import com.nexus.backend.dto.request.AddProjectRequest;
+import com.nexus.backend.dto.request.ProjectSkillRequest;
 import com.nexus.backend.dto.request.UpdateProjectRequest;
 import com.nexus.backend.dto.response.ProjectResponse;
+import com.nexus.backend.dto.response.ProjectSkillResponse;
 import com.nexus.backend.entity.CollaborationRequest;
 import com.nexus.backend.entity.MatchHistory;
 import com.nexus.backend.entity.Project;
 import com.nexus.backend.entity.ProjectMember;
+import com.nexus.backend.entity.ProjectSkill;
+import com.nexus.backend.entity.Skill;
 import com.nexus.backend.entity.Student;
 import com.nexus.backend.exception.ResourceNotFoundException;
 import com.nexus.backend.repository.CollaborationRequestRepository;
 import com.nexus.backend.repository.MatchHistoryRepository;
 import com.nexus.backend.repository.ProjectMemberRepository;
 import com.nexus.backend.repository.ProjectRepository;
+import com.nexus.backend.repository.ProjectSkillRepository;
+import com.nexus.backend.repository.SkillRepository;
 import com.nexus.backend.repository.StudentRepository;
 import com.nexus.backend.service.ProjectService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -33,6 +40,9 @@ public class ProjectServiceImpl implements ProjectService {
     private final CollaborationRequestRepository collaborationRequestRepository;
     private final MatchHistoryRepository matchHistoryRepository;
 
+    private final ProjectSkillRepository projectSkillRepository;
+    private final SkillRepository skillRepository;
+
     // =========================================
     // Get Logged-in Student
     // =========================================
@@ -40,13 +50,18 @@ public class ProjectServiceImpl implements ProjectService {
     private Student getCurrentStudent() {
 
         Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
 
         String email = authentication.getName();
 
-        return studentRepository.findByEmail(email)
+        return studentRepository
+                .findByEmail(email)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Student not found."));
+                        new ResourceNotFoundException(
+                                "Student not found."
+                        ));
     }
 
     // =========================================
@@ -54,6 +69,38 @@ public class ProjectServiceImpl implements ProjectService {
     // =========================================
 
     private ProjectResponse mapToResponse(Project project) {
+
+        List<ProjectSkillResponse> requiredSkills =
+                new ArrayList<>();
+
+        List<ProjectSkill> projectSkills =
+                projectSkillRepository.findByProject(project);
+
+        for (ProjectSkill projectSkill : projectSkills) {
+
+            if (projectSkill.getSkill() == null) {
+                continue;
+            }
+
+            requiredSkills.add(
+                    ProjectSkillResponse.builder()
+                            .id(projectSkill.getId())
+                            .skillId(
+                                    projectSkill
+                                            .getSkill()
+                                            .getId()
+                            )
+                            .skillName(
+                                    projectSkill
+                                            .getSkill()
+                                            .getSkillName()
+                            )
+                            .importance(
+                                    projectSkill.getImportance()
+                            )
+                            .build()
+            );
+        }
 
         return ProjectResponse.builder()
                 .id(project.getId())
@@ -64,6 +111,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .liveDemoUrl(project.getLiveDemoUrl())
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
+                .requiredSkills(requiredSkills)
                 .build();
     }
 
@@ -72,24 +120,94 @@ public class ProjectServiceImpl implements ProjectService {
     // =========================================
 
     @Override
-    public ProjectResponse addProject(AddProjectRequest request) {
+    @Transactional
+    public ProjectResponse addProject(
+            AddProjectRequest request
+    ) {
 
         Student student = getCurrentStudent();
+
+        // -----------------------------------------
+        // Create Project
+        // -----------------------------------------
 
         Project project = Project.builder()
                 .projectTitle(request.getProjectTitle())
                 .description(request.getDescription())
-                .technologiesUsed(request.getTechnologiesUsed())
+                .technologiesUsed(
+                        request.getTechnologiesUsed()
+                )
                 .githubUrl(request.getGithubUrl())
                 .liveDemoUrl(request.getLiveDemoUrl())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .student(student)
+                .projectSkills(new ArrayList<>())
                 .build();
 
-        projectRepository.save(project);
+        project = projectRepository.save(project);
+
+        // -----------------------------------------
+        // Add Required Project Skills
+        // -----------------------------------------
+
+        saveProjectSkills(
+                project,
+                request.getRequiredSkills()
+        );
 
         return mapToResponse(project);
+    }
+
+    // =========================================
+    // Save Project Skills
+    // =========================================
+
+    private void saveProjectSkills(
+            Project project,
+            List<ProjectSkillRequest> skillRequests
+    ) {
+
+        if (skillRequests == null
+                || skillRequests.isEmpty()) {
+
+            return;
+        }
+
+        for (ProjectSkillRequest request :
+                skillRequests) {
+
+            if (request == null
+                    || request.getSkillId() == null) {
+
+                continue;
+            }
+
+            Skill skill =
+                    skillRepository
+                            .findById(
+                                    request.getSkillId()
+                            )
+                            .orElseThrow(() ->
+                                    new ResourceNotFoundException(
+                                            "Skill not found with ID: "
+                                                    + request
+                                                    .getSkillId()
+                                    ));
+
+            ProjectSkill projectSkill =
+                    ProjectSkill.builder()
+                            .project(project)
+                            .skill(skill)
+                            .importance(
+                                    request.getImportance()
+                            )
+                            .build();
+
+            projectSkillRepository.save(
+                    projectSkill
+            );
+        }
     }
 
     // =========================================
@@ -97,12 +215,38 @@ public class ProjectServiceImpl implements ProjectService {
     // =========================================
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProjectResponse> getMyProjects() {
 
         Student student = getCurrentStudent();
 
-        return projectRepository.findByStudent(student)
+        return projectRepository
+                .findByStudent(student)
                 .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    // =========================================
+    // Get Available Projects
+    // =========================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProjectResponse> getAvailableProjects() {
+
+        Student student = getCurrentStudent();
+
+        return projectRepository
+                .findAll()
+                .stream()
+                .filter(project ->
+                        project.getStudent() != null
+                                && !project
+                                .getStudent()
+                                .getId()
+                                .equals(student.getId())
+                )
                 .map(this::mapToResponse)
                 .toList();
     }
@@ -112,6 +256,7 @@ public class ProjectServiceImpl implements ProjectService {
     // =========================================
 
     @Override
+    @Transactional
     public ProjectResponse updateProject(
             Long id,
             UpdateProjectRequest request
@@ -119,22 +264,63 @@ public class ProjectServiceImpl implements ProjectService {
 
         Student student = getCurrentStudent();
 
-        Project project = projectRepository
-                .findByIdAndStudent(id, student)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Project not found."
-                        ));
+        Project project =
+                projectRepository
+                        .findByIdAndStudent(
+                                id,
+                                student
+                        )
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Project not found."
+                                ));
 
-        project.setProjectTitle(request.getProjectTitle());
-        project.setDescription(request.getDescription());
-        project.setTechnologiesUsed(request.getTechnologiesUsed());
-        project.setGithubUrl(request.getGithubUrl());
-        project.setLiveDemoUrl(request.getLiveDemoUrl());
-        project.setStartDate(request.getStartDate());
-        project.setEndDate(request.getEndDate());
+        // -----------------------------------------
+        // Update Project Information
+        // -----------------------------------------
+
+        project.setProjectTitle(
+                request.getProjectTitle()
+        );
+
+        project.setDescription(
+                request.getDescription()
+        );
+
+        project.setTechnologiesUsed(
+                request.getTechnologiesUsed()
+        );
+
+        project.setGithubUrl(
+                request.getGithubUrl()
+        );
+
+        project.setLiveDemoUrl(
+                request.getLiveDemoUrl()
+        );
+
+        project.setStartDate(
+                request.getStartDate()
+        );
+
+        project.setEndDate(
+                request.getEndDate()
+        );
 
         projectRepository.save(project);
+
+        // -----------------------------------------
+        // Replace Required Project Skills
+        // -----------------------------------------
+
+        projectSkillRepository.deleteByProject(
+                project
+        );
+
+        saveProjectSkills(
+                project,
+                request.getRequiredSkills()
+        );
 
         return mapToResponse(project);
     }
@@ -143,37 +329,29 @@ public class ProjectServiceImpl implements ProjectService {
     // Delete Project
     // =========================================
 
-        @Override
-        public List<ProjectResponse> getAvailableProjects() {
-
-        Student student = getCurrentStudent();
-
-        return projectRepository.findAll()
-                .stream()
-                .filter(project ->
-                        !project.getStudent().getId()
-                                .equals(student.getId()))
-                .map(this::mapToResponse)
-                .toList();
-        }
     @Override
     @Transactional
     public void deleteProject(Long id) {
 
         Student student = getCurrentStudent();
 
-        Project project = projectRepository
-                .findByIdAndStudent(id, student)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Project not found."
-                        ));
+        Project project =
+                projectRepository
+                        .findByIdAndStudent(
+                                id,
+                                student
+                        )
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Project not found."
+                                ));
 
         // =========================================
         // Delete Collaboration Requests
         // =========================================
 
-        List<CollaborationRequest> collaborationRequests =
+        List<CollaborationRequest>
+                collaborationRequests =
                 collaborationRequestRepository
                         .findByProject(project);
 
@@ -203,6 +381,18 @@ public class ProjectServiceImpl implements ProjectService {
 
         matchHistoryRepository.deleteAll(
                 matchHistories
+        );
+
+        // =========================================
+        // Delete Project Skills
+        // =========================================
+
+        List<ProjectSkill> projectSkills =
+                projectSkillRepository
+                        .findByProject(project);
+
+        projectSkillRepository.deleteAll(
+                projectSkills
         );
 
         // =========================================

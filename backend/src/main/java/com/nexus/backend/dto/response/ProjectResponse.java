@@ -3,6 +3,7 @@ package com.nexus.backend.dto.response;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -10,6 +11,10 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class ProjectResponse {
+
+    // =========================================
+    // Project Information
+    // =========================================
 
     private Long id;
 
@@ -26,4 +31,10 @@ public class ProjectResponse {
     private LocalDate startDate;
 
     private LocalDate endDate;
+
+    // =========================================
+    // Required Project Skills
+    // =========================================
+
+    private List<ProjectSkillResponse> requiredSkills;
 }
