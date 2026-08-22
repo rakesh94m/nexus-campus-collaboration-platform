@@ -6,8 +6,23 @@ import com.nexus.backend.dto.response.AuthResponse;
 
 public interface AuthService {
 
+    // Existing
     AuthResponse register(RegisterRequest request);
 
     AuthResponse login(LoginRequest request);
 
+    // OTP Registration
+    String sendRegistrationOtp(String email);
+
+    AuthResponse verifyRegistrationOtp(RegisterRequest request);
+
+    // Forgot Password
+    String sendForgotPasswordOtp(String email);
+
+    String resetPassword(
+            String email,
+            String otp,
+            String newPassword,
+            String confirmPassword
+    );
 }

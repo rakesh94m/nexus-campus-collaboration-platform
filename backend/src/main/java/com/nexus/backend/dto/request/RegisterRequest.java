@@ -61,4 +61,7 @@ public class RegisterRequest {
     @NotBlank(message = "Confirm password is required")
     private String confirmPassword;
 
+    @NotBlank(message = "OTP is required")
+    private String otp;
+
 }

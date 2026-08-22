@@ -1,5 +1,6 @@
 package com.nexus.backend.service;
 
+import com.nexus.backend.dto.request.ChangePasswordRequest;
 import com.nexus.backend.dto.request.UpdateAvailabilityRequest;
 import com.nexus.backend.dto.request.UpdateProfileRequest;
 import com.nexus.backend.dto.request.UpdateSocialLinksRequest;
@@ -23,6 +24,12 @@ public interface StudentService {
     StudentProfileResponse updateAvailability(
             UpdateAvailabilityRequest request
     );
+
+    // =====================================
+    // Change Password
+    // =====================================
+
+    void changePassword(ChangePasswordRequest request);
 
     // =====================================
     // Student Discovery

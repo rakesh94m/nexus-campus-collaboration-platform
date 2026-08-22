@@ -25,6 +25,7 @@ import {
   updateProfile,
   updateSocialLinks,
   updateAvailability,
+  changePassword,
 } from "../../services/studentService";
 
 import { getMySkills } from "../../services/skillService";
@@ -44,8 +45,15 @@ const Profile = () => {
   const [editOpen, setEditOpen] = useState(false);
   const [socialEditOpen, setSocialEditOpen] = useState(false);
 
+  const [passwordOpen, setPasswordOpen] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
   const [availabilitySaving, setAvailabilitySaving] =
-    useState(false);
+      useState(false);
 
   const [formData, setFormData] = useState({
     bio: "",
@@ -98,7 +106,7 @@ const Profile = () => {
           phone: data.phone || "",
           section: data.section || "",
           specialization:
-            data.specialization || "",
+              data.specialization || "",
         });
 
         setSocialData({
@@ -108,13 +116,13 @@ const Profile = () => {
         });
       } else {
         console.error(
-          "Profile error:",
-          profileResult.reason
+            "Profile error:",
+            profileResult.reason
         );
 
         const message =
-          profileResult.reason?.response?.data?.message ||
-          "Unable to load profile.";
+            profileResult.reason?.response?.data?.message ||
+            "Unable to load profile.";
 
         toast.error(message);
       }
@@ -127,8 +135,8 @@ const Profile = () => {
         setSkills(skillsResult.value || []);
       } else {
         console.error(
-          "Skills error:",
-          skillsResult.reason
+            "Skills error:",
+            skillsResult.reason
         );
 
         setSkills([]);
@@ -142,8 +150,8 @@ const Profile = () => {
         setInterests(interestsResult.value || []);
       } else {
         console.error(
-          "Interests error:",
-          interestsResult.reason
+            "Interests error:",
+            interestsResult.reason
         );
 
         setInterests([]);
@@ -157,8 +165,8 @@ const Profile = () => {
         setGoals(goalsResult.value || []);
       } else {
         console.error(
-          "Goals error:",
-          goalsResult.reason
+            "Goals error:",
+            goalsResult.reason
         );
 
         setGoals([]);
@@ -167,7 +175,7 @@ const Profile = () => {
       console.error("Profile loading error:", error);
 
       toast.error(
-        error.response?.data?.message ||
+          error.response?.data?.message ||
           "Unable to load profile."
       );
     } finally {
@@ -197,16 +205,16 @@ const Profile = () => {
       const payload = {
         bio: formData.bio,
         cgpa:
-          formData.cgpa === ""
-            ? null
-            : Number(formData.cgpa),
+            formData.cgpa === ""
+                ? null
+                : Number(formData.cgpa),
         phone: formData.phone,
         section: formData.section,
         specialization: formData.specialization,
       };
 
       const updatedProfile =
-        await updateProfile(payload);
+          await updateProfile(payload);
 
       setProfile(updatedProfile);
 
@@ -216,23 +224,23 @@ const Profile = () => {
         phone: updatedProfile.phone || "",
         section: updatedProfile.section || "",
         specialization:
-          updatedProfile.specialization || "",
+            updatedProfile.specialization || "",
       });
 
       setEditOpen(false);
 
       toast.success(
-        "Profile updated successfully!"
+          "Profile updated successfully!"
       );
     } catch (error) {
       console.error(
-        "Update profile error:",
-        error
+          "Update profile error:",
+          error
       );
 
       const message =
-        error.response?.data?.message ||
-        "Unable to update profile.";
+          error.response?.data?.message ||
+          "Unable to update profile.";
 
       toast.error(message);
     } finally {
@@ -247,7 +255,7 @@ const Profile = () => {
       phone: profile.phone || "",
       section: profile.section || "",
       specialization:
-        profile.specialization || "",
+          profile.specialization || "",
     });
 
     setEditOpen(true);
@@ -283,35 +291,104 @@ const Profile = () => {
 
     try {
       const updatedProfile =
-        await updateSocialLinks(socialData);
+          await updateSocialLinks(socialData);
 
       setProfile(updatedProfile);
 
       setSocialData({
         githubUrl:
-          updatedProfile.githubUrl || "",
+            updatedProfile.githubUrl || "",
         linkedinUrl:
-          updatedProfile.linkedinUrl || "",
+            updatedProfile.linkedinUrl || "",
         resumeUrl:
-          updatedProfile.resumeUrl || "",
+            updatedProfile.resumeUrl || "",
       });
 
       setSocialEditOpen(false);
 
       toast.success(
-        "Career links updated successfully!"
+          "Career links updated successfully!"
       );
     } catch (error) {
       console.error(
-        "Social links error:",
-        error
+          "Social links error:",
+          error
       );
 
       const message =
-        error.response?.data?.message ||
-        "Unable to update career links.";
+          error.response?.data?.message ||
+          "Unable to update career links.";
 
       toast.error(message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ==========================================
+  // CHANGE PASSWORD
+  // ==========================================
+
+  const handlePasswordChange = (event) => {
+    const { name, value } = event.target;
+
+    setPasswordData((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+  };
+
+  const openPasswordModal = () => {
+    setPasswordData({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+
+    setPasswordOpen(true);
+  };
+
+  const handleSavePassword = async (event) => {
+    event.preventDefault();
+
+    if (
+        passwordData.newPassword !==
+        passwordData.confirmPassword
+    ) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      toast.error(
+          "Password must be at least 6 characters."
+      );
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      const message = await changePassword({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+        confirmPassword: passwordData.confirmPassword,
+      });
+
+      toast.success(message);
+
+      setPasswordOpen(false);
+
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (error) {
+      toast.error(
+          error.response?.data?.message ||
+          "Unable to change password."
+      );
     } finally {
       setSaving(false);
     }
@@ -322,7 +399,7 @@ const Profile = () => {
   // ==========================================
 
   const handleAvailabilityChange = async (
-    event
+      event
   ) => {
     const newStatus = event.target.value;
 
@@ -330,24 +407,24 @@ const Profile = () => {
 
     try {
       const updatedProfile =
-        await updateAvailability({
-          availabilityStatus: newStatus,
-        });
+          await updateAvailability({
+            availabilityStatus: newStatus,
+          });
 
       setProfile(updatedProfile);
 
       toast.success(
-        "Availability updated successfully!"
+          "Availability updated successfully!"
       );
     } catch (error) {
       console.error(
-        "Availability error:",
-        error
+          "Availability error:",
+          error
       );
 
       const message =
-        error.response?.data?.message ||
-        "Unable to update availability.";
+          error.response?.data?.message ||
+          "Unable to update availability.";
 
       toast.error(message);
     } finally {
@@ -363,11 +440,11 @@ const Profile = () => {
     if (!status) return "Not specified";
 
     return status
-      .replaceAll("_", " ")
-      .toLowerCase()
-      .replace(/\b\w/g, (letter) =>
-        letter.toUpperCase()
-      );
+        .replaceAll("_", " ")
+        .toLowerCase()
+        .replace(/\b\w/g, (letter) =>
+            letter.toUpperCase()
+        );
   };
 
   const getGoalStatusStyle = (status) => {
@@ -392,11 +469,11 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+          <div className="text-center">
 
-          <div
-            className="
+            <div
+                className="
               w-10 h-10
               border-4
               border-blue-600
@@ -405,14 +482,14 @@ const Profile = () => {
               animate-spin
               mx-auto mb-4
             "
-          />
+            />
 
-          <p className="text-slate-600 font-medium">
-            Loading your profile...
-          </p>
+            <p className="text-slate-600 font-medium">
+              Loading your profile...
+            </p>
 
+          </div>
         </div>
-      </div>
     );
   }
 
@@ -422,65 +499,65 @@ const Profile = () => {
 
   if (!profile) {
     return (
-      <DashboardLayout>
+        <DashboardLayout>
 
-        <div
-          className="
+          <div
+              className="
             bg-white
             rounded-2xl
             border border-slate-200
             p-8
             text-center
           "
-        >
-          <p className="text-slate-600">
-            Profile information could not be loaded.
-          </p>
-        </div>
+          >
+            <p className="text-slate-600">
+              Profile information could not be loaded.
+            </p>
+          </div>
 
-      </DashboardLayout>
+        </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout>
+      <DashboardLayout>
 
-      {/* ==========================================
+        {/* ==========================================
           PAGE HEADER
       ========================================== */}
 
-      <section className="mb-8">
+        <section className="mb-8">
 
-        <p className="text-sm font-medium text-blue-600 mb-1">
-          Account
-        </p>
+          <p className="text-sm font-medium text-blue-600 mb-1">
+            Account
+          </p>
 
-        <h1 className="text-3xl font-bold text-slate-900">
-          My Profile
-        </h1>
+          <h1 className="text-3xl font-bold text-slate-900">
+            My Profile
+          </h1>
 
-        <p className="mt-2 text-slate-500">
-          View and manage your NEXUS student profile.
-        </p>
+          <p className="mt-2 text-slate-500">
+            View and manage your NEXUS student profile.
+          </p>
 
-      </section>
+        </section>
 
-      {/* ==========================================
+        {/* ==========================================
           PROFILE HEADER
       ========================================== */}
 
-      <section
-        className="
+        <section
+            className="
           bg-white
           rounded-2xl
           border border-slate-200
           p-6
           mb-6
         "
-      >
+        >
 
-        <div
-          className="
+          <div
+              className="
             flex
             flex-col
             sm:flex-row
@@ -488,12 +565,12 @@ const Profile = () => {
             sm:items-center
             gap-5
           "
-        >
+          >
 
-          {/* Avatar */}
+            {/* Avatar */}
 
-          <div
-            className="
+            <div
+                className="
               w-24 h-24
               rounded-2xl
               bg-blue-600
@@ -505,42 +582,42 @@ const Profile = () => {
               font-bold
               shrink-0
             "
-          >
-            {profile.firstName
-              ?.charAt(0)
-              ?.toUpperCase()}
-          </div>
+            >
+              {profile.firstName
+                  ?.charAt(0)
+                  ?.toUpperCase()}
+            </div>
 
-          {/* Student Information */}
+            {/* Student Information */}
 
-          <div className="flex-1">
+            <div className="flex-1">
 
-            <h2
-              className="
+              <h2
+                  className="
                 text-2xl
                 font-bold
                 text-slate-900
               "
-            >
-              {profile.firstName}{" "}
-              {profile.lastName}
-            </h2>
+              >
+                {profile.firstName}{" "}
+                {profile.lastName}
+              </h2>
 
-            <p className="text-slate-500 mt-1">
-              {profile.email}
-            </p>
+              <p className="text-slate-500 mt-1">
+                {profile.email}
+              </p>
 
-            <div
-              className="
+              <div
+                  className="
                 flex
                 flex-wrap
                 gap-2
                 mt-3
               "
-            >
+              >
 
               <span
-                className="
+                  className="
                   px-3 py-1
                   rounded-full
                   bg-blue-50
@@ -552,8 +629,8 @@ const Profile = () => {
                 {profile.role}
               </span>
 
-              <span
-                className="
+                <span
+                    className="
                   px-3 py-1
                   rounded-full
                   bg-green-50
@@ -561,12 +638,12 @@ const Profile = () => {
                   text-xs
                   font-semibold
                 "
-              >
+                >
                 {profile.availabilityStatus}
               </span>
 
-              <span
-                className="
+                <span
+                    className="
                   px-3 py-1
                   rounded-full
                   bg-slate-100
@@ -574,19 +651,19 @@ const Profile = () => {
                   text-xs
                   font-semibold
                 "
-              >
+                >
                 {profile.accountStatus}
               </span>
 
+              </div>
+
             </div>
 
-          </div>
+            {/* Edit Profile */}
 
-          {/* Edit Profile */}
-
-          <button
-            onClick={openEditProfile}
-            className="
+            <button
+                onClick={openEditProfile}
+                className="
               flex
               items-center
               gap-2
@@ -600,199 +677,199 @@ const Profile = () => {
               hover:bg-blue-700
               transition
             "
-          >
-            <Pencil size={17} />
-            Edit Profile
-          </button>
+            >
+              <Pencil size={17} />
+              Edit Profile
+            </button>
 
-        </div>
+          </div>
 
-      </section>
+        </section>
 
-      {/* ==========================================
+        {/* ==========================================
           PERSONAL INFORMATION
       ========================================== */}
 
-      <section
-        className="
+        <section
+            className="
           bg-white
           rounded-2xl
           border border-slate-200
           p-6
           mb-6
         "
-      >
+        >
 
-        <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-3 mb-6">
 
-          <div className="p-3 rounded-xl bg-blue-50">
+            <div className="p-3 rounded-xl bg-blue-50">
 
-            <User
-              size={21}
-              className="text-blue-600"
-            />
+              <User
+                  size={21}
+                  className="text-blue-600"
+              />
 
-          </div>
+            </div>
 
-          <div>
+            <div>
 
-            <h2
-              className="
+              <h2
+                  className="
                 text-lg
                 font-bold
                 text-slate-900
               "
-            >
-              Personal Information
-            </h2>
+              >
+                Personal Information
+              </h2>
 
-            <p className="text-sm text-slate-500">
-              Your basic student information.
-            </p>
+              <p className="text-sm text-slate-500">
+                Your basic student information.
+              </p>
+
+            </div>
 
           </div>
 
-        </div>
-
-        <div
-          className="
+          <div
+              className="
             grid
             grid-cols-1
             md:grid-cols-2
             gap-5
           "
-        >
+          >
 
-          <InfoItem
-            label="First Name"
-            value={profile.firstName}
-          />
+            <InfoItem
+                label="First Name"
+                value={profile.firstName}
+            />
 
-          <InfoItem
-            label="Last Name"
-            value={profile.lastName}
-          />
+            <InfoItem
+                label="Last Name"
+                value={profile.lastName}
+            />
 
-          <InfoItem
-            label="Email"
-            value={profile.email}
-            icon={<Mail size={16} />}
-          />
+            <InfoItem
+                label="Email"
+                value={profile.email}
+                icon={<Mail size={16} />}
+            />
 
-          <InfoItem
-            label="Phone"
-            value={profile.phone}
-            icon={<Phone size={16} />}
-          />
+            <InfoItem
+                label="Phone"
+                value={profile.phone}
+                icon={<Phone size={16} />}
+            />
 
-          <InfoItem
-            label="Roll Number"
-            value={profile.rollNumber}
-          />
+            <InfoItem
+                label="Roll Number"
+                value={profile.rollNumber}
+            />
 
-          <InfoItem
-            label="Department"
-            value={profile.department}
-            icon={<GraduationCap size={16} />}
-          />
+            <InfoItem
+                label="Department"
+                value={profile.department}
+                icon={<GraduationCap size={16} />}
+            />
 
-          <InfoItem
-            label="Year"
-            value={profile.year}
-          />
+            <InfoItem
+                label="Year"
+                value={profile.year}
+            />
 
-          <InfoItem
-            label="Section"
-            value={profile.section}
-          />
+            <InfoItem
+                label="Section"
+                value={profile.section}
+            />
 
-          <InfoItem
-            label="Specialization"
-            value={profile.specialization}
-          />
+            <InfoItem
+                label="Specialization"
+                value={profile.specialization}
+            />
 
-          <InfoItem
-            label="CGPA"
-            value={profile.cgpa}
-          />
-
-        </div>
-
-      </section>
-
-      {/* ==========================================
-          ABOUT
-      ========================================== */}
-
-      <section
-        className="
-          bg-white
-          rounded-2xl
-          border border-slate-200
-          p-6
-          mb-6
-        "
-      >
-
-        <div className="flex items-center gap-3 mb-5">
-
-          <div className="p-3 rounded-xl bg-purple-50">
-
-            <FileText
-              size={21}
-              className="text-purple-600"
+            <InfoItem
+                label="CGPA"
+                value={profile.cgpa}
             />
 
           </div>
 
-          <div>
+        </section>
 
-            <h2
-              className="
-                text-lg
-                font-bold
-                text-slate-900
-              "
-            >
-              About
-            </h2>
-
-            <p className="text-sm text-slate-500">
-              Your professional introduction.
-            </p>
-
-          </div>
-
-        </div>
-
-        <p
-          className="
-            text-slate-600
-            leading-relaxed
-          "
-        >
-          {profile.bio ||
-            "No bio has been added yet."}
-        </p>
-
-      </section>
-
-      {/* ==========================================
-          SKILLS
+        {/* ==========================================
+          ABOUT
       ========================================== */}
 
-      <section
-        className="
+        <section
+            className="
           bg-white
           rounded-2xl
           border border-slate-200
           p-6
           mb-6
         "
-      >
+        >
 
-        <div
-          className="
+          <div className="flex items-center gap-3 mb-5">
+
+            <div className="p-3 rounded-xl bg-purple-50">
+
+              <FileText
+                  size={21}
+                  className="text-purple-600"
+              />
+
+            </div>
+
+            <div>
+
+              <h2
+                  className="
+                text-lg
+                font-bold
+                text-slate-900
+              "
+              >
+                About
+              </h2>
+
+              <p className="text-sm text-slate-500">
+                Your professional introduction.
+              </p>
+
+            </div>
+
+          </div>
+
+          <p
+              className="
+            text-slate-600
+            leading-relaxed
+          "
+          >
+            {profile.bio ||
+                "No bio has been added yet."}
+          </p>
+
+        </section>
+
+        {/* ==========================================
+          SKILLS
+      ========================================== */}
+
+        <section
+            className="
+          bg-white
+          rounded-2xl
+          border border-slate-200
+          p-6
+          mb-6
+        "
+        >
+
+          <div
+              className="
             flex
             flex-col
             sm:flex-row
@@ -801,48 +878,48 @@ const Profile = () => {
             gap-4
             mb-6
           "
-        >
+          >
 
-          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
 
-            <div
-              className="
+              <div
+                  className="
                 p-3
                 rounded-xl
                 bg-blue-50
               "
-            >
+              >
 
-              <Award
-                size={21}
-                className="text-blue-600"
-              />
+                <Award
+                    size={21}
+                    className="text-blue-600"
+                />
 
-            </div>
+              </div>
 
-            <div>
+              <div>
 
-              <h2
-                className="
+                <h2
+                    className="
                   text-lg
                   font-bold
                   text-slate-900
                 "
-              >
-                Skills
-              </h2>
+                >
+                  Skills
+                </h2>
 
-              <p className="text-sm text-slate-500">
-                Your technical and professional skills.
-              </p>
+                <p className="text-sm text-slate-500">
+                  Your technical and professional skills.
+                </p>
+
+              </div>
 
             </div>
 
-          </div>
-
-          <a
-            href="/skills"
-            className="
+            <a
+                href="/skills"
+                className="
               inline-flex
               items-center
               justify-center
@@ -858,70 +935,70 @@ const Profile = () => {
               hover:bg-slate-50
               transition
             "
-          >
-            Manage Skills
-            <ArrowRight size={16} />
-          </a>
+            >
+              Manage Skills
+              <ArrowRight size={16} />
+            </a>
 
-        </div>
+          </div>
 
-        {skills.length === 0 ? (
+          {skills.length === 0 ? (
 
-          <div
-            className="
+              <div
+                  className="
               rounded-xl
               bg-slate-50
               p-8
               text-center
             "
-          >
+              >
 
-            <Award
-              size={30}
-              className="
+                <Award
+                    size={30}
+                    className="
                 mx-auto
                 text-slate-400
                 mb-3
               "
-            />
+                />
 
-            <h3
-              className="
+                <h3
+                    className="
                 font-semibold
                 text-slate-800
               "
-            >
-              No skills added yet
-            </h3>
+                >
+                  No skills added yet
+                </h3>
 
-            <p
-              className="
+                <p
+                    className="
                 text-sm
                 text-slate-500
                 mt-1
               "
-            >
-              Add skills to improve your
-              project matching and recommendations.
-            </p>
+                >
+                  Add skills to improve your
+                  project matching and recommendations.
+                </p>
 
-          </div>
+              </div>
 
-        ) : (
+          ) : (
 
-          <div
-            className="
+              <div
+                  className="
               flex
               flex-wrap
               gap-3
             "
-          >
+              >
 
-            {skills.map((skill) => (
+                {skills.map((skill) => (
 
-              <div
-                key={skill.id}
-                className="
+                    <div
+                        key={skill.id}
+                        className="
                   flex
                   items-center
                   gap-3
@@ -932,10 +1009,10 @@ const Profile = () => {
                   border-slate-200
                   bg-slate-50
                 "
-              >
+                    >
 
-                <div
-                  className="
+                      <div
+                          className="
                     w-9
                     h-9
                     rounded-lg
@@ -946,64 +1023,64 @@ const Profile = () => {
                     justify-center
                     font-bold
                   "
-                >
-                  {skill.skillName
-                    ?.charAt(0)
-                    ?.toUpperCase()}
-                </div>
+                      >
+                        {skill.skillName
+                            ?.charAt(0)
+                            ?.toUpperCase()}
+                      </div>
 
-                <div>
+                      <div>
 
-                  <p
-                    className="
+                        <p
+                            className="
                       text-sm
                       font-bold
                       text-slate-900
                     "
-                  >
-                    {skill.skillName}
-                  </p>
+                        >
+                          {skill.skillName}
+                        </p>
 
-                  <p
-                    className="
+                        <p
+                            className="
                       text-xs
                       text-slate-500
                       mt-0.5
                     "
-                  >
-                    {formatGoalStatus(
-                      skill.proficiency
-                    )}
-                  </p>
+                        >
+                          {formatGoalStatus(
+                              skill.proficiency
+                          )}
+                        </p>
 
-                </div>
+                      </div>
+
+                    </div>
+
+                ))}
 
               </div>
 
-            ))}
+          )}
 
-          </div>
+        </section>
 
-        )}
-
-      </section>
-
-      {/* ==========================================
+        {/* ==========================================
           INTERESTS
       ========================================== */}
 
-      <section
-        className="
+        <section
+            className="
           bg-white
           rounded-2xl
           border border-slate-200
           p-6
           mb-6
         "
-      >
+        >
 
-        <div
-          className="
+          <div
+              className="
             flex
             flex-col
             sm:flex-row
@@ -1012,48 +1089,48 @@ const Profile = () => {
             gap-4
             mb-6
           "
-        >
+          >
 
-          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
 
-            <div
-              className="
+              <div
+                  className="
                 p-3
                 rounded-xl
                 bg-pink-50
               "
-            >
+              >
 
-              <Heart
-                size={21}
-                className="text-pink-600"
-              />
+                <Heart
+                    size={21}
+                    className="text-pink-600"
+                />
 
-            </div>
+              </div>
 
-            <div>
+              <div>
 
-              <h2
-                className="
+                <h2
+                    className="
                   text-lg
                   font-bold
                   text-slate-900
                 "
-              >
-                Interests
-              </h2>
+                >
+                  Interests
+                </h2>
 
-              <p className="text-sm text-slate-500">
-                Areas and topics you are interested in.
-              </p>
+                <p className="text-sm text-slate-500">
+                  Areas and topics you are interested in.
+                </p>
+
+              </div>
 
             </div>
 
-          </div>
-
-          <a
-            href="/interests"
-            className="
+            <a
+                href="/interests"
+                className="
               inline-flex
               items-center
               justify-center
@@ -1069,70 +1146,70 @@ const Profile = () => {
               hover:bg-slate-50
               transition
             "
-          >
-            Manage Interests
-            <ArrowRight size={16} />
-          </a>
+            >
+              Manage Interests
+              <ArrowRight size={16} />
+            </a>
 
-        </div>
+          </div>
 
-        {interests.length === 0 ? (
+          {interests.length === 0 ? (
 
-          <div
-            className="
+              <div
+                  className="
               rounded-xl
               bg-slate-50
               p-8
               text-center
             "
-          >
+              >
 
-            <Heart
-              size={30}
-              className="
+                <Heart
+                    size={30}
+                    className="
                 mx-auto
                 text-slate-400
                 mb-3
               "
-            />
+                />
 
-            <h3
-              className="
+                <h3
+                    className="
                 font-semibold
                 text-slate-800
               "
-            >
-              No interests added yet
-            </h3>
+                >
+                  No interests added yet
+                </h3>
 
-            <p
-              className="
+                <p
+                    className="
                 text-sm
                 text-slate-500
                 mt-1
               "
-            >
-              Add your interests to improve
-              recommendations and matching.
-            </p>
+                >
+                  Add your interests to improve
+                  recommendations and matching.
+                </p>
 
-          </div>
+              </div>
 
-        ) : (
+          ) : (
 
-          <div
-            className="
+              <div
+                  className="
               flex
               flex-wrap
               gap-3
             "
-          >
+              >
 
-            {interests.map((interest) => (
+                {interests.map((interest) => (
 
-              <div
-                key={interest.id}
-                className="
+                    <div
+                        key={interest.id}
+                        className="
                   flex
                   items-center
                   gap-3
@@ -1143,10 +1220,10 @@ const Profile = () => {
                   border-slate-200
                   bg-slate-50
                 "
-              >
+                    >
 
-                <div
-                  className="
+                      <div
+                          className="
                     w-9
                     h-9
                     rounded-lg
@@ -1156,46 +1233,46 @@ const Profile = () => {
                     items-center
                     justify-center
                   "
-                >
-                  <Heart size={17} />
-                </div>
+                      >
+                        <Heart size={17} />
+                      </div>
 
-                <p
-                  className="
+                      <p
+                          className="
                     text-sm
                     font-bold
                     text-slate-900
                   "
-                >
-                  {interest.interestName}
-                </p>
+                      >
+                        {interest.interestName}
+                      </p>
+
+                    </div>
+
+                ))}
 
               </div>
 
-            ))}
+          )}
 
-          </div>
+        </section>
 
-        )}
-
-      </section>
-
-      {/* ==========================================
+        {/* ==========================================
           GOALS
       ========================================== */}
 
-      <section
-        className="
+        <section
+            className="
           bg-white
           rounded-2xl
           border border-slate-200
           p-6
           mb-6
         "
-      >
+        >
 
-        <div
-          className="
+          <div
+              className="
             flex
             flex-col
             sm:flex-row
@@ -1204,48 +1281,48 @@ const Profile = () => {
             gap-4
             mb-6
           "
-        >
+          >
 
-          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
 
-            <div
-              className="
+              <div
+                  className="
                 p-3
                 rounded-xl
                 bg-amber-50
               "
-            >
+              >
 
-              <Target
-                size={21}
-                className="text-amber-600"
-              />
+                <Target
+                    size={21}
+                    className="text-amber-600"
+                />
 
-            </div>
+              </div>
 
-            <div>
+              <div>
 
-              <h2
-                className="
+                <h2
+                    className="
                   text-lg
                   font-bold
                   text-slate-900
                 "
-              >
-                Goals
-              </h2>
+                >
+                  Goals
+                </h2>
 
-              <p className="text-sm text-slate-500">
-                Your current academic and career goals.
-              </p>
+                <p className="text-sm text-slate-500">
+                  Your current academic and career goals.
+                </p>
+
+              </div>
 
             </div>
 
-          </div>
-
-          <a
-            href="/goals"
-            className="
+            <a
+                href="/goals"
+                className="
               inline-flex
               items-center
               justify-center
@@ -1261,64 +1338,64 @@ const Profile = () => {
               hover:bg-slate-50
               transition
             "
-          >
-            Manage Goals
-            <ArrowRight size={16} />
-          </a>
+            >
+              Manage Goals
+              <ArrowRight size={16} />
+            </a>
 
-        </div>
+          </div>
 
-        {goals.length === 0 ? (
+          {goals.length === 0 ? (
 
-          <div
-            className="
+              <div
+                  className="
               rounded-xl
               bg-slate-50
               p-8
               text-center
             "
-          >
+              >
 
-            <Target
-              size={30}
-              className="
+                <Target
+                    size={30}
+                    className="
                 mx-auto
                 text-slate-400
                 mb-3
               "
-            />
+                />
 
-            <h3
-              className="
+                <h3
+                    className="
                 font-semibold
                 text-slate-800
               "
-            >
-              No goals added yet
-            </h3>
+                >
+                  No goals added yet
+                </h3>
 
-            <p
-              className="
+                <p
+                    className="
                 text-sm
                 text-slate-500
                 mt-1
               "
-            >
-              Add goals to make your profile
-              more complete.
-            </p>
+                >
+                  Add goals to make your profile
+                  more complete.
+                </p>
 
-          </div>
+              </div>
 
-        ) : (
+          ) : (
 
-          <div className="space-y-3">
+              <div className="space-y-3">
 
-            {goals.map((goal) => (
+                {goals.map((goal) => (
 
-              <div
-                key={goal.id}
-                className="
+                    <div
+                        key={goal.id}
+                        className="
                   border
                   border-slate-200
                   rounded-xl
@@ -1326,10 +1403,10 @@ const Profile = () => {
                   hover:shadow-sm
                   transition
                 "
-              >
+                    >
 
-                <div
-                  className="
+                      <div
+                          className="
                     flex
                     flex-col
                     sm:flex-row
@@ -1337,38 +1414,38 @@ const Profile = () => {
                     justify-between
                     gap-3
                   "
-                >
+                      >
 
-                  <div className="flex-1">
+                        <div className="flex-1">
 
-                    <h3
-                      className="
+                          <h3
+                              className="
                         font-bold
                         text-slate-900
                       "
-                    >
-                      {goal.title}
-                    </h3>
+                          >
+                            {goal.title}
+                          </h3>
 
-                    {goal.description && (
+                          {goal.description && (
 
-                      <p
-                        className="
+                              <p
+                                  className="
                           text-sm
                           text-slate-500
                           mt-1
                           leading-relaxed
                         "
-                      >
-                        {goal.description}
-                      </p>
+                              >
+                                {goal.description}
+                              </p>
 
-                    )}
+                          )}
 
-                  </div>
+                        </div>
 
-                  <span
-                    className={`
+                        <span
+                            className={`
                       inline-flex
                       items-center
                       px-3
@@ -1378,43 +1455,43 @@ const Profile = () => {
                       font-semibold
                       shrink-0
                       ${getGoalStatusStyle(
-                        goal.status
-                      )}
+                                goal.status
+                            )}
                     `}
-                  >
+                        >
                     {formatGoalStatus(
-                      goal.status
+                        goal.status
                     )}
                   </span>
 
-                </div>
+                      </div>
+
+                    </div>
+
+                ))}
 
               </div>
 
-            ))}
+          )}
 
-          </div>
+        </section>
 
-        )}
-
-      </section>
-
-      {/* ==========================================
+        {/* ==========================================
           AVAILABILITY
       ========================================== */}
 
-      <section
-        className="
+        <section
+            className="
           bg-white
           rounded-2xl
           border border-slate-200
           p-6
           mb-6
         "
-      >
+        >
 
-        <div
-          className="
+          <div
+              className="
             flex
             flex-col
             sm:flex-row
@@ -1422,34 +1499,34 @@ const Profile = () => {
             justify-between
             gap-4
           "
-        >
+          >
 
-          <div>
+            <div>
 
-            <h2
-              className="
+              <h2
+                  className="
                 text-lg
                 font-bold
                 text-slate-900
               "
-            >
-              Availability
-            </h2>
+              >
+                Availability
+              </h2>
 
-            <p className="text-sm text-slate-500 mt-1">
-              Let other students know when you
-              are available for collaboration.
-            </p>
+              <p className="text-sm text-slate-500 mt-1">
+                Let other students know when you
+                are available for collaboration.
+              </p>
 
-          </div>
+            </div>
 
-          <select
-            value={
-              profile.availabilityStatus || ""
-            }
-            onChange={handleAvailabilityChange}
-            disabled={availabilitySaving}
-            className="
+            <select
+                value={
+                    profile.availabilityStatus || ""
+                }
+                onChange={handleAvailabilityChange}
+                disabled={availabilitySaving}
+                className="
               w-full
               sm:w-48
               px-4
@@ -1466,49 +1543,49 @@ const Profile = () => {
               focus:ring-blue-500
               disabled:opacity-60
             "
-          >
+            >
 
-            <option value="">
-              Select availability
-            </option>
+              <option value="">
+                Select availability
+              </option>
 
-            <option value="AVAILABLE">
-              Available
-            </option>
+              <option value="AVAILABLE">
+                Available
+              </option>
 
-            <option value="BUSY">
-              Busy
-            </option>
+              <option value="BUSY">
+                Busy
+              </option>
 
-            <option value="LOOKING_FOR_TEAM">
-              Looking for Team
-            </option>
+              <option value="LOOKING_FOR_TEAM">
+                Looking for Team
+              </option>
 
-            <option value="NOT_AVAILABLE">
-              Not Available
-            </option>
+              <option value="NOT_AVAILABLE">
+                Not Available
+              </option>
 
-          </select>
+            </select>
 
-        </div>
+          </div>
 
-      </section>
+        </section>
 
-      {/* ==========================================
+        {/* ==========================================
           CAREER LINKS
       ========================================== */}
 
-      <section
-        className="
+        <section
+            className="
           bg-white
           rounded-2xl
           border border-slate-200
           p-6
         "
-      >
+        >
 
-        <div
-          className="
+          <div
+              className="
             flex
             flex-col
             sm:flex-row
@@ -1517,48 +1594,48 @@ const Profile = () => {
             gap-4
             mb-6
           "
-        >
+          >
 
-          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
 
-            <div
-              className="
+              <div
+                  className="
                 p-3
                 rounded-xl
                 bg-slate-100
               "
-            >
+              >
 
-              <Briefcase
-                size={21}
-                className="text-slate-700"
-              />
+                <Briefcase
+                    size={21}
+                    className="text-slate-700"
+                />
 
-            </div>
+              </div>
 
-            <div>
+              <div>
 
-              <h2
-                className="
+                <h2
+                    className="
                   text-lg
                   font-bold
                   text-slate-900
                 "
-              >
-                Career Links
-              </h2>
+                >
+                  Career Links
+                </h2>
 
-              <p className="text-sm text-slate-500">
-                Your professional and career resources.
-              </p>
+                <p className="text-sm text-slate-500">
+                  Your professional and career resources.
+                </p>
+
+              </div>
 
             </div>
 
-          </div>
-
-          <button
-            onClick={openSocialEdit}
-            className="
+            <button
+                onClick={openSocialEdit}
+                className="
               flex
               items-center
               justify-center
@@ -1574,49 +1651,72 @@ const Profile = () => {
               hover:bg-slate-50
               transition
             "
-          >
-            <Pencil size={16} />
-            Edit Links
-          </button>
+            >
+              <Pencil size={16} />
+              Edit Links
+            </button>
 
-        </div>
+          </div>
 
-        <div
-          className="
+          <div
+              className="
             grid
             grid-cols-1
             md:grid-cols-3
             gap-4
           "
-        >
+          >
 
-          <LinkCard
-            label="GitHub"
-            value={profile.githubUrl}
-          />
+            <LinkCard
+                label="GitHub"
+                value={profile.githubUrl}
+            />
 
-          <LinkCard
-            label="LinkedIn"
-            value={profile.linkedinUrl}
-          />
+            <LinkCard
+                label="LinkedIn"
+                value={profile.linkedinUrl}
+            />
 
-          <LinkCard
-            label="Resume"
-            value={profile.resumeUrl}
-          />
+            <LinkCard
+                label="Resume"
+                value={profile.resumeUrl}
+            />
 
-        </div>
+          </div>
 
-      </section>
+          <div className="mt-5 pt-5 border-t border-slate-200">
+            <button
+                onClick={openPasswordModal}
+                className="
+              flex
+              items-center
+              gap-2
+              px-4
+              py-3
+              rounded-xl
+              border
+              border-slate-300
+              text-slate-700
+              font-semibold
+              hover:bg-slate-50
+              transition
+            "
+            >
+              <Sparkles size={18} />
+              Change Password
+            </button>
+          </div>
 
-      {/* ==========================================
+        </section>
+
+        {/* ==========================================
           EDIT PROFILE MODAL
       ========================================== */}
 
-      {editOpen && (
+        {editOpen && (
 
-        <div
-          className="
+            <div
+                className="
             fixed
             inset-0
             z-[100]
@@ -1626,20 +1726,20 @@ const Profile = () => {
             justify-center
             p-4
           "
-          onMouseDown={(event) => {
+                onMouseDown={(event) => {
 
-            if (
-              event.target ===
-              event.currentTarget
-            ) {
-              setEditOpen(false);
-            }
+                  if (
+                      event.target ===
+                      event.currentTarget
+                  ) {
+                    setEditOpen(false);
+                  }
 
-          }}
-        >
+                }}
+            >
 
-          <div
-            className="
+              <div
+                  className="
               w-full
               max-w-2xl
               bg-white
@@ -1648,10 +1748,10 @@ const Profile = () => {
               max-h-[90vh]
               overflow-y-auto
             "
-          >
+              >
 
-            <div
-              className="
+                <div
+                    className="
                 flex
                 items-center
                 justify-between
@@ -1660,76 +1760,76 @@ const Profile = () => {
                 border-b
                 border-slate-200
               "
-            >
+                >
 
-              <div>
+                  <div>
 
-                <h2
-                  className="
+                    <h2
+                        className="
                     text-xl
                     font-bold
                     text-slate-900
                   "
-                >
-                  Edit Profile
-                </h2>
+                    >
+                      Edit Profile
+                    </h2>
 
-                <p
-                  className="
+                    <p
+                        className="
                     text-sm
                     text-slate-500
                     mt-1
                   "
-                >
-                  Update your profile information.
-                </p>
+                    >
+                      Update your profile information.
+                    </p>
 
-              </div>
+                  </div>
 
-              <button
-                onClick={() => setEditOpen(false)}
-                disabled={saving}
-                className="
+                  <button
+                      onClick={() => setEditOpen(false)}
+                      disabled={saving}
+                      className="
                   p-2
                   rounded-lg
                   hover:bg-slate-100
                   text-slate-500
                   disabled:opacity-50
                 "
-              >
-                <X size={20} />
-              </button>
+                  >
+                    <X size={20} />
+                  </button>
 
-            </div>
+                </div>
 
-            <form
-              onSubmit={handleSaveProfile}
-              className="p-6 space-y-5"
-            >
+                <form
+                    onSubmit={handleSaveProfile}
+                    className="p-6 space-y-5"
+                >
 
-              <div>
+                  <div>
 
-                <label
-                  htmlFor="bio"
-                  className="
+                    <label
+                        htmlFor="bio"
+                        className="
                     block
                     text-sm
                     font-semibold
                     text-slate-700
                     mb-2
                   "
-                >
-                  Bio
-                </label>
+                    >
+                      Bio
+                    </label>
 
-                <textarea
-                  id="bio"
-                  name="bio"
-                  value={formData.bio}
-                  onChange={handleChange}
-                  rows={4}
-                  placeholder="Tell others about yourself..."
-                  className="
+                    <textarea
+                        id="bio"
+                        name="bio"
+                        value={formData.bio}
+                        onChange={handleChange}
+                        rows={4}
+                        placeholder="Tell others about yourself..."
+                        className="
                     w-full
                     px-4
                     py-3
@@ -1741,45 +1841,45 @@ const Profile = () => {
                     focus:ring-blue-500
                     resize-none
                   "
-                />
+                    />
 
-              </div>
+                  </div>
 
-              <div
-                className="
+                  <div
+                      className="
                   grid
                   grid-cols-1
                   md:grid-cols-2
                   gap-5
                 "
-              >
+                  >
 
-                <div>
+                    <div>
 
-                  <label
-                    htmlFor="cgpa"
-                    className="
+                      <label
+                          htmlFor="cgpa"
+                          className="
                       block
                       text-sm
                       font-semibold
                       text-slate-700
                       mb-2
                     "
-                  >
-                    CGPA
-                  </label>
+                      >
+                        CGPA
+                      </label>
 
-                  <input
-                    id="cgpa"
-                    name="cgpa"
-                    type="number"
-                    min="0"
-                    max="10"
-                    step="0.01"
-                    value={formData.cgpa}
-                    onChange={handleChange}
-                    placeholder="e.g. 8.91"
-                    className="
+                      <input
+                          id="cgpa"
+                          name="cgpa"
+                          type="number"
+                          min="0"
+                          max="10"
+                          step="0.01"
+                          value={formData.cgpa}
+                          onChange={handleChange}
+                          placeholder="e.g. 8.91"
+                          className="
                       w-full
                       px-4
                       py-3
@@ -1790,34 +1890,34 @@ const Profile = () => {
                       focus:ring-2
                       focus:ring-blue-500
                     "
-                  />
+                      />
 
-                </div>
+                    </div>
 
-                <div>
+                    <div>
 
-                  <label
-                    htmlFor="phone"
-                    className="
+                      <label
+                          htmlFor="phone"
+                          className="
                       block
                       text-sm
                       font-semibold
                       text-slate-700
                       mb-2
                     "
-                  >
-                    Phone
-                  </label>
+                      >
+                        Phone
+                      </label>
 
-                  <input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    maxLength={10}
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="10 digit phone number"
-                    className="
+                      <input
+                          id="phone"
+                          name="phone"
+                          type="tel"
+                          maxLength={10}
+                          value={formData.phone}
+                          onChange={handleChange}
+                          placeholder="10 digit phone number"
+                          className="
                       w-full
                       px-4
                       py-3
@@ -1828,53 +1928,53 @@ const Profile = () => {
                       focus:ring-2
                       focus:ring-blue-500
                     "
-                  />
+                      />
 
-                  <p
-                    className="
+                      <p
+                          className="
                       text-xs
                       text-slate-400
                       mt-1
                     "
-                  >
-                    Must contain exactly 10 digits.
-                  </p>
+                      >
+                        Must contain exactly 10 digits.
+                      </p>
 
-                </div>
+                    </div>
 
-              </div>
+                  </div>
 
-              <div
-                className="
+                  <div
+                      className="
                   grid
                   grid-cols-1
                   md:grid-cols-2
                   gap-5
                 "
-              >
+                  >
 
-                <div>
+                    <div>
 
-                  <label
-                    htmlFor="section"
-                    className="
+                      <label
+                          htmlFor="section"
+                          className="
                       block
                       text-sm
                       font-semibold
                       text-slate-700
                       mb-2
                     "
-                  >
-                    Section
-                  </label>
+                      >
+                        Section
+                      </label>
 
-                  <input
-                    id="section"
-                    name="section"
-                    value={formData.section}
-                    onChange={handleChange}
-                    placeholder="e.g. A"
-                    className="
+                      <input
+                          id="section"
+                          name="section"
+                          value={formData.section}
+                          onChange={handleChange}
+                          placeholder="e.g. A"
+                          className="
                       w-full
                       px-4
                       py-3
@@ -1885,34 +1985,34 @@ const Profile = () => {
                       focus:ring-2
                       focus:ring-blue-500
                     "
-                  />
+                      />
 
-                </div>
+                    </div>
 
-                <div>
+                    <div>
 
-                  <label
-                    htmlFor="specialization"
-                    className="
+                      <label
+                          htmlFor="specialization"
+                          className="
                       block
                       text-sm
                       font-semibold
                       text-slate-700
                       mb-2
                     "
-                  >
-                    Specialization
-                  </label>
+                      >
+                        Specialization
+                      </label>
 
-                  <input
-                    id="specialization"
-                    name="specialization"
-                    value={
-                      formData.specialization
-                    }
-                    onChange={handleChange}
-                    placeholder="e.g. Artificial Intelligence"
-                    className="
+                      <input
+                          id="specialization"
+                          name="specialization"
+                          value={
+                            formData.specialization
+                          }
+                          onChange={handleChange}
+                          placeholder="e.g. Artificial Intelligence"
+                          className="
                       w-full
                       px-4
                       py-3
@@ -1923,14 +2023,14 @@ const Profile = () => {
                       focus:ring-2
                       focus:ring-blue-500
                     "
-                  />
+                      />
 
-                </div>
+                    </div>
 
-              </div>
+                  </div>
 
-              <div
-                className="
+                  <div
+                      className="
                   flex
                   justify-end
                   gap-3
@@ -1938,15 +2038,15 @@ const Profile = () => {
                   border-t
                   border-slate-200
                 "
-              >
+                  >
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    setEditOpen(false)
-                  }
-                  disabled={saving}
-                  className="
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setEditOpen(false)
+                        }
+                        disabled={saving}
+                        className="
                     px-5
                     py-2.5
                     rounded-xl
@@ -1956,14 +2056,14 @@ const Profile = () => {
                     font-semibold
                     hover:bg-slate-50
                   "
-                >
-                  Cancel
-                </button>
+                    >
+                      Cancel
+                    </button>
 
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="
+                    <button
+                        type="submit"
+                        disabled={saving}
+                        className="
                     flex
                     items-center
                     gap-2
@@ -1976,12 +2076,12 @@ const Profile = () => {
                     hover:bg-blue-700
                     disabled:opacity-60
                   "
-                >
+                    >
 
-                  {saving ? (
-                    <>
-                      <div
-                        className="
+                      {saving ? (
+                          <>
+                            <div
+                                className="
                           w-4
                           h-4
                           border-2
@@ -1990,37 +2090,37 @@ const Profile = () => {
                           rounded-full
                           animate-spin
                         "
-                      />
+                            />
 
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save size={17} />
-                      Save Changes
-                    </>
-                  )}
+                            Saving...
+                          </>
+                      ) : (
+                          <>
+                            <Save size={17} />
+                            Save Changes
+                          </>
+                      )}
 
-                </button>
+                    </button>
+
+                  </div>
+
+                </form>
 
               </div>
 
-            </form>
+            </div>
 
-          </div>
+        )}
 
-        </div>
-
-      )}
-
-      {/* ==========================================
+        {/* ==========================================
           EDIT SOCIAL LINKS MODAL
       ========================================== */}
 
-      {socialEditOpen && (
+        {socialEditOpen && (
 
-        <div
-          className="
+            <div
+                className="
             fixed
             inset-0
             z-[100]
@@ -2030,30 +2130,30 @@ const Profile = () => {
             justify-center
             p-4
           "
-          onMouseDown={(event) => {
+                onMouseDown={(event) => {
 
-            if (
-              event.target ===
-              event.currentTarget
-            ) {
-              setSocialEditOpen(false);
-            }
+                  if (
+                      event.target ===
+                      event.currentTarget
+                  ) {
+                    setSocialEditOpen(false);
+                  }
 
-          }}
-        >
+                }}
+            >
 
-          <div
-            className="
+              <div
+                  className="
               w-full
               max-w-lg
               bg-white
               rounded-2xl
               shadow-2xl
             "
-          >
+              >
 
-            <div
-              className="
+                <div
+                    className="
                 flex
                 items-center
                 justify-between
@@ -2062,90 +2162,90 @@ const Profile = () => {
                 border-b
                 border-slate-200
               "
-            >
+                >
 
-              <div>
+                  <div>
 
-                <h2
-                  className="
+                    <h2
+                        className="
                     text-xl
                     font-bold
                     text-slate-900
                   "
-                >
-                  Edit Career Links
-                </h2>
+                    >
+                      Edit Career Links
+                    </h2>
 
-                <p
-                  className="
+                    <p
+                        className="
                     text-sm
                     text-slate-500
                     mt-1
                   "
-                >
-                  Add your professional links.
-                </p>
+                    >
+                      Add your professional links.
+                    </p>
 
-              </div>
+                  </div>
 
-              <button
-                onClick={() =>
-                  setSocialEditOpen(false)
-                }
-                disabled={saving}
-                className="
+                  <button
+                      onClick={() =>
+                          setSocialEditOpen(false)
+                      }
+                      disabled={saving}
+                      className="
                   p-2
                   rounded-lg
                   hover:bg-slate-100
                   text-slate-500
                 "
-              >
-                <X size={20} />
-              </button>
+                  >
+                    <X size={20} />
+                  </button>
 
-            </div>
+                </div>
 
-            <form
-              onSubmit={handleSaveSocialLinks}
-              className="p-6 space-y-5"
-            >
+                <form
+                    onSubmit={handleSaveSocialLinks}
+                    className="p-6 space-y-5"
+                >
 
-              <div>
+                  <div>
 
-                <label
-                  htmlFor="githubUrl"
-                  className="
+                    <label
+                        htmlFor="githubUrl"
+                        className="
                     block
                     text-sm
                     font-semibold
                     text-slate-700
                     mb-2
                   "
-                >
-                  GitHub URL
-                </label>
+                    >
+                      GitHub URL
+                    </label>
 
-                <div className="relative">
+                    <div className="relative">
 
-                  <Link
-                    size={17}
-                    className="
+                      <Link
+                          size={17}
+                          className="
                       absolute
                       left-3
                       top-1/2
                       -translate-y-1/2
                       text-slate-400
                     "
-                  />
+                      />
 
-                  <input
-                    id="githubUrl"
-                    name="githubUrl"
-                    type="url"
-                    value={socialData.githubUrl}
-                    onChange={handleSocialChange}
-                    placeholder="https://github.com/username"
-                    className="
+                      <input
+                          id="githubUrl"
+                          name="githubUrl"
+                          type="url"
+                          value={socialData.githubUrl}
+                          onChange={handleSocialChange}
+                          placeholder="https://github.com/username"
+                          className="
                       w-full
                       pl-10
                       pr-4
@@ -2157,50 +2257,50 @@ const Profile = () => {
                       focus:ring-2
                       focus:ring-blue-500
                     "
-                  />
+                      />
 
-                </div>
+                    </div>
 
-              </div>
+                  </div>
 
-              <div>
+                  <div>
 
-                <label
-                  htmlFor="linkedinUrl"
-                  className="
+                    <label
+                        htmlFor="linkedinUrl"
+                        className="
                     block
                     text-sm
                     font-semibold
                     text-slate-700
                     mb-2
                   "
-                >
-                  LinkedIn URL
-                </label>
+                    >
+                      LinkedIn URL
+                    </label>
 
-                <div className="relative">
+                    <div className="relative">
 
-                  <Link
-                    size={17}
-                    className="
+                      <Link
+                          size={17}
+                          className="
                       absolute
                       left-3
                       top-1/2
                       -translate-y-1/2
                       text-slate-400
                     "
-                  />
+                      />
 
-                  <input
-                    id="linkedinUrl"
-                    name="linkedinUrl"
-                    type="url"
-                    value={
-                      socialData.linkedinUrl
-                    }
-                    onChange={handleSocialChange}
-                    placeholder="https://linkedin.com/in/username"
-                    className="
+                      <input
+                          id="linkedinUrl"
+                          name="linkedinUrl"
+                          type="url"
+                          value={
+                            socialData.linkedinUrl
+                          }
+                          onChange={handleSocialChange}
+                          placeholder="https://linkedin.com/in/username"
+                          className="
                       w-full
                       pl-10
                       pr-4
@@ -2212,48 +2312,48 @@ const Profile = () => {
                       focus:ring-2
                       focus:ring-blue-500
                     "
-                  />
+                      />
 
-                </div>
+                    </div>
 
-              </div>
+                  </div>
 
-              <div>
+                  <div>
 
-                <label
-                  htmlFor="resumeUrl"
-                  className="
+                    <label
+                        htmlFor="resumeUrl"
+                        className="
                     block
                     text-sm
                     font-semibold
                     text-slate-700
                     mb-2
                   "
-                >
-                  Resume URL
-                </label>
+                    >
+                      Resume URL
+                    </label>
 
-                <div className="relative">
+                    <div className="relative">
 
-                  <FileText
-                    size={17}
-                    className="
+                      <FileText
+                          size={17}
+                          className="
                       absolute
                       left-3
                       top-1/2
                       -translate-y-1/2
                       text-slate-400
                     "
-                  />
+                      />
 
-                  <input
-                    id="resumeUrl"
-                    name="resumeUrl"
-                    type="url"
-                    value={socialData.resumeUrl}
-                    onChange={handleSocialChange}
-                    placeholder="https://example.com/resume.pdf"
-                    className="
+                      <input
+                          id="resumeUrl"
+                          name="resumeUrl"
+                          type="url"
+                          value={socialData.resumeUrl}
+                          onChange={handleSocialChange}
+                          placeholder="https://example.com/resume.pdf"
+                          className="
                       w-full
                       pl-10
                       pr-4
@@ -2265,14 +2365,14 @@ const Profile = () => {
                       focus:ring-2
                       focus:ring-blue-500
                     "
-                  />
+                      />
 
-                </div>
+                    </div>
 
-              </div>
+                  </div>
 
-              <div
-                className="
+                  <div
+                      className="
                   flex
                   justify-end
                   gap-3
@@ -2280,15 +2380,15 @@ const Profile = () => {
                   border-t
                   border-slate-200
                 "
-              >
+                  >
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSocialEditOpen(false)
-                  }
-                  disabled={saving}
-                  className="
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setSocialEditOpen(false)
+                        }
+                        disabled={saving}
+                        className="
                     px-5
                     py-2.5
                     rounded-xl
@@ -2298,14 +2398,14 @@ const Profile = () => {
                     font-semibold
                     hover:bg-slate-50
                   "
-                >
-                  Cancel
-                </button>
+                    >
+                      Cancel
+                    </button>
 
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="
+                    <button
+                        type="submit"
+                        disabled={saving}
+                        className="
                     flex
                     items-center
                     gap-2
@@ -2318,12 +2418,12 @@ const Profile = () => {
                     hover:bg-blue-700
                     disabled:opacity-60
                   "
-                >
+                    >
 
-                  {saving ? (
-                    <>
-                      <div
-                        className="
+                      {saving ? (
+                          <>
+                            <div
+                                className="
                           w-4
                           h-4
                           border-2
@@ -2332,30 +2432,185 @@ const Profile = () => {
                           rounded-full
                           animate-spin
                         "
-                      />
+                            />
 
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save size={17} />
-                      Save Links
-                    </>
-                  )}
+                            Saving...
+                          </>
+                      ) : (
+                          <>
+                            <Save size={17} />
+                            Save Links
+                          </>
+                      )}
 
-                </button>
+                    </button>
+
+                  </div>
+
+                </form>
 
               </div>
 
-            </form>
+            </div>
 
-          </div>
+        )}
 
-        </div>
+        {/* ==========================================
+          CHANGE PASSWORD MODAL
+      ========================================== */}
 
-      )}
+        {passwordOpen && (
+            <div
+                className="
+            fixed inset-0 z-[100]
+            bg-black/50
+            flex items-center justify-center
+            p-4
+          "
+                onMouseDown={(event) => {
+                  if (event.target === event.currentTarget) {
+                    setPasswordOpen(false);
+                  }
+                }}
+            >
+              <div
+                  className="
+              w-full
+              max-w-md
+              bg-white
+              rounded-2xl
+              shadow-2xl
+            "
+              >
+                <div
+                    className="
+                flex items-center justify-between
+                px-6 py-5
+                border-b border-slate-200
+              "
+                >
+                  <div>
+                    <h2 className="text-xl font-bold">
+                      Change Password
+                    </h2>
+                    <p className="text-sm text-slate-500 mt-1">
+                      Update your account password.
+                    </p>
+                  </div>
 
-    </DashboardLayout>
+                  <button
+                      onClick={() =>
+                          setPasswordOpen(false)
+                      }
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <form
+                    onSubmit={handleSavePassword}
+                    className="p-6 space-y-4"
+                >
+                  <div>
+                    <label className="text-sm font-semibold">
+                      Current Password
+                    </label>
+
+                    <input
+                        type="password"
+                        name="currentPassword"
+                        value={
+                          passwordData.currentPassword
+                        }
+                        onChange={handlePasswordChange}
+                        required
+                        className="
+                    w-full mt-2
+                    px-4 py-3
+                    rounded-xl
+                    border border-slate-300
+                  "
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-semibold">
+                      New Password
+                    </label>
+
+                    <input
+                        type="password"
+                        name="newPassword"
+                        value={passwordData.newPassword}
+                        onChange={handlePasswordChange}
+                        required
+                        className="
+                    w-full mt-2
+                    px-4 py-3
+                    rounded-xl
+                    border border-slate-300
+                  "
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-semibold">
+                      Confirm Password
+                    </label>
+
+                    <input
+                        type="password"
+                        name="confirmPassword"
+                        value={
+                          passwordData.confirmPassword
+                        }
+                        onChange={handlePasswordChange}
+                        required
+                        className="
+                    w-full mt-2
+                    px-4 py-3
+                    rounded-xl
+                    border border-slate-300
+                  "
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-2">
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setPasswordOpen(false)
+                        }
+                        className="
+                    px-4 py-2.5
+                    border border-slate-300
+                    rounded-xl
+                  "
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        disabled={saving}
+                        className="
+                    px-4 py-2.5
+                    bg-blue-600
+                    text-white
+                    rounded-xl
+                  "
+                    >
+                      {saving
+                          ? "Saving..."
+                          : "Change Password"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+        )}
+
+      </DashboardLayout>
   );
 };
 
@@ -2364,21 +2619,21 @@ const Profile = () => {
 ========================================== */
 
 const InfoItem = ({
-  label,
-  value,
-  icon,
-}) => {
+                    label,
+                    value,
+                    icon,
+                  }) => {
   return (
-    <div
-      className="
+      <div
+          className="
         rounded-xl
         bg-slate-50
         p-4
       "
-    >
+      >
 
-      <div
-        className="
+        <div
+            className="
           flex
           items-center
           gap-2
@@ -2387,25 +2642,25 @@ const InfoItem = ({
           text-slate-500
           mb-2
         "
-      >
+        >
 
-        {icon}
+          {icon}
 
-        <span>{label}</span>
+          <span>{label}</span>
 
-      </div>
+        </div>
 
-      <p
-        className="
+        <p
+            className="
           text-sm
           font-semibold
           text-slate-900
         "
-      >
-        {value || "Not provided"}
-      </p>
+        >
+          {value || "Not provided"}
+        </p>
 
-    </div>
+      </div>
   );
 };
 
@@ -2414,67 +2669,67 @@ const InfoItem = ({
 ========================================== */
 
 const LinkCard = ({
-  label,
-  value,
-}) => {
+                    label,
+                    value,
+                  }) => {
   return (
-    <div
-      className="
+      <div
+          className="
         rounded-xl
         border
         border-slate-200
         p-4
       "
-    >
+      >
 
-      <div
-        className="
+        <div
+            className="
           flex
           items-center
           gap-2
           text-slate-700
           mb-2
         "
-      >
+        >
 
-        <Link size={19} />
+          <Link size={19} />
 
-        <span
-          className="
+          <span
+              className="
             text-sm
             font-semibold
           "
-        >
+          >
           {label}
         </span>
 
-      </div>
+        </div>
 
-      {value ? (
+        {value ? (
 
-        <a
-          href={value}
-          target="_blank"
-          rel="noreferrer"
-          className="
+            <a
+                href={value}
+                target="_blank"
+                rel="noreferrer"
+                className="
             text-sm
             text-blue-600
             hover:underline
             break-all
           "
-        >
-          {value}
-        </a>
+            >
+              {value}
+            </a>
 
-      ) : (
+        ) : (
 
-        <p className="text-sm text-slate-400">
-          Not provided
-        </p>
+            <p className="text-sm text-slate-400">
+              Not provided
+            </p>
 
-      )}
+        )}
 
-    </div>
+      </div>
   );
 };
 

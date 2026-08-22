@@ -1,5 +1,6 @@
 package com.nexus.backend.service.impl;
 
+import com.nexus.backend.dto.request.ChangePasswordRequest;
 import com.nexus.backend.dto.request.UpdateAvailabilityRequest;
 import com.nexus.backend.dto.request.UpdateProfileRequest;
 import com.nexus.backend.dto.request.UpdateSocialLinksRequest;
@@ -11,7 +12,9 @@ import com.nexus.backend.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -19,6 +22,7 @@ import java.util.List;
 public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // ===============================
     // Get Logged-in Student
@@ -65,49 +69,39 @@ public class StudentServiceImpl implements StudentService {
                 .build();
     }
 
-// ===============================
-// Student Discovery Mapper
-// ===============================
+    // ===============================
+    // Student Discovery Mapper
+    // ===============================
 
     private StudentResponse mapToStudentResponse(Student student) {
 
         return StudentResponse.builder()
                 .id(student.getId())
-                .fullName(
-                        student.getFirstName() + " " +
-                        student.getLastName()
-                )
+                .fullName(student.getFirstName() + " " + student.getLastName())
                 .rollNumber(student.getRollNumber())
                 .email(student.getEmail())
                 .phoneNumber(student.getPhone())
                 .branch(student.getSpecialization())
-                .year(
-                        student.getYear() != null
-                                ? student.getYear().toString()
-                                : null
-                )
+                .year(student.getYear() != null
+                        ? student.getYear().toString()
+                        : null)
                 .department(student.getDepartment())
                 .bio(student.getBio())
                 .profileImageUrl(student.getProfilePhoto())
                 .linkedinUrl(student.getLinkedinUrl())
                 .githubUrl(student.getGithubUrl())
-                .role(
-                        student.getRole() != null
-                                ? student.getRole().name()
-                                : null
-                )
-                .accountStatus(
-                        student.getAccountStatus() != null
-                                ? student.getAccountStatus().name()
-                                : null
-                )
-                .availabilityStatus(
-                        student.getAvailabilityStatus() != null
-                                ? student.getAvailabilityStatus().name()
-                                : null
-                )
+                .role(student.getRole() != null
+                        ? student.getRole().name()
+                        : null)
+                .accountStatus(student.getAccountStatus() != null
+                        ? student.getAccountStatus().name()
+                        : null)
+                .availabilityStatus(student.getAvailabilityStatus() != null
+                        ? student.getAvailabilityStatus().name()
+                        : null)
                 .build();
     }
+
     // ===============================
     // Get Profile
     // ===============================
@@ -174,42 +168,84 @@ public class StudentServiceImpl implements StudentService {
         return mapToResponse(student);
     }
 
-        // ===============================
-        // Get All Students
-        // ===============================
+    // ===============================
+    // Change Password
+    // ===============================
 
-        @Override
-        public List<StudentResponse> getAllStudents() {
+    @Override
+    public void changePassword(ChangePasswordRequest request) {
 
-            Student currentStudent = getCurrentStudent();
+        Student student = getCurrentStudent();
 
-            return studentRepository.findAll()
-                    .stream()
-                    .filter(student ->
-                            !student.getId().equals(currentStudent.getId()))
-                    .map(this::mapToStudentResponse)
-                    .toList();
+        // Verify current password
+        if (!passwordEncoder.matches(
+                request.getCurrentPassword(),
+                student.getPassword())) {
+
+            throw new RuntimeException("Current password is incorrect.");
         }
 
-        // ===============================
-        // Get Student By ID
-        // ===============================
+        // Check confirmation
+        if (!request.getNewPassword()
+                .equals(request.getConfirmPassword())) {
 
-        @Override
-        public StudentResponse getStudentById(Long id) {
-
-            Student currentStudent = getCurrentStudent();
-
-            Student student = studentRepository.findById(id)
-                    .orElseThrow(() ->
-                            new RuntimeException("Student not found."));
-
-            if (student.getId().equals(currentStudent.getId())) {
-                throw new RuntimeException(
-                        "You cannot view yourself in student discovery."
-                );
-            }
-
-            return mapToStudentResponse(student);
+            throw new RuntimeException("New passwords do not match.");
         }
+
+        // Prevent same password
+        if (passwordEncoder.matches(
+                request.getNewPassword(),
+                student.getPassword())) {
+
+            throw new RuntimeException(
+                    "New password must be different from current password."
+            );
+        }
+
+        // Save encrypted password
+        student.setPassword(
+                passwordEncoder.encode(request.getNewPassword())
+        );
+
+        studentRepository.save(student);
+    }
+
+    // ===============================
+    // Get All Students
+    // ===============================
+
+    @Override
+    public List<StudentResponse> getAllStudents() {
+
+        Student currentStudent = getCurrentStudent();
+
+        return studentRepository.findAll()
+                .stream()
+                .filter(student ->
+                        !student.getId().equals(currentStudent.getId()))
+                .map(this::mapToStudentResponse)
+                .toList();
+    }
+
+    // ===============================
+    // Get Student By ID
+    // ===============================
+
+    @Override
+    public StudentResponse getStudentById(Long id) {
+
+        Student currentStudent = getCurrentStudent();
+
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Student not found."));
+
+        if (student.getId().equals(currentStudent.getId())) {
+            throw new RuntimeException(
+                    "You cannot view yourself in student discovery."
+            );
+        }
+
+        return mapToStudentResponse(student);
+    }
 }
