@@ -9,14 +9,20 @@ import {
   RefreshCw,
   AlertCircle,
   CheckCircle2,
+  History,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
 import DashboardLayout from "../../components/layout/DashboardLayout";
-import { getProjectRecommendations } from "../../services/recommendationService";
+import {
+  getProjectMatches,
+  getMatchHistory,
+} from "../../services/matchingService";
 
 const Recommendations = () => {
+  const [activeTab, setActiveTab] = useState("matching");
   const [recommendations, setRecommendations] = useState([]);
+  const [matchHistory, setMatchHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
@@ -35,30 +41,27 @@ const Recommendations = () => {
         setLoading(true);
       }
 
-      const data = await getProjectRecommendations();
+      const [matches, history] = await Promise.all([
+        getProjectMatches(),
+        getMatchHistory(),
+      ]);
 
-      setRecommendations(
-        Array.isArray(data) ? data : []
-      );
+      setRecommendations(Array.isArray(matches) ? matches : []);
+      setMatchHistory(Array.isArray(history) ? history : []);
 
       if (showToast) {
         toast.success("Recommendations refreshed.");
       }
     } catch (err) {
-      console.error(
-        "Failed to load recommendations:",
-        err
-      );
+      console.error(err);
 
       const message =
-        err.response?.data?.message ||
-        "Unable to load AI recommendations.";
+          err.response?.data?.message ||
+          "Unable to load recommendations.";
 
       setError(message);
 
-      if (showToast) {
-        toast.error(message);
-      }
+      if (showToast) toast.error(message);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -103,8 +106,8 @@ const Recommendations = () => {
 
   const getScoreWidth = (score) => {
     return `${Math.min(
-      Math.max(score || 0, 0),
-      100
+        Math.max(score || 0, 0),
+        100
     )}%`;
   };
 
@@ -114,86 +117,86 @@ const Recommendations = () => {
 
   if (loading) {
     return (
-      <DashboardLayout>
-        <div className="max-w-7xl mx-auto">
+        <DashboardLayout>
+          <div className="max-w-7xl mx-auto">
 
-          <div className="mb-8">
-            <div className="h-8 w-72 bg-slate-200 rounded-lg animate-pulse" />
+            <div className="mb-8">
+              <div className="h-8 w-72 bg-slate-200 rounded-lg animate-pulse" />
 
-            <div className="h-4 w-96 max-w-full bg-slate-200 rounded mt-3 animate-pulse" />
+              <div className="h-4 w-96 max-w-full bg-slate-200 rounded mt-3 animate-pulse" />
+            </div>
+
+            <div className="space-y-6">
+
+              {[1, 2, 3].map((item) => (
+                  <div
+                      key={item}
+                      className="bg-white border border-slate-200 rounded-2xl p-6 animate-pulse"
+                  >
+                    <div className="h-6 w-64 bg-slate-200 rounded" />
+
+                    <div className="h-4 w-40 bg-slate-200 rounded mt-3" />
+
+                    <div className="h-4 w-full bg-slate-200 rounded mt-6" />
+
+                    <div className="h-4 w-5/6 bg-slate-200 rounded mt-2" />
+
+                    <div className="h-20 w-full bg-slate-100 rounded-xl mt-6" />
+                  </div>
+              ))}
+
+            </div>
+
           </div>
-
-          <div className="space-y-6">
-
-            {[1, 2, 3].map((item) => (
-              <div
-                key={item}
-                className="bg-white border border-slate-200 rounded-2xl p-6 animate-pulse"
-              >
-                <div className="h-6 w-64 bg-slate-200 rounded" />
-
-                <div className="h-4 w-40 bg-slate-200 rounded mt-3" />
-
-                <div className="h-4 w-full bg-slate-200 rounded mt-6" />
-
-                <div className="h-4 w-5/6 bg-slate-200 rounded mt-2" />
-
-                <div className="h-20 w-full bg-slate-100 rounded-xl mt-6" />
-              </div>
-            ))}
-
-          </div>
-
-        </div>
-      </DashboardLayout>
+        </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout>
+      <DashboardLayout>
 
-      <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto">
 
-        {/* ==========================================
+          {/* ==========================================
             PAGE HEADER
         ========================================== */}
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
 
-          <div>
+            <div>
 
-            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3">
 
-              <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center">
+                <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center">
 
-                <Sparkles
-                  size={22}
-                  className="text-blue-600"
-                />
+                  <Sparkles
+                      size={22}
+                      className="text-blue-600"
+                  />
 
-              </div>
+                </div>
 
-              <div>
+                <div>
 
-                <h1 className="text-2xl font-bold text-slate-900">
-                  AI Recommendations
-                </h1>
+                  <h1 className="text-2xl font-bold text-slate-900">
+                    AI Recommendations
+                  </h1>
 
-                <p className="text-sm text-slate-500 mt-1">
-                  Discover projects that match your skills,
-                  interests, and career goals.
-                </p>
+                  <p className="text-sm text-slate-500 mt-1">
+                    Discover projects that match your skills,
+                    interests, and career goals.
+                  </p>
+
+                </div>
 
               </div>
 
             </div>
 
-          </div>
-
-          <button
-            onClick={() => loadRecommendations(true)}
-            disabled={refreshing}
-            className="
+            <button
+                onClick={() => loadRecommendations(true)}
+                disabled={refreshing}
+                className="
               inline-flex
               items-center
               justify-center
@@ -212,32 +215,62 @@ const Recommendations = () => {
               disabled:opacity-50
               disabled:cursor-not-allowed
             "
-          >
+            >
 
-            <RefreshCw
-              size={17}
-              className={
-                refreshing
-                  ? "animate-spin"
-                  : ""
-              }
-            />
+              <RefreshCw
+                  size={17}
+                  className={
+                    refreshing
+                        ? "animate-spin"
+                        : ""
+                  }
+              />
 
-            {refreshing
-              ? "Refreshing..."
-              : "Refresh"}
-          </button>
+              {refreshing
+                  ? "Refreshing..."
+                  : "Refresh"}
+            </button>
 
-        </div>
+          </div>
 
 
-        {/* ==========================================
+          {/* ==========================================
+            TABS
+        ========================================== */}
+
+          <div className="flex items-center gap-3 mb-8">
+
+            <button
+                onClick={() => setActiveTab("matching")}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition ${
+                    activeTab === "matching"
+                        ? "bg-blue-600 text-white"
+                        : "bg-white border border-slate-200 text-slate-600"
+                }`}
+            >
+              Smart Matching
+            </button>
+
+            <button
+                onClick={() => setActiveTab("history")}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition ${
+                    activeTab === "history"
+                        ? "bg-blue-600 text-white"
+                        : "bg-white border border-slate-200 text-slate-600"
+                }`}
+            >
+              Match History
+            </button>
+
+          </div>
+
+          {/* ==========================================
             ERROR STATE
         ========================================== */}
 
-        {error && (
+          {error && (
 
-          <div className="
+              <div className="
             mb-6
             p-4
             rounded-xl
@@ -249,36 +282,36 @@ const Recommendations = () => {
             gap-3
           ">
 
-            <AlertCircle
-              size={20}
-              className="text-red-500 mt-0.5 shrink-0"
-            />
+                <AlertCircle
+                    size={20}
+                    className="text-red-500 mt-0.5 shrink-0"
+                />
 
-            <div>
+                <div>
 
-              <p className="font-semibold text-red-800">
-                Unable to load recommendations
-              </p>
+                  <p className="font-semibold text-red-800">
+                    Unable to load recommendations
+                  </p>
 
-              <p className="text-sm text-red-700 mt-1">
-                {error}
-              </p>
+                  <p className="text-sm text-red-700 mt-1">
+                    {error}
+                  </p>
 
-            </div>
+                </div>
 
-          </div>
+              </div>
 
-        )}
+          )}
 
 
-        {/* ==========================================
+          {/* ==========================================
             EMPTY STATE
         ========================================== */}
 
-        {!error &&
-          recommendations.length === 0 && (
+          {!error &&
+              recommendations.length === 0 && (
 
-            <div className="
+                  <div className="
               bg-white
               border
               border-slate-200
@@ -287,7 +320,7 @@ const Recommendations = () => {
               text-center
             ">
 
-              <div className="
+                    <div className="
                 w-14
                 h-14
                 mx-auto
@@ -298,63 +331,63 @@ const Recommendations = () => {
                 justify-center
               ">
 
-                <Brain
-                  size={26}
-                  className="text-blue-600"
-                />
+                      <Brain
+                          size={26}
+                          className="text-blue-600"
+                      />
 
-              </div>
+                    </div>
 
-              <h2 className="
+                    <h2 className="
                 text-lg
                 font-semibold
                 text-slate-900
                 mt-5
               ">
-                No recommendations available
-              </h2>
+                      No recommendations available
+                    </h2>
 
-              <p className="
+                    <p className="
                 text-sm
                 text-slate-500
                 mt-2
                 max-w-md
                 mx-auto
               ">
-                Add more skills and interests to your
-                profile so Nexus can find better project
-                matches for you.
-              </p>
+                      Add more skills and interests to your
+                      profile so Nexus can find better project
+                      matches for you.
+                    </p>
 
-            </div>
-          )}
+                  </div>
+              )}
 
 
-        {/* ==========================================
+          {/* ==========================================
             RECOMMENDATION CARDS
         ========================================== */}
 
-        {!error &&
-          recommendations.length > 0 && (
+          {activeTab === "matching" && !error &&
+              recommendations.length > 0 && (
 
-            <div className="space-y-6">
+                  <div className="space-y-6">
 
-              {recommendations.map(
-                (recommendation, index) => {
+                    {recommendations.map(
+                        (recommendation, index) => {
 
-                  const score =
-                    Number(
-                      recommendation.matchScore || 0
-                    );
+                          const score =
+                              Number(
+                                  recommendation.matchScore || 0
+                              );
 
-                  return (
+                          return (
 
-                    <div
-                      key={
-                        recommendation.projectId ||
-                        index
-                      }
-                      className="
+                              <div
+                                  key={
+                                      recommendation.projectId ||
+                                      index
+                                  }
+                                  className="
                         bg-white
                         border
                         border-slate-200
@@ -362,15 +395,15 @@ const Recommendations = () => {
                         overflow-hidden
                         shadow-sm
                       "
-                    >
+                              >
 
-                      {/* ==================================
+                                {/* ==================================
                           PROJECT HEADER
                       ================================== */}
 
-                      <div className="p-6 border-b border-slate-100">
+                                <div className="p-6 border-b border-slate-100">
 
-                        <div className="
+                                  <div className="
                           flex
                           flex-col
                           lg:flex-row
@@ -379,11 +412,11 @@ const Recommendations = () => {
                           gap-5
                         ">
 
-                          <div className="flex-1">
+                                    <div className="flex-1">
 
-                            <div className="flex items-start gap-4">
+                                      <div className="flex items-start gap-4">
 
-                              <div className="
+                                        <div className="
                                 w-11
                                 h-11
                                 rounded-xl
@@ -394,16 +427,16 @@ const Recommendations = () => {
                                 shrink-0
                               ">
 
-                                <Briefcase
-                                  size={21}
-                                  className="text-blue-600"
-                                />
+                                          <Briefcase
+                                              size={21}
+                                              className="text-blue-600"
+                                          />
 
-                              </div>
+                                        </div>
 
-                              <div>
+                                        <div>
 
-                                <div className="flex items-center gap-2 flex-wrap">
+                                          <div className="flex items-center gap-2 flex-wrap">
 
                                   <span className="
                                     text-xs
@@ -417,7 +450,7 @@ const Recommendations = () => {
                                     #{index + 1}
                                   </span>
 
-                                  <span className="
+                                            <span className="
                                     text-xs
                                     font-medium
                                     text-slate-500
@@ -425,44 +458,44 @@ const Recommendations = () => {
                                     AI Project Match
                                   </span>
 
-                                </div>
+                                          </div>
 
-                                <h2 className="
+                                          <h2 className="
                                   text-xl
                                   font-bold
                                   text-slate-900
                                   mt-2
                                 ">
-                                  {recommendation.projectTitle}
-                                </h2>
+                                            {recommendation.projectTitle}
+                                          </h2>
 
-                                {recommendation.technologiesUsed && (
+                                          {recommendation.technologiesUsed && (
 
-                                  <p className="
+                                              <p className="
                                     text-sm
                                     text-slate-500
                                     mt-2
                                   ">
-                                    Technologies:{" "}
-                                    <span className="text-slate-700">
+                                                Technologies:{" "}
+                                                <span className="text-slate-700">
                                       {recommendation.technologiesUsed}
                                     </span>
-                                  </p>
+                                              </p>
 
-                                )}
+                                          )}
 
-                              </div>
+                                        </div>
 
-                            </div>
+                                      </div>
 
-                          </div>
+                                    </div>
 
 
-                          {/* SCORE */}
+                                    {/* SCORE */}
 
-                          <div className="lg:w-52">
+                                    <div className="lg:w-52">
 
-                            <div className="flex items-center justify-between mb-2">
+                                      <div className="flex items-center justify-between mb-2">
 
                               <span className="
                                 text-xs
@@ -472,7 +505,7 @@ const Recommendations = () => {
                                 Match Score
                               </span>
 
-                              <span className="
+                                        <span className="
                                 text-lg
                                 font-bold
                                 text-blue-600
@@ -480,86 +513,86 @@ const Recommendations = () => {
                                 {score.toFixed(1)}%
                               </span>
 
-                            </div>
+                                      </div>
 
-                            <div className="
+                                      <div className="
                               h-2
                               bg-slate-100
                               rounded-full
                               overflow-hidden
                             ">
 
-                              <div
-                                className="
+                                        <div
+                                            className="
                                   h-full
                                   bg-blue-600
                                   rounded-full
                                   transition-all
                                 "
-                                style={{
-                                  width:
-                                    getScoreWidth(
-                                      score
-                                    ),
-                                }}
-                              />
+                                            style={{
+                                              width:
+                                                  getScoreWidth(
+                                                      score
+                                                  ),
+                                            }}
+                                        />
 
-                            </div>
+                                      </div>
 
-                            <p className="
+                                      <p className="
                               text-xs
                               text-right
                               text-slate-500
                               mt-1.5
                             ">
-                              {getScoreLabel(score)}
-                            </p>
+                                        {getScoreLabel(score)}
+                                      </p>
 
-                          </div>
+                                    </div>
 
-                        </div>
+                                  </div>
 
-                      </div>
+                                </div>
 
 
-                      {/* ==================================
+                                {/* ==================================
                           AI ANALYSIS
                       ================================== */}
 
-                      <div className="p-6">
+                                <div className="p-6">
 
-                        <div className="
+                                  <div className="
                           flex
                           items-center
                           gap-2
                           mb-5
                         ">
 
-                          <Brain
-                            size={19}
-                            className="text-blue-600"
-                          />
+                                    <Brain
+                                        size={19}
+                                        className="text-blue-600"
+                                    />
 
-                          <h3 className="
+                                    <h3 className="
                             font-semibold
                             text-slate-900
                           ">
-                            AI Analysis
-                          </h3>
+                                      AI Analysis
+                                    </h3>
 
-                        </div>
+                                  </div>
 
 
-                        <div className="
+                                  <div className="
                           grid
                           grid-cols-1
                           lg:grid-cols-2
                           gap-5
                         ">
 
-                          {/* WHY THIS PROJECT */}
+                                    {/* WHY THIS PROJECT */}
 
-                          <div className="
+                                    <div className="
                             rounded-xl
                             bg-slate-50
                             border
@@ -567,43 +600,43 @@ const Recommendations = () => {
                             p-5
                           ">
 
-                            <div className="
+                                      <div className="
                               flex
                               items-center
                               gap-2
                               mb-3
                             ">
 
-                              <Target
-                                size={18}
-                                className="text-blue-600"
-                              />
+                                        <Target
+                                            size={18}
+                                            className="text-blue-600"
+                                        />
 
-                              <h4 className="
+                                        <h4 className="
                                 text-sm
                                 font-semibold
                                 text-slate-900
                               ">
-                                Why this project?
-                              </h4>
+                                          Why this project?
+                                        </h4>
 
-                            </div>
+                                      </div>
 
-                            <p className="
+                                      <p className="
                               text-sm
                               leading-6
                               text-slate-600
                             ">
-                              {recommendation.reason ||
-                                "No detailed reason was generated."}
-                            </p>
+                                        {recommendation.reason ||
+                                            "No detailed reason was generated."}
+                                      </p>
 
-                          </div>
+                                    </div>
 
 
-                          {/* MISSING SKILLS */}
+                                    {/* MISSING SKILLS */}
 
-                          <div className="
+                                    <div className="
                             rounded-xl
                             bg-slate-50
                             border
@@ -611,43 +644,43 @@ const Recommendations = () => {
                             p-5
                           ">
 
-                            <div className="
+                                      <div className="
                               flex
                               items-center
                               gap-2
                               mb-3
                             ">
 
-                              <AlertCircle
-                                size={18}
-                                className="text-orange-500"
-                              />
+                                        <AlertCircle
+                                            size={18}
+                                            className="text-orange-500"
+                                        />
 
-                              <h4 className="
+                                        <h4 className="
                                 text-sm
                                 font-semibold
                                 text-slate-900
                               ">
-                                Skills to develop
-                              </h4>
+                                          Skills to develop
+                                        </h4>
 
-                            </div>
+                                      </div>
 
-                            <p className="
+                                      <p className="
                               text-sm
                               leading-6
                               text-slate-600
                             ">
-                              {recommendation.missingSkills ||
-                                "No major missing skills identified."}
-                            </p>
+                                        {recommendation.missingSkills ||
+                                            "No major missing skills identified."}
+                                      </p>
 
-                          </div>
+                                    </div>
 
 
-                          {/* LEARNING ROADMAP */}
+                                    {/* LEARNING ROADMAP */}
 
-                          <div className="
+                                    <div className="
                             rounded-xl
                             bg-slate-50
                             border
@@ -655,44 +688,44 @@ const Recommendations = () => {
                             p-5
                           ">
 
-                            <div className="
+                                      <div className="
                               flex
                               items-center
                               gap-2
                               mb-3
                             ">
 
-                              <BookOpen
-                                size={18}
-                                className="text-blue-600"
-                              />
+                                        <BookOpen
+                                            size={18}
+                                            className="text-blue-600"
+                                        />
 
-                              <h4 className="
+                                        <h4 className="
                                 text-sm
                                 font-semibold
                                 text-slate-900
                               ">
-                                Learning Roadmap
-                              </h4>
+                                          Learning Roadmap
+                                        </h4>
 
-                            </div>
+                                      </div>
 
-                            <div className="
+                                      <div className="
                               text-sm
                               leading-6
                               text-slate-600
                               whitespace-pre-line
                             ">
-                              {recommendation.learningRoadmap ||
-                                "No learning roadmap generated."}
-                            </div>
+                                        {recommendation.learningRoadmap ||
+                                            "No learning roadmap generated."}
+                                      </div>
 
-                          </div>
+                                    </div>
 
 
-                          {/* CAREER ADVICE */}
+                                    {/* CAREER ADVICE */}
 
-                          <div className="
+                                    <div className="
                             rounded-xl
                             bg-slate-50
                             border
@@ -700,47 +733,47 @@ const Recommendations = () => {
                             p-5
                           ">
 
-                            <div className="
+                                      <div className="
                               flex
                               items-center
                               gap-2
                               mb-3
                             ">
 
-                              <Briefcase
-                                size={18}
-                                className="text-blue-600"
-                              />
+                                        <Briefcase
+                                            size={18}
+                                            className="text-blue-600"
+                                        />
 
-                              <h4 className="
+                                        <h4 className="
                                 text-sm
                                 font-semibold
                                 text-slate-900
                               ">
-                                Career Advice
-                              </h4>
+                                          Career Advice
+                                        </h4>
 
-                            </div>
+                                      </div>
 
-                            <p className="
+                                      <p className="
                               text-sm
                               leading-6
                               text-slate-600
                             ">
-                              {recommendation.careerAdvice ||
-                                "No career advice generated."}
-                            </p>
+                                        {recommendation.careerAdvice ||
+                                            "No career advice generated."}
+                                      </p>
 
-                          </div>
+                                    </div>
 
-                        </div>
+                                  </div>
 
 
-                        {/* ==================================
+                                  {/* ==================================
                             CERTIFICATION
                         ================================== */}
 
-                        <div className="
+                                  <div className="
                           mt-5
                           rounded-xl
                           border
@@ -749,13 +782,13 @@ const Recommendations = () => {
                           p-5
                         ">
 
-                          <div className="
+                                    <div className="
                             flex
                             items-center
                             gap-3
                           ">
 
-                            <div className="
+                                      <div className="
                               w-9
                               h-9
                               rounded-lg
@@ -765,47 +798,47 @@ const Recommendations = () => {
                               justify-center
                             ">
 
-                              <Award
-                                size={19}
-                                className="text-blue-600"
-                              />
+                                        <Award
+                                            size={19}
+                                            className="text-blue-600"
+                                        />
 
-                            </div>
+                                      </div>
 
-                            <div>
+                                      <div>
 
-                              <p className="
+                                        <p className="
                                 text-xs
                                 font-semibold
                                 text-blue-600
                                 uppercase
                                 tracking-wide
                               ">
-                                Recommended Certification
-                              </p>
+                                          Recommended Certification
+                                        </p>
 
-                              <p className="
+                                        <p className="
                                 text-sm
                                 font-semibold
                                 text-slate-900
                                 mt-1
                               ">
-                                {recommendation.recommendedCertification ||
-                                  "No certification recommendation available."}
-                              </p>
+                                          {recommendation.recommendedCertification ||
+                                              "No certification recommendation available."}
+                                        </p>
 
-                            </div>
+                                      </div>
 
-                          </div>
+                                    </div>
 
-                        </div>
+                                  </div>
 
 
-                        {/* ==================================
+                                  {/* ==================================
                             MATCH CONFIRMATION
                         ================================== */}
 
-                        <div className="
+                                  <div className="
                           mt-5
                           flex
                           items-center
@@ -814,32 +847,101 @@ const Recommendations = () => {
                           text-slate-500
                         ">
 
-                          <CheckCircle2
-                            size={16}
-                            className="text-green-500"
-                          />
+                                    <CheckCircle2
+                                        size={16}
+                                        className="text-green-500"
+                                    />
 
-                          <span>
+                                    <span>
                             Recommendation generated using
                             your profile and AI analysis.
                           </span>
 
-                        </div>
+                                  </div>
 
-                      </div>
+                                </div>
 
-                    </div>
+                              </div>
 
-                  );
-                }
+                          );
+                        }
+                    )}
+
+                  </div>
               )}
 
-            </div>
+
+          {/* ==========================================
+            MATCH HISTORY
+        ========================================== */}
+
+          {activeTab === "history" && (
+              <div className="space-y-5">
+
+                {matchHistory.length === 0 ? (
+                    <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
+                      <History size={42} className="mx-auto text-slate-300" />
+                      <h3 className="text-lg font-semibold text-slate-900 mt-4">
+                        No Match History
+                      </h3>
+                      <p className="text-sm text-slate-500 mt-2">
+                        Generate Smart Matching first. Previous matches will appear here automatically.
+                      </p>
+                    </div>
+                ) : (
+                    matchHistory.map((match) => (
+                        <div
+                            key={match.id}
+                            className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="flex items-center gap-2 mb-2">
+                                <History size={18} className="text-blue-600" />
+                                <span className="text-xs font-semibold text-blue-600">
+                          PREVIOUS MATCH
+                        </span>
+                              </div>
+                              <h3 className="text-lg font-bold text-slate-900">
+                                Project ID #{match.projectId}
+                              </h3>
+                              <p className="text-sm text-slate-500 mt-1">
+                                {match.matchType.replaceAll("_", " ")}
+                              </p>
+                            </div>
+
+                            <div className="text-right">
+                              <div className="text-2xl font-bold text-blue-600">
+                                {match.matchScore.toFixed(1)}%
+                              </div>
+                              <p className="text-xs text-slate-500">
+                                Match Score
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="mt-5 h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-blue-600 rounded-full"
+                                style={{ width: `${match.matchScore}%` }}
+                            />
+                          </div>
+
+                          <div className="mt-4 flex justify-between text-sm text-slate-500">
+                            <span>Student #{match.studentId}</span>
+                            <span>{new Date(match.matchedAt).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                    ))
+                )}
+
+              </div>
           )}
 
-      </div>
 
-    </DashboardLayout>
+        </div>
+
+      </DashboardLayout>
   );
 };
 
