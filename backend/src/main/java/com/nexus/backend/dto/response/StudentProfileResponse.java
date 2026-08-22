@@ -47,4 +47,6 @@ public class StudentProfileResponse {
     private AccountStatus accountStatus;
 
     private Role role;
+
+    private Integer profileCompletion;
 }

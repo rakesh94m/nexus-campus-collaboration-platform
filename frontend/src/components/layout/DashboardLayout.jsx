@@ -8,41 +8,7 @@ import { getNotifications } from "../../services/notificationService";
 const DashboardLayout = ({ children }) => {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const [notificationCount, setNotificationCount] =
-    useState(0);
-
-
-  // ==========================================
-  // LOAD NOTIFICATION COUNT
-  // ==========================================
-
-  const loadNotificationCount = async () => {
-
-    try {
-
-      const notifications =
-        await getNotifications();
-
-      const unreadCount =
-        notifications.filter(
-          (notification) =>
-            notification.status === "UNREAD"
-        ).length;
-
-      setNotificationCount(unreadCount);
-
-    } catch (error) {
-
-      console.error(
-        "Notification count error:",
-        error
-      );
-
-      setNotificationCount(0);
-    }
-  };
-
+  const [notificationCount, setNotificationCount] = useState(0);
 
   // ==========================================
   // LOAD ONCE
@@ -50,75 +16,74 @@ const DashboardLayout = ({ children }) => {
 
   useEffect(() => {
 
-    loadNotificationCount();
+    const fetchNotifications = async () => {
+
+      try {
+
+        const notifications = await getNotifications();
+
+        const unreadCount = notifications.filter(
+            (notification) =>
+                notification.status === "UNREAD"
+        ).length;
+
+        setNotificationCount(unreadCount);
+
+      } catch (error) {
+
+        console.error(
+            "Notification count error:",
+            error
+        );
+
+        setNotificationCount(0);
+      }
+
+    };
+
+    fetchNotifications();
 
   }, []);
-
 
   // ==========================================
   // SIDEBAR
   // ==========================================
 
   const handleCloseSidebar = () => {
-
     setSidebarOpen(false);
-
   };
-
 
   const handleOpenSidebar = () => {
-
     setSidebarOpen(true);
-
   };
-
 
   return (
 
-    <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50">
 
-      {/* ==========================================
-          SIDEBAR
-      ========================================== */}
-
-      <Sidebar
-        isOpen={sidebarOpen}
-        onClose={handleCloseSidebar}
-        notificationCount={notificationCount}
-      />
-
-
-      {/* ==========================================
-          MAIN AREA
-      ========================================== */}
-
-      <div className="lg:ml-64 min-h-screen">
-
-        {/* ==========================================
-            HEADER
-        ========================================== */}
-
-        <Header
-          onMenuClick={handleOpenSidebar}
-          notificationCount={notificationCount}
+        <Sidebar
+            isOpen={sidebarOpen}
+            onClose={handleCloseSidebar}
+            notificationCount={notificationCount}
         />
 
+        <div className="lg:ml-64 min-h-screen">
 
-        {/* ==========================================
-            PAGE CONTENT
-        ========================================== */}
+          <Header
+              onMenuClick={handleOpenSidebar}
+              notificationCount={notificationCount}
+          />
 
-        <main className="p-4 sm:p-6 lg:p-8">
+          <main className="p-4 sm:p-6 lg:p-8">
+            {children}
+          </main>
 
-          {children}
-
-        </main>
+        </div>
 
       </div>
 
-    </div>
-
   );
+
 };
 
 export default DashboardLayout;
