@@ -2,6 +2,8 @@ package com.nexus.backend.dto.response;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,8 +18,6 @@ public class StudentResponse {
     private String rollNumber;
 
     private String email;
-
-    private String phoneNumber;
 
     private String branch;
 
@@ -40,4 +40,7 @@ public class StudentResponse {
     private String accountStatus;
 
     private String availabilityStatus;
+
+    // NEW
+    private List<String> skills;
 }

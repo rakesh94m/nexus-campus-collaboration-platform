@@ -70,8 +70,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     private ProjectResponse mapToResponse(Project project) {
 
-        List<ProjectSkillResponse> requiredSkills =
-                new ArrayList<>();
+        List<ProjectSkillResponse> requiredSkills = new ArrayList<>();
 
         List<ProjectSkill> projectSkills =
                 projectSkillRepository.findByProject(project);
@@ -85,22 +84,17 @@ public class ProjectServiceImpl implements ProjectService {
             requiredSkills.add(
                     ProjectSkillResponse.builder()
                             .id(projectSkill.getId())
-                            .skillId(
-                                    projectSkill
-                                            .getSkill()
-                                            .getId()
-                            )
-                            .skillName(
-                                    projectSkill
-                                            .getSkill()
-                                            .getSkillName()
-                            )
-                            .importance(
-                                    projectSkill.getImportance()
-                            )
+                            .skillId(projectSkill.getSkill().getId())
+                            .skillName(projectSkill.getSkill().getSkillName())
+                            .importance(projectSkill.getImportance())
                             .build()
             );
         }
+
+        int memberCount =
+                projectMemberRepository.findByProject(project).size() + 1;
+
+        Student owner = project.getStudent();
 
         return ProjectResponse.builder()
                 .id(project.getId())
@@ -111,6 +105,17 @@ public class ProjectServiceImpl implements ProjectService {
                 .liveDemoUrl(project.getLiveDemoUrl())
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
+
+                // Owner
+                .ownerId(owner.getId())
+                .ownerName(owner.getFirstName() + " " + owner.getLastName())
+                .ownerDepartment(owner.getDepartment())
+                .ownerYear(owner.getYear())
+
+                // Team
+                .teamMemberCount(memberCount)
+
+                // Skills
                 .requiredSkills(requiredSkills)
                 .build();
     }

@@ -8,6 +8,7 @@ import com.nexus.backend.dto.response.StudentProfileResponse;
 import com.nexus.backend.dto.response.StudentResponse;
 import com.nexus.backend.entity.Student;
 import com.nexus.backend.repository.StudentRepository;
+import com.nexus.backend.repository.StudentSkillRepository;
 import com.nexus.backend.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,7 @@ public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
     private final PasswordEncoder passwordEncoder;
+    private final StudentSkillRepository studentSkillRepository;
 
     // ===============================
     // Get Logged-in Student
@@ -75,30 +77,45 @@ public class StudentServiceImpl implements StudentService {
 
     private StudentResponse mapToStudentResponse(Student student) {
 
+        List<String> skills = studentSkillRepository
+                .findByStudent(student)
+                .stream()
+                .map(studentSkill -> studentSkill.getSkill().getSkillName())
+                .toList();
+
         return StudentResponse.builder()
                 .id(student.getId())
                 .fullName(student.getFirstName() + " " + student.getLastName())
                 .rollNumber(student.getRollNumber())
                 .email(student.getEmail())
-                .phoneNumber(student.getPhone())
+
+                // Phone removed
                 .branch(student.getSpecialization())
+
                 .year(student.getYear() != null
                         ? student.getYear().toString()
                         : null)
+
                 .department(student.getDepartment())
                 .bio(student.getBio())
                 .profileImageUrl(student.getProfilePhoto())
                 .linkedinUrl(student.getLinkedinUrl())
                 .githubUrl(student.getGithubUrl())
+
                 .role(student.getRole() != null
                         ? student.getRole().name()
                         : null)
+
                 .accountStatus(student.getAccountStatus() != null
                         ? student.getAccountStatus().name()
                         : null)
+
                 .availabilityStatus(student.getAvailabilityStatus() != null
                         ? student.getAvailabilityStatus().name()
                         : null)
+
+                .skills(skills)
+
                 .build();
     }
 

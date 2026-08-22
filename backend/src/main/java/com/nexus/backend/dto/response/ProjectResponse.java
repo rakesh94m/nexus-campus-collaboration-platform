@@ -33,6 +33,24 @@ public class ProjectResponse {
     private LocalDate endDate;
 
     // =========================================
+    // Owner Information
+    // =========================================
+
+    private Long ownerId;
+
+    private String ownerName;
+
+    private String ownerDepartment;
+
+    private Integer ownerYear;
+
+    // =========================================
+    // Team Information
+    // =========================================
+
+    private Integer teamMemberCount;
+
+    // =========================================
     // Required Project Skills
     // =========================================
 

@@ -62,8 +62,16 @@ const MEMBER_ROLES = [
     label: "AI Engineer",
   },
   {
+    value: "ML_ENGINEER",
+    label: "ML Engineer",
+  },
+  {
     value: "DATABASE_ENGINEER",
     label: "Database Engineer",
+  },
+  {
+    value: "UI_UX_DESIGNER",
+    label: "UI/UX Designer",
   },
   {
     value: "TESTER",
@@ -72,6 +80,35 @@ const MEMBER_ROLES = [
   {
     value: "MEMBER",
     label: "Member",
+  },
+];
+
+// ==========================================
+// ROLES A STUDENT CAN REQUEST WHEN JOINING
+// A PROJECT (kept separate from MEMBER_ROLES
+// since "Leader" is not requestable)
+// ==========================================
+
+const JOIN_ROLES = [
+  {
+    value: "MEMBER",
+    label: "Member",
+  },
+  {
+    value: "UI_UX_DESIGNER",
+    label: "UI/UX Designer",
+  },
+  {
+    value: "ML_ENGINEER",
+    label: "ML Engineer",
+  },
+  {
+    value: "BACKEND_DEVELOPER",
+    label: "Backend Developer",
+  },
+  {
+    value: "FRONTEND_DEVELOPER",
+    label: "Frontend Developer",
   },
 ];
 
@@ -3114,6 +3151,21 @@ const Projects = () => {
                                     </p>
                                 )}
 
+                                <p
+                                    className="text-sm
+                                     text-gray-600
+                                     mt-2"
+                                >
+                                  👤 Owner: {project.ownerName}
+                                </p>
+
+                                <p
+                                    className="text-sm
+                                     text-gray-600"
+                                >
+                                  👥 Team: {project.teamMemberCount} member(s)
+                                </p>
+
                               </div>
 
                               <FolderKanban
@@ -3133,6 +3185,49 @@ const Projects = () => {
                                    border-t
                                    border-slate-200"
                                 >
+
+                                  <div
+                                      className="bg-gray-50
+                                     rounded-lg
+                                     p-3
+                                     mb-4"
+                                  >
+                                    <h4
+                                        className="font-semibold
+                                       text-gray-800
+                                       mb-2"
+                                    >
+                                      Project Owner
+                                    </h4>
+
+                                    <p className="text-sm">
+                            <span className="font-medium">
+                              Name:
+                            </span>{" "}
+                                      {project.ownerName}
+                                    </p>
+
+                                    <p className="text-sm">
+                            <span className="font-medium">
+                              Department:
+                            </span>{" "}
+                                      {project.ownerDepartment}
+                                    </p>
+
+                                    <p className="text-sm">
+                            <span className="font-medium">
+                              Year:
+                            </span>{" "}
+                                      {project.ownerYear}
+                                    </p>
+
+                                    <p className="text-sm">
+                            <span className="font-medium">
+                              Current Team:
+                            </span>{" "}
+                                      {project.teamMemberCount} member(s)
+                                    </p>
+                                  </div>
 
                                   <label
                                       className="block
@@ -3168,7 +3263,7 @@ const Projects = () => {
                                      focus:ring-blue-500"
                                   >
 
-                                    {MEMBER_ROLES.map(
+                                    {JOIN_ROLES.map(
                                         (role) => (
                                             <option
                                                 key={
@@ -3224,7 +3319,7 @@ const Projects = () => {
 
                                       {joining
                                           ? "Sending..."
-                                          : "Send Request"}
+                                          : "Send Join Request"}
 
                                     </button>
 
