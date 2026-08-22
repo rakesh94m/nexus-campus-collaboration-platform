@@ -103,7 +103,7 @@ const Projects = () => {
 
   const [projects, setProjects] = useState([]);
   const [availableProjects, setAvailableProjects] =
-    useState([]);
+      useState([]);
 
   const [loading, setLoading] = useState(true);
 
@@ -114,7 +114,7 @@ const Projects = () => {
   const [editOpen, setEditOpen] = useState(false);
 
   const [selectedProject, setSelectedProject] =
-    useState(null);
+      useState(null);
 
   // ==========================================
   // PROJECT SKILLS
@@ -123,26 +123,26 @@ const Projects = () => {
   const [mySkills, setMySkills] = useState([]);
 
   const [requiredSkills, setRequiredSkills] =
-    useState([]);
+      useState([]);
 
   const [selectedSkillId, setSelectedSkillId] =
-    useState("");
+      useState("");
 
   const [selectedSkillImportance, setSelectedSkillImportance] =
-    useState("HIGH");
+      useState("HIGH");
 
   const [skillsLoading, setSkillsLoading] =
-    useState(false);
+      useState(false);
 
   // ==========================================
   // SMART MATCHING
   // ==========================================
   const [projectMatches, setProjectMatches] =
-    useState([]);
+      useState([]);
   const [matchesLoading, setMatchesLoading] =
-    useState(true);
+      useState(true);
   const [matchesError, setMatchesError] =
-    useState("");
+      useState("");
 
   // ==========================================
   // FORM STATE
@@ -165,38 +165,38 @@ const Projects = () => {
   const [memberships, setMemberships] = useState([]);
 
   const [membersLoading, setMembersLoading] =
-    useState(true);
+      useState(true);
 
   const [joinProjectId, setJoinProjectId] =
-    useState(null);
+      useState(null);
 
   const [joinRole, setJoinRole] =
-    useState("MEMBER");
+      useState("MEMBER");
 
   const [joining, setJoining] =
-    useState(false);
+      useState(false);
 
   const [editingMemberId, setEditingMemberId] =
-    useState(null);
+      useState(null);
 
   const [editingRole, setEditingRole] =
-    useState("MEMBER");
+      useState("MEMBER");
 
   const [updatingMember, setUpdatingMember] =
-    useState(false);
+      useState(false);
 
   const [leavingMemberId, setLeavingMemberId] =
-    useState(null);
+      useState(null);
 
   // ==========================================
   // PROJECT TEAM MEMBERS
   // ==========================================
 
   const [projectMembers, setProjectMembers] =
-    useState({});
+      useState({});
 
   const [projectMembersLoading, setProjectMembersLoading] =
-    useState({});
+      useState({});
 
   // ==========================================
   // LOAD DATA
@@ -220,19 +220,19 @@ const Projects = () => {
       const data = await getMySkills();
 
       setMySkills(
-        Array.isArray(data)
-          ? data
-          : []
+          Array.isArray(data)
+              ? data
+              : []
       );
     } catch (error) {
       console.error(
-        "Skills error:",
-        error
+          "Skills error:",
+          error
       );
 
       const message =
-        error.response?.data?.message ||
-        "Unable to load your skills.";
+          error.response?.data?.message ||
+          "Unable to load your skills.";
 
       toast.error(message);
     } finally {
@@ -249,22 +249,22 @@ const Projects = () => {
       setMatchesError("");
 
       const data =
-        await getProjectMatches();
+          await getProjectMatches();
 
       setProjectMatches(
-        Array.isArray(data)
-          ? data
-          : []
+          Array.isArray(data)
+              ? data
+              : []
       );
     } catch (error) {
       console.error(
-        "Smart matching error:",
-        error
+          "Smart matching error:",
+          error
       );
 
       const message =
-        error.response?.data?.message ||
-        "Unable to load smart project matches.";
+          error.response?.data?.message ||
+          "Unable to load smart project matches.";
 
       setMatchesError(message);
     } finally {
@@ -281,31 +281,31 @@ const Projects = () => {
       setLoading(true);
 
       const [myProjects, available] =
-        await Promise.all([
-          getMyProjects(),
-          getAvailableProjects(),
-        ]);
+          await Promise.all([
+            getMyProjects(),
+            getAvailableProjects(),
+          ]);
 
       setProjects(
-        Array.isArray(myProjects)
-          ? myProjects
-          : []
+          Array.isArray(myProjects)
+              ? myProjects
+              : []
       );
 
       setAvailableProjects(
-        Array.isArray(available)
-          ? available
-          : []
+          Array.isArray(available)
+              ? available
+              : []
       );
     } catch (error) {
       console.error(
-        "Projects error:",
-        error
+          "Projects error:",
+          error
       );
 
       const message =
-        error.response?.data?.message ||
-        "Unable to load projects.";
+          error.response?.data?.message ||
+          "Unable to load projects.";
 
       toast.error(message);
     } finally {
@@ -322,22 +322,22 @@ const Projects = () => {
       setMembersLoading(true);
 
       const data =
-        await getMyProjectMembers();
+          await getMyProjectMembers();
 
       setMemberships(
-        Array.isArray(data)
-          ? data
-          : []
+          Array.isArray(data)
+              ? data
+              : []
       );
     } catch (error) {
       console.error(
-        "Project memberships error:",
-        error
+          "Project memberships error:",
+          error
       );
 
       const message =
-        error.response?.data?.message ||
-        "Unable to load project memberships.";
+          error.response?.data?.message ||
+          "Unable to load project memberships.";
 
       toast.error(message);
     } finally {
@@ -350,44 +350,44 @@ const Projects = () => {
   // ==========================================
 
   const loadProjectMembers = async (
-    projectId
+      projectId
   ) => {
     setProjectMembersLoading(
-      (previous) => ({
-        ...previous,
-        [projectId]: true,
-      })
+        (previous) => ({
+          ...previous,
+          [projectId]: true,
+        })
     );
 
     try {
       const data =
-        await getProjectMembers(projectId);
+          await getProjectMembers(projectId);
 
       setProjectMembers(
-        (previous) => ({
-          ...previous,
-          [projectId]: Array.isArray(data)
-            ? data
-            : [],
-        })
+          (previous) => ({
+            ...previous,
+            [projectId]: Array.isArray(data)
+                ? data
+                : [],
+          })
       );
     } catch (error) {
       console.error(
-        "Project members error:",
-        error
+          "Project members error:",
+          error
       );
 
       const message =
-        error.response?.data?.message ||
-        "Unable to load project members.";
+          error.response?.data?.message ||
+          "Unable to load project members.";
 
       toast.error(message);
     } finally {
       setProjectMembersLoading(
-        (previous) => ({
-          ...previous,
-          [projectId]: false,
-        })
+          (previous) => ({
+            ...previous,
+            [projectId]: false,
+          })
       );
     }
   };
@@ -403,10 +403,10 @@ const Projects = () => {
     } = event.target;
 
     setFormData(
-      (previous) => ({
-        ...previous,
-        [name]: value,
-      })
+        (previous) => ({
+          ...previous,
+          [name]: value,
+        })
     );
   };
 
@@ -443,7 +443,7 @@ const Projects = () => {
     const skillId = Number(selectedSkillId);
 
     const alreadyAdded = requiredSkills.some(
-      (skill) => Number(skill.skillId) === skillId
+        (skill) => Number(skill.skillId) === skillId
     );
 
     if (alreadyAdded) {
@@ -452,7 +452,7 @@ const Projects = () => {
     }
 
     const skill = mySkills.find(
-      (item) => Number(item.skillId) === skillId
+        (item) => Number(item.skillId) === skillId
     );
 
     if (!skill) {
@@ -479,9 +479,9 @@ const Projects = () => {
 
   const handleRemoveRequiredSkill = (skillId) => {
     setRequiredSkills((previous) =>
-      previous.filter(
-        (skill) => Number(skill.skillId) !== Number(skillId)
-      )
+        previous.filter(
+            (skill) => Number(skill.skillId) !== Number(skillId)
+        )
     );
   };
 
@@ -490,18 +490,18 @@ const Projects = () => {
   // ==========================================
 
   const handleRequiredSkillImportanceChange = (
-    skillId,
-    importance
+      skillId,
+      importance
   ) => {
     setRequiredSkills((previous) =>
-      previous.map((skill) =>
-        Number(skill.skillId) === Number(skillId)
-          ? {
-              ...skill,
-              importance,
-            }
-          : skill
-      )
+        previous.map((skill) =>
+            Number(skill.skillId) === Number(skillId)
+                ? {
+                  ...skill,
+                  importance,
+                }
+                : skill
+        )
     );
   };
 
@@ -530,13 +530,13 @@ const Projects = () => {
   // ==========================================
 
   const handleAddProject = async (
-    event
+      event
   ) => {
     event.preventDefault();
 
     if (!formData.projectTitle.trim()) {
       toast.error(
-        "Project title is required."
+          "Project title is required."
       );
       return;
     }
@@ -545,60 +545,60 @@ const Projects = () => {
 
     try {
       const newProject =
-        await addProject({
-          projectTitle:
-            formData.projectTitle.trim(),
+          await addProject({
+            projectTitle:
+                formData.projectTitle.trim(),
 
-          description:
-            formData.description.trim() ||
-            null,
+            description:
+                formData.description.trim() ||
+                null,
 
-          technologiesUsed:
-            formData.technologiesUsed.trim() ||
-            null,
+            technologiesUsed:
+                formData.technologiesUsed.trim() ||
+                null,
 
-          githubUrl:
-            formData.githubUrl.trim() ||
-            null,
+            githubUrl:
+                formData.githubUrl.trim() ||
+                null,
 
-          liveDemoUrl:
-            formData.liveDemoUrl.trim() ||
-            null,
+            liveDemoUrl:
+                formData.liveDemoUrl.trim() ||
+                null,
 
-          startDate:
-            formData.startDate || null,
+            startDate:
+                formData.startDate || null,
 
-          endDate:
-            formData.endDate || null,
+            endDate:
+                formData.endDate || null,
 
-          requiredSkills:
-            requiredSkills.map((skill) => ({
-              skillId: skill.skillId,
-              importance: skill.importance,
-            })),
-        });
+            requiredSkills:
+                requiredSkills.map((skill) => ({
+                  skillId: skill.skillId,
+                  importance: skill.importance,
+                })),
+          });
 
       setProjects(
-        (previous) => [
-          ...previous,
-          newProject,
-        ]
+          (previous) => [
+            ...previous,
+            newProject,
+          ]
       );
 
       closeAddModal();
 
       toast.success(
-        "Project added successfully!"
+          "Project added successfully!"
       );
     } catch (error) {
       console.error(
-        "Add project error:",
-        error
+          "Add project error:",
+          error
       );
 
       const message =
-        error.response?.data?.message ||
-        "Unable to add project.";
+          error.response?.data?.message ||
+          "Unable to add project.";
 
       toast.error(message);
     } finally {
@@ -611,31 +611,31 @@ const Projects = () => {
   // ==========================================
 
   const openEditProject = (
-    project
+      project
   ) => {
     setSelectedProject(project);
 
     setFormData({
       projectTitle:
-        project.projectTitle || "",
+          project.projectTitle || "",
 
       description:
-        project.description || "",
+          project.description || "",
 
       technologiesUsed:
-        project.technologiesUsed || "",
+          project.technologiesUsed || "",
 
       githubUrl:
-        project.githubUrl || "",
+          project.githubUrl || "",
 
       liveDemoUrl:
-        project.liveDemoUrl || "",
+          project.liveDemoUrl || "",
 
       startDate:
-        project.startDate || "",
+          project.startDate || "",
 
       endDate:
-        project.endDate || "",
+          project.endDate || "",
     });
 
     setEditOpen(true);
@@ -658,164 +658,164 @@ const Projects = () => {
   // ==========================================
 
   const handleUpdateProject =
-    async (event) => {
-      event.preventDefault();
+      async (event) => {
+        event.preventDefault();
 
-      if (!selectedProject) return;
+        if (!selectedProject) return;
 
-      if (!formData.projectTitle.trim()) {
-        toast.error(
-          "Project title is required."
-        );
-        return;
-      }
+        if (!formData.projectTitle.trim()) {
+          toast.error(
+              "Project title is required."
+          );
+          return;
+        }
 
-      setSaving(true);
+        setSaving(true);
 
-      try {
-        const updatedProject =
-          await updateProject(
-            selectedProject.id,
-            {
-              projectTitle:
-                formData.projectTitle.trim(),
+        try {
+          const updatedProject =
+              await updateProject(
+                  selectedProject.id,
+                  {
+                    projectTitle:
+                        formData.projectTitle.trim(),
 
-              description:
-                formData.description.trim() ||
-                null,
+                    description:
+                        formData.description.trim() ||
+                        null,
 
-              technologiesUsed:
-                formData.technologiesUsed.trim() ||
-                null,
+                    technologiesUsed:
+                        formData.technologiesUsed.trim() ||
+                        null,
 
-              githubUrl:
-                formData.githubUrl.trim() ||
-                null,
+                    githubUrl:
+                        formData.githubUrl.trim() ||
+                        null,
 
-              liveDemoUrl:
-                formData.liveDemoUrl.trim() ||
-                null,
+                    liveDemoUrl:
+                        formData.liveDemoUrl.trim() ||
+                        null,
 
-              startDate:
-                formData.startDate || null,
+                    startDate:
+                        formData.startDate || null,
 
-              endDate:
-                formData.endDate || null,
+                    endDate:
+                        formData.endDate || null,
 
-              requiredSkills:
-                requiredSkills.map((skill) => ({
-                  skillId: skill.skillId,
-                  importance: skill.importance,
-                })),
-            }
+                    requiredSkills:
+                        requiredSkills.map((skill) => ({
+                          skillId: skill.skillId,
+                          importance: skill.importance,
+                        })),
+                  }
+              );
+
+          setProjects(
+              (previous) =>
+                  previous.map(
+                      (project) =>
+                          project.id ===
+                          updatedProject.id
+                              ? updatedProject
+                              : project
+                  )
           );
 
-        setProjects(
-          (previous) =>
-            previous.map(
-              (project) =>
-                project.id ===
-                updatedProject.id
-                  ? updatedProject
-                  : project
-            )
-        );
+          closeEditModal();
 
-        closeEditModal();
+          toast.success(
+              "Project updated successfully!"
+          );
+        } catch (error) {
+          console.error(
+              "Update project error:",
+              error
+          );
 
-        toast.success(
-          "Project updated successfully!"
-        );
-      } catch (error) {
-        console.error(
-          "Update project error:",
-          error
-        );
+          const message =
+              error.response?.data?.message ||
+              "Unable to update project.";
 
-        const message =
-          error.response?.data?.message ||
-          "Unable to update project.";
-
-        toast.error(message);
-      } finally {
-        setSaving(false);
-      }
-    };
+          toast.error(message);
+        } finally {
+          setSaving(false);
+        }
+      };
 
   // ==========================================
   // DELETE PROJECT
   // ==========================================
 
   const handleDeleteProject =
-    async (project) => {
-      const confirmed =
-        window.confirm(
-          `Are you sure you want to delete "${project.projectTitle}"?\n\nThis will also remove its collaboration requests, members, and match history.`
-        );
+      async (project) => {
+        const confirmed =
+            window.confirm(
+                `Are you sure you want to delete "${project.projectTitle}"?\n\nThis will also remove its collaboration requests, members, and match history.`
+            );
 
-      if (!confirmed) return;
+        if (!confirmed) return;
 
-      setDeleting(true);
+        setDeleting(true);
 
-      try {
-        await deleteProject(
-          project.id
-        );
+        try {
+          await deleteProject(
+              project.id
+          );
 
-        setProjects(
-          (previous) =>
-            previous.filter(
-              (item) =>
-                item.id !== project.id
-            )
-        );
+          setProjects(
+              (previous) =>
+                  previous.filter(
+                      (item) =>
+                          item.id !== project.id
+                  )
+          );
 
-        setMemberships(
-          (previous) =>
-            previous.filter(
-              (item) =>
-                item.projectTitle !==
-                project.projectTitle
-            )
-        );
+          setMemberships(
+              (previous) =>
+                  previous.filter(
+                      (item) =>
+                          item.projectTitle !==
+                          project.projectTitle
+                  )
+          );
 
-        setProjectMembers(
-          (previous) => {
-            const updated = {
-              ...previous,
-            };
+          setProjectMembers(
+              (previous) => {
+                const updated = {
+                  ...previous,
+                };
 
-            delete updated[project.id];
+                delete updated[project.id];
 
-            return updated;
-          }
-        );
+                return updated;
+              }
+          );
 
-        toast.success(
-          "Project deleted successfully!"
-        );
-      } catch (error) {
-        console.error(
-          "Delete project error:",
-          error
-        );
+          toast.success(
+              "Project deleted successfully!"
+          );
+        } catch (error) {
+          console.error(
+              "Delete project error:",
+              error
+          );
 
-        const message =
-          error.response?.data?.message ||
-          "Unable to delete project.";
+          const message =
+              error.response?.data?.message ||
+              "Unable to delete project.";
 
-        toast.error(message);
-      } finally {
-        setDeleting(false);
-      }
-    };
+          toast.error(message);
+        } finally {
+          setDeleting(false);
+        }
+      };
 
   // ==========================================
   // OPEN JOIN PROJECT
   // ==========================================
 
   const openJoinProject = (
-    projectId
+      projectId
   ) => {
     setJoinProjectId(projectId);
     setJoinRole("MEMBER");
@@ -833,79 +833,49 @@ const Projects = () => {
   };
 
   // ==========================================
-  // JOIN PROJECT
+  // JOIN PROJECT (sends a join request to the project owner)
   // ==========================================
 
-  const handleJoinProject =
-    async (projectId) => {
-      setJoining(true);
+  const handleJoinProject = async (projectId) => {
+    setJoining(true);
 
-      try {
-        const membership =
-          await joinProject(
-            projectId,
-            joinRole
-          );
+    try {
+      await joinProject(projectId, joinRole);
 
-        setMemberships(
-          (previous) => [
-            ...previous,
-            membership,
-          ]
-        );
+      setJoinProjectId(null);
+      setJoinRole("MEMBER");
 
-        setAvailableProjects(
-          (previous) =>
-            previous.filter(
-              (project) =>
-                project.id !==
-                projectId
-            )
-        );
+      toast.success(
+          "Join request sent to the project owner!"
+      );
 
-        setJoinProjectId(null);
-        setJoinRole("MEMBER");
+      await loadProjects();
+    } catch (error) {
+      console.error("Join request error:", error);
 
-        toast.success(
-          "You joined the project successfully!"
-        );
-
-        // Refresh project members if
-        // they were already loaded
-        if (projectMembers[projectId]) {
-          await loadProjectMembers(
-            projectId
-          );
-        }
-      } catch (error) {
-        console.error(
-          "Join project error:",
-          error
-        );
-
-        const message =
+      const message =
           error.response?.data?.message ||
-          "Unable to join project.";
+          "Unable to send request.";
 
-        toast.error(message);
-      } finally {
-        setJoining(false);
-      }
-    };
+      toast.error(message);
+    } finally {
+      setJoining(false);
+    }
+  };
 
   // ==========================================
   // START EDIT MEMBER ROLE
   // ==========================================
 
   const startEditMember = (
-    membership
+      membership
   ) => {
     setEditingMemberId(
-      membership.id
+        membership.id
     );
 
     setEditingRole(
-      membership.role
+        membership.role
     );
   };
 
@@ -925,148 +895,148 @@ const Projects = () => {
   // ==========================================
 
   const handleUpdateMember =
-    async (membership) => {
-      setUpdatingMember(true);
+      async (membership) => {
+        setUpdatingMember(true);
 
-      try {
-        const updatedMembership =
-          await updateProjectMember(
-            membership.id,
-            editingRole
+        try {
+          const updatedMembership =
+              await updateProjectMember(
+                  membership.id,
+                  editingRole
+              );
+
+          setMemberships(
+              (previous) =>
+                  previous.map(
+                      (item) =>
+                          item.id ===
+                          updatedMembership.id
+                              ? updatedMembership
+                              : item
+                  )
           );
 
-        setMemberships(
-          (previous) =>
-            previous.map(
-              (item) =>
-                item.id ===
-                updatedMembership.id
-                  ? updatedMembership
-                  : item
-            )
-        );
+          // Refresh team members for
+          // this project if already loaded
+          const projectId =
+              membership.projectId;
 
-        // Refresh team members for
-        // this project if already loaded
-        const projectId =
-          membership.projectId;
+          if (
+              projectId &&
+              projectMembers[projectId]
+          ) {
+            await loadProjectMembers(
+                projectId
+            );
+          }
 
-        if (
-          projectId &&
-          projectMembers[projectId]
-        ) {
-          await loadProjectMembers(
-            projectId
+          setEditingMemberId(null);
+
+          toast.success(
+              "Project role updated!"
           );
+        } catch (error) {
+          console.error(
+              "Update project member error:",
+              error
+          );
+
+          const message =
+              error.response?.data?.message ||
+              "Unable to update project role.";
+
+          toast.error(message);
+        } finally {
+          setUpdatingMember(false);
         }
-
-        setEditingMemberId(null);
-
-        toast.success(
-          "Project role updated!"
-        );
-      } catch (error) {
-        console.error(
-          "Update project member error:",
-          error
-        );
-
-        const message =
-          error.response?.data?.message ||
-          "Unable to update project role.";
-
-        toast.error(message);
-      } finally {
-        setUpdatingMember(false);
-      }
-    };
+      };
 
   // ==========================================
   // LEAVE PROJECT
   // ==========================================
 
   const handleLeaveProject =
-    async (membership) => {
-      const confirmed =
-        window.confirm(
-          `Are you sure you want to leave "${membership.projectTitle}"?`
+      async (membership) => {
+        const confirmed =
+            window.confirm(
+                `Are you sure you want to leave "${membership.projectTitle}"?`
+            );
+
+        if (!confirmed) return;
+
+        setLeavingMemberId(
+            membership.id
         );
 
-      if (!confirmed) return;
+        try {
+          await leaveProject(
+              membership.id
+          );
 
-      setLeavingMemberId(
-        membership.id
-      );
+          setMemberships(
+              (previous) =>
+                  previous.filter(
+                      (item) =>
+                          item.id !==
+                          membership.id
+                  )
+          );
 
-      try {
-        await leaveProject(
-          membership.id
-        );
+          toast.success(
+              "You left the project."
+          );
+        } catch (error) {
+          console.error(
+              "Leave project error:",
+              error
+          );
 
-        setMemberships(
-          (previous) =>
-            previous.filter(
-              (item) =>
-                item.id !==
-                membership.id
-            )
-        );
+          const message =
+              error.response?.data?.message ||
+              "Unable to leave project.";
 
-        toast.success(
-          "You left the project."
-        );
-      } catch (error) {
-        console.error(
-          "Leave project error:",
-          error
-        );
-
-        const message =
-          error.response?.data?.message ||
-          "Unable to leave project.";
-
-        toast.error(message);
-      } finally {
-        setLeavingMemberId(null);
-      }
-    };
+          toast.error(message);
+        } finally {
+          setLeavingMemberId(null);
+        }
+      };
 
   // ==========================================
   // REMOVE PROJECT MEMBER
   // ==========================================
 
   const handleRemoveMember = async (
-    projectId,
-    memberId,
-    memberName
+      projectId,
+      memberId,
+      memberName
   ) => {
     const confirmed = window.confirm(
-      `Are you sure you want to remove ${memberName} from this project?`
+        `Are you sure you want to remove ${memberName} from this project?`
     );
 
     if (!confirmed) return;
 
     try {
       await removeProjectMember(
-        projectId,
-        memberId
+          projectId,
+          memberId
       );
 
       toast.success(
-        `${memberName} removed from the project.`
+          `${memberName} removed from the project.`
       );
 
       // Refresh the members list if it is already open.
       await loadProjectMembers(projectId);
     } catch (error) {
       console.error(
-        "Remove project member error:",
-        error
+          "Remove project member error:",
+          error
       );
 
       const message =
-        error.response?.data?.message ||
-        "Unable to remove project member.";
+          error.response?.data?.message ||
+          "Unable to remove project member.";
 
       toast.error(message);
     }
@@ -1080,23 +1050,23 @@ const Projects = () => {
     if (!date) return null;
 
     const parsedDate =
-      new Date(date);
+        new Date(date);
 
     if (
-      Number.isNaN(
-        parsedDate.getTime()
-      )
+        Number.isNaN(
+            parsedDate.getTime()
+        )
     ) {
       return date;
     }
 
     return parsedDate.toLocaleDateString(
-      "en-IN",
-      {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }
+        "en-IN",
+        {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }
     );
   };
 
@@ -1105,17 +1075,17 @@ const Projects = () => {
   // ==========================================
 
   const getRoleLabel = (
-    role
+      role
   ) => {
     const found =
-      MEMBER_ROLES.find(
-        (item) =>
-          item.value === role
-      );
+        MEMBER_ROLES.find(
+            (item) =>
+                item.value === role
+        );
 
     return found
-      ? found.label
-      : role;
+        ? found.label
+        : role;
   };
 
   // ==========================================
@@ -1124,17 +1094,17 @@ const Projects = () => {
 
   if (loading) {
     return (
-      <div
-        className="min-h-screen
+        <div
+            className="min-h-screen
                    bg-slate-50
                    flex
                    items-center
                    justify-center"
-      >
-        <div className="text-center">
+        >
+          <div className="text-center">
 
-          <div
-            className="w-10 h-10
+            <div
+                className="w-10 h-10
                        border-4
                        border-blue-600
                        border-t-transparent
@@ -1142,77 +1112,77 @@ const Projects = () => {
                        animate-spin
                        mx-auto
                        mb-4"
-          />
+            />
 
-          <p
-            className="text-slate-600
+            <p
+                className="text-slate-600
                        font-medium"
-          >
-            Loading your projects...
-          </p>
+            >
+              Loading your projects...
+            </p>
 
+          </div>
         </div>
-      </div>
     );
   }
 
   return (
-    <DashboardLayout>
+      <DashboardLayout>
 
-      {/* ==========================================
+        {/* ==========================================
           PAGE HEADER
       ========================================== */}
 
-      <section
-        className="flex flex-col
+        <section
+            className="flex flex-col
                    sm:flex-row
                    sm:items-center
                    justify-between
                    gap-4
                    mb-8"
-      >
-        <div>
+        >
+          <div>
 
-          <p
-            className="text-sm
+            <p
+                className="text-sm
                        font-medium
                        text-blue-600
                        mb-1"
-          >
-            Campus Projects
-          </p>
+            >
+              Campus Projects
+            </p>
 
-          <h1
-            className="text-3xl
+            <h1
+                className="text-3xl
                        font-bold
                        text-slate-900"
-          >
-            My Projects
-          </h1>
+            >
+              My Projects
+            </h1>
 
-          <p
-            className="mt-2
+            <p
+                className="mt-2
                        text-slate-500"
-          >
-            Create and manage your projects
-            on NEXUS.
-          </p>
+            >
+              Create and manage your projects
+              on NEXUS.
+            </p>
 
-        </div>
+          </div>
 
-        <div
-          className="flex
+          <div
+              className="flex
                      flex-col
                      sm:flex-row
                      items-stretch
                      sm:items-center
                      gap-3"
-        >
+          >
 
-          <button
-            type="button"
-            onClick={() => navigate("/recommendations")}
-            className="inline-flex
+            <button
+                type="button"
+                onClick={() => navigate("/recommendations")}
+                className="inline-flex
                        items-center
                        justify-center
                        gap-2
@@ -1225,15 +1195,15 @@ const Projects = () => {
                        hover:bg-purple-700
                        transition
                        shadow-sm"
-          >
-            <Sparkles size={19} />
-            AI Recommendations
-          </button>
+            >
+              <Sparkles size={19} />
+              AI Recommendations
+            </button>
 
-          <button
-            type="button"
-            onClick={openAddProject}
-            className="inline-flex
+            <button
+                type="button"
+                onClick={openAddProject}
+                className="inline-flex
                        items-center
                        justify-center
                        gap-2
@@ -1245,65 +1215,65 @@ const Projects = () => {
                        font-semibold
                        hover:bg-blue-700
                        transition"
-          >
-            <Plus size={19} />
-            Add Project
-          </button>
+            >
+              <Plus size={19} />
+              Add Project
+            </button>
 
-        </div>
+          </div>
 
-      </section>
+        </section>
 
-      {/* ==========================================
+        {/* ==========================================
           SUMMARY
       ========================================== */}
 
-      <section
-        className="grid
+        <section
+            className="grid
                    grid-cols-1
                    sm:grid-cols-3
                    gap-4
                    mb-6"
-      >
+        >
 
-        <SummaryCard
-          title="My Projects"
-          value={projects.length}
-          icon={
-            <FolderKanban
-              size={21}
-            />
-          }
-        />
+          <SummaryCard
+              title="My Projects"
+              value={projects.length}
+              icon={
+                <FolderKanban
+                    size={21}
+                />
+              }
+          />
 
-        <SummaryCard
-          title="Joined Projects"
-          value={memberships.length}
-          icon={
-            <Users size={21} />
-          }
-        />
+          <SummaryCard
+              title="Joined Projects"
+              value={memberships.length}
+              icon={
+                <Users size={21} />
+              }
+          />
 
-        <SummaryCard
-          title="Portfolio"
-          value={
-            projects.length > 0
-              ? "Active"
-              : "Add Project"
-          }
-          icon={
-            <Sparkles size={21} />
-          }
-        />
+          <SummaryCard
+              title="Portfolio"
+              value={
+                projects.length > 0
+                    ? "Active"
+                    : "Add Project"
+              }
+              icon={
+                <Sparkles size={21} />
+              }
+          />
 
-      </section>
+        </section>
 
-      {/* ==========================================
+        {/* ==========================================
           SMART PROJECT MATCHING
       ========================================== */}
 
-      <section
-        className="mb-6
+        <section
+            className="mb-6
                    rounded-2xl
                    border
                    border-purple-200
@@ -1313,26 +1283,26 @@ const Projects = () => {
                    to-blue-50
                    p-6
                    shadow-sm"
-      >
+        >
 
-        <div
-          className="flex
+          <div
+              className="flex
                      flex-col
                      md:flex-row
                      md:items-center
                      md:justify-between
                      gap-5
                      mb-6"
-        >
-
-          <div
-            className="flex
-                       items-start
-                       gap-4"
           >
 
             <div
-              className="w-12 h-12
+                className="flex
+                       items-start
+                       gap-4"
+            >
+
+              <div
+                  className="w-12 h-12
                          rounded-xl
                          bg-purple-100
                          text-purple-600
@@ -1340,50 +1310,50 @@ const Projects = () => {
                          items-center
                          justify-center
                          shrink-0"
-            >
-              <Sparkles size={24} />
-            </div>
+              >
+                <Sparkles size={24} />
+              </div>
 
-            <div>
+              <div>
 
-              <p
-                className="text-xs
+                <p
+                    className="text-xs
                            font-bold
                            uppercase
                            tracking-wider
                            text-purple-600"
-              >
-                NEXUS SMART MATCHING
-              </p>
+                >
+                  NEXUS SMART MATCHING
+                </p>
 
-              <h2
-                className="text-xl
+                <h2
+                    className="text-xl
                            font-bold
                            text-slate-900
                            mt-1"
-              >
-                Projects matched for you
-              </h2>
+                >
+                  Projects matched for you
+                </h2>
 
-              <p
-                className="text-sm
+                <p
+                    className="text-sm
                            text-slate-600
                            mt-1
                            max-w-2xl"
-              >
-                Find projects that match your skills
-                and proficiency level.
-              </p>
+                >
+                  Find projects that match your skills
+                  and proficiency level.
+                </p>
+
+              </div>
 
             </div>
 
-          </div>
-
-          <button
-            type="button"
-            onClick={loadProjectMatches}
-            disabled={matchesLoading}
-            className="inline-flex
+            <button
+                type="button"
+                onClick={loadProjectMatches}
+                disabled={matchesLoading}
+                className="inline-flex
                        items-center
                        justify-center
                        gap-2
@@ -1399,34 +1369,34 @@ const Projects = () => {
                        hover:bg-purple-50
                        transition
                        disabled:opacity-50"
-          >
-            <Sparkles
-              size={16}
-              className={
-                matchesLoading
-                  ? "animate-spin"
-                  : ""
-              }
-            />
-            {matchesLoading
-              ? "Matching..."
-              : "Refresh Matches"}
-          </button>
+            >
+              <Sparkles
+                  size={16}
+                  className={
+                    matchesLoading
+                        ? "animate-spin"
+                        : ""
+                  }
+              />
+              {matchesLoading
+                  ? "Matching..."
+                  : "Refresh Matches"}
+            </button>
 
-        </div>
+          </div>
 
-        {matchesLoading ? (
+          {matchesLoading ? (
 
-          <div
-            className="bg-white
+              <div
+                  className="bg-white
                        rounded-xl
                        border
                        border-purple-100
                        p-8
                        text-center"
-          >
-            <div
-              className="w-8 h-8
+              >
+                <div
+                    className="w-8 h-8
                          border-4
                          border-purple-600
                          border-t-transparent
@@ -1434,29 +1404,29 @@ const Projects = () => {
                          animate-spin
                          mx-auto
                          mb-3"
-            />
+                />
 
-            <p
-              className="text-sm
+                <p
+                    className="text-sm
                          font-medium
                          text-slate-600"
-            >
-              Finding projects that match your skills...
-            </p>
-          </div>
+                >
+                  Finding projects that match your skills...
+                </p>
+              </div>
 
-        ) : matchesError ? (
+          ) : matchesError ? (
 
-          <div
-            className="bg-white
+              <div
+                  className="bg-white
                        rounded-xl
                        border
                        border-red-200
                        p-6
                        text-center"
-          >
-            <div
-              className="w-12 h-12
+              >
+                <div
+                    className="w-12 h-12
                          rounded-xl
                          bg-red-50
                          text-red-600
@@ -1465,29 +1435,29 @@ const Projects = () => {
                          justify-center
                          mx-auto
                          mb-3"
-            >
-              <X size={22} />
-            </div>
+                >
+                  <X size={22} />
+                </div>
 
-            <h3
-              className="font-semibold
+                <h3
+                    className="font-semibold
                          text-slate-800"
-            >
-              Unable to load matches
-            </h3>
+                >
+                  Unable to load matches
+                </h3>
 
-            <p
-              className="text-sm
+                <p
+                    className="text-sm
                          text-slate-500
                          mt-1"
-            >
-              {matchesError}
-            </p>
+                >
+                  {matchesError}
+                </p>
 
-            <button
-              type="button"
-              onClick={loadProjectMatches}
-              className="mt-4
+                <button
+                    type="button"
+                    onClick={loadProjectMatches}
+                    className="mt-4
                          inline-flex
                          items-center
                          gap-2
@@ -1499,24 +1469,24 @@ const Projects = () => {
                          text-sm
                          font-semibold
                          hover:bg-purple-700"
-            >
-              <Sparkles size={15} />
-              Try Again
-            </button>
-          </div>
+                >
+                  <Sparkles size={15} />
+                  Try Again
+                </button>
+              </div>
 
-        ) : projectMatches.length === 0 ? (
+          ) : projectMatches.length === 0 ? (
 
-          <div
-            className="bg-white
+              <div
+                  className="bg-white
                        rounded-xl
                        border
                        border-slate-200
                        p-8
                        text-center"
-          >
-            <div
-              className="w-14 h-14
+              >
+                <div
+                    className="w-14 h-14
                          rounded-2xl
                          bg-purple-50
                          text-purple-600
@@ -1525,41 +1495,41 @@ const Projects = () => {
                          justify-center
                          mx-auto
                          mb-4"
-            >
-              <Sparkles size={26} />
-            </div>
+                >
+                  <Sparkles size={26} />
+                </div>
 
-            <h3
-              className="text-base
+                <h3
+                    className="text-base
                          font-bold
                          text-slate-900"
-            >
-              No matching projects yet
-            </h3>
+                >
+                  No matching projects yet
+                </h3>
 
-            <p
-              className="text-sm
+                <p
+                    className="text-sm
                          text-slate-500
                          mt-2
                          max-w-md
                          mx-auto"
-            >
-              Add more skills to your profile or
-              create projects with required skills
-              to improve your Smart Matching results.
-            </p>
+                >
+                  Add more skills to your profile or
+                  create projects with required skills
+                  to improve your Smart Matching results.
+                </p>
 
-            <div
-              className="flex
+                <div
+                    className="flex
                          flex-wrap
                          justify-center
                          gap-3
                          mt-5"
-            >
-              <button
-                type="button"
-                onClick={() => navigate("/skills")}
-                className="inline-flex
+                >
+                  <button
+                      type="button"
+                      onClick={() => navigate("/skills")}
+                      className="inline-flex
                            items-center
                            gap-2
                            px-4
@@ -1570,14 +1540,14 @@ const Projects = () => {
                            text-sm
                            font-semibold
                            hover:bg-blue-700"
-              >
-                Add Skills
-              </button>
+                  >
+                    Add Skills
+                  </button>
 
-              <button
-                type="button"
-                onClick={openAddProject}
-                className="inline-flex
+                  <button
+                      type="button"
+                      onClick={openAddProject}
+                      className="inline-flex
                            items-center
                            gap-2
                            px-4
@@ -1589,118 +1559,118 @@ const Projects = () => {
                            text-sm
                            font-semibold
                            hover:bg-slate-50"
-              >
-                <Plus size={16} />
-                Add Project
-              </button>
-            </div>
-          </div>
+                  >
+                    <Plus size={16} />
+                    Add Project
+                  </button>
+                </div>
+              </div>
 
-        ) : (
+          ) : (
 
-          <div>
+              <div>
 
-            <div
-              className="flex
+                <div
+                    className="flex
                          items-center
                          justify-between
                          gap-3
                          mb-4"
-            >
-              <div>
-                <p
-                  className="text-sm
+                >
+                  <div>
+                    <p
+                        className="text-sm
                              font-semibold
                              text-slate-800"
-                >
-                  {projectMatches.length}{" "}
-                  {projectMatches.length === 1
-                    ? "project"
-                    : "projects"}{" "}
-                  found
-                </p>
+                    >
+                      {projectMatches.length}{" "}
+                      {projectMatches.length === 1
+                          ? "project"
+                          : "projects"}{" "}
+                      found
+                    </p>
 
-                <p
-                  className="text-xs
+                    <p
+                        className="text-xs
                              text-slate-500
                              mt-0.5"
-                >
-                  Ranked by skill compatibility
-                </p>
-              </div>
+                    >
+                      Ranked by skill compatibility
+                    </p>
+                  </div>
 
-              <span
-                className="px-3
+                  <span
+                      className="px-3
                            py-1.5
                            rounded-full
                            bg-purple-100
                            text-purple-700
                            text-xs
                            font-bold"
-              >
+                  >
                 Smart Match
               </span>
-            </div>
+                </div>
 
-            <div
-              className="grid
+                <div
+                    className="grid
                          grid-cols-1
                          lg:grid-cols-2
                          gap-4"
-            >
-              {projectMatches.map((match) => {
+                >
+                  {projectMatches.map((match) => {
 
-                const score =
-                  Number(match.matchScore || 0);
+                    const score =
+                        Number(match.matchScore || 0);
 
-                const safeScore =
-                  Math.min(Math.max(score, 0), 100);
+                    const safeScore =
+                        Math.min(Math.max(score, 0), 100);
 
-                let scoreLabel = "Low Match";
+                    let scoreLabel = "Low Match";
 
-                if (score >= 80) {
-                  scoreLabel = "Excellent Match";
-                } else if (score >= 60) {
-                  scoreLabel = "Good Match";
-                } else if (score >= 40) {
-                  scoreLabel = "Fair Match";
-                }
+                    if (score >= 80) {
+                      scoreLabel = "Excellent Match";
+                    } else if (score >= 60) {
+                      scoreLabel = "Good Match";
+                    } else if (score >= 40) {
+                      scoreLabel = "Fair Match";
+                    }
 
-                const matchedProject =
-                  availableProjects.find(
-                    (project) =>
-                      Number(project.id) ===
-                      Number(match.projectId)
-                  );
+                    const matchedProject =
+                        availableProjects.find(
+                            (project) =>
+                                Number(project.id) ===
+                                Number(match.projectId)
+                        );
 
-                return (
-                  <div
-                    key={match.matchId}
-                    className="bg-white
+                    return (
+                        <div
+                            key={match.matchId}
+                            className="bg-white
                                rounded-xl
                                border
                                border-slate-200
                                p-5
                                hover:shadow-md
                                transition"
-                  >
+                        >
 
-                    <div
-                      className="flex
+                          <div
+                              className="flex
                                  items-start
                                  justify-between
                                  gap-4"
-                    >
+                          >
 
-                      <div
-                        className="flex
+                            <div
+                                className="flex
                                    items-start
                                    gap-3
                                    min-w-0"
-                      >
+                            >
 
-                        <div
-                          className="w-11 h-11
+                              <div
+                                  className="w-11 h-11
                                      rounded-xl
                                      bg-purple-50
                                      text-purple-600
@@ -1708,103 +1678,103 @@ const Projects = () => {
                                      items-center
                                      justify-center
                                      shrink-0"
-                        >
-                          <FolderKanban size={20} />
-                        </div>
+                              >
+                                <FolderKanban size={20} />
+                              </div>
 
-                        <div className="min-w-0">
+                              <div className="min-w-0">
 
-                          <h3
-                            className="font-bold
+                                <h3
+                                    className="font-bold
                                        text-slate-900
                                        break-words"
-                          >
-                            {match.projectTitle}
-                          </h3>
+                                >
+                                  {match.projectTitle}
+                                </h3>
 
-                          <p
-                            className="text-xs
+                                <p
+                                    className="text-xs
                                        text-slate-400
                                        mt-1"
-                          >
-                            Project #{match.projectId}
-                          </p>
+                                >
+                                  Project #{match.projectId}
+                                </p>
 
-                        </div>
+                              </div>
 
-                      </div>
+                            </div>
 
-                      <div
-                        className="shrink-0
+                            <div
+                                className="shrink-0
                                    text-right"
-                      >
-                        <p
-                          className="text-2xl
+                            >
+                              <p
+                                  className="text-2xl
                                      font-bold
                                      text-purple-600"
-                        >
-                          {score.toFixed(2)}%
-                        </p>
+                              >
+                                {score.toFixed(2)}%
+                              </p>
 
-                        <p
-                          className="text-[11px]
+                              <p
+                                  className="text-[11px]
                                      font-semibold
                                      text-slate-500"
-                        >
-                          {scoreLabel}
-                        </p>
-                      </div>
+                              >
+                                {scoreLabel}
+                              </p>
+                            </div>
 
-                    </div>
+                          </div>
 
-                    <div className="mt-5">
+                          <div className="mt-5">
 
-                      <div
-                        className="flex
+                            <div
+                                className="flex
                                    items-center
                                    justify-between
                                    mb-2"
-                      >
+                            >
                         <span
-                          className="text-xs
+                            className="text-xs
                                      font-semibold
                                      text-slate-600"
                         >
                           Skill Compatibility
                         </span>
 
-                        <span
-                          className="text-xs
+                              <span
+                                  className="text-xs
                                      font-semibold
                                      text-slate-500"
-                        >
+                              >
                           {score.toFixed(2)}%
                         </span>
-                      </div>
+                            </div>
 
-                      <div
-                        className="w-full
+                            <div
+                                className="w-full
                                    h-2
                                    rounded-full
                                    bg-slate-100
                                    overflow-hidden"
-                      >
-                        <div
-                          className="h-full
+                            >
+                              <div
+                                  className="h-full
                                      rounded-full
                                      bg-purple-600
                                      transition-all
                                      duration-500"
-                          style={{
-                            width: `${safeScore}%`,
-                          }}
-                        />
-                      </div>
+                                  style={{
+                                    width: `${safeScore}%`,
+                                  }}
+                              />
+                            </div>
 
-                    </div>
+                          </div>
 
-                    <div
-                      className="mt-5
+                          <div
+                              className="mt-5
                                  pt-4
                                  border-t
                                  border-slate-100
@@ -1812,40 +1782,40 @@ const Projects = () => {
                                  items-center
                                  justify-between
                                  gap-3"
-                    >
+                          >
 
-                      <div>
-                        <p
-                          className="text-xs
+                            <div>
+                              <p
+                                  className="text-xs
                                      text-slate-400"
-                        >
-                          Match Type
-                        </p>
+                              >
+                                Match Type
+                              </p>
 
-                        <p
-                          className="text-xs
+                              <p
+                                  className="text-xs
                                      font-semibold
                                      text-slate-700
                                      mt-0.5"
-                        >
-                          Student → Project
-                        </p>
-                      </div>
+                              >
+                                Student → Project
+                              </p>
+                            </div>
 
-                      {matchedProject ? (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            document
-                              .getElementById(
-                                `join-project-${match.projectId}`
-                              )
-                              ?.scrollIntoView({
-                                behavior: "smooth",
-                                block: "center",
-                              });
-                          }}
-                          className="inline-flex
+                            {matchedProject ? (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                      document
+                                          .getElementById(
+                                              `join-project-${match.projectId}`
+                                          )
+                                          ?.scrollIntoView({
+                                            behavior: "smooth",
+                                            block: "center",
+                                          });
+                                    }}
+                                    className="inline-flex
                                      items-center
                                      gap-2
                                      px-3.5
@@ -1857,17 +1827,17 @@ const Projects = () => {
                                      font-semibold
                                      hover:bg-blue-700
                                      transition"
-                        >
-                          <UserPlus size={14} />
-                          Find Project
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            loadProjects()
-                          }
-                          className="inline-flex
+                                >
+                                  <UserPlus size={14} />
+                                  Find Project
+                                </button>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        loadProjects()
+                                    }
+                                    className="inline-flex
                                      items-center
                                      gap-2
                                      px-3.5
@@ -1880,66 +1850,66 @@ const Projects = () => {
                                      font-semibold
                                      hover:bg-slate-50
                                      transition"
-                        >
-                          <FolderKanban size={14} />
-                          View Project
-                        </button>
-                      )}
+                                >
+                                  <FolderKanban size={14} />
+                                  View Project
+                                </button>
+                            )}
 
-                    </div>
+                          </div>
 
-                  </div>
-                );
-              })}
-            </div>
+                        </div>
+                    );
+                  })}
+                </div>
 
-          </div>
+              </div>
 
-        )}
+          )}
 
-      </section>
+        </section>
 
-      {/* ==========================================
+        {/* ==========================================
           MY PROJECTS
       ========================================== */}
 
-      <section
-        className="bg-white
+        <section
+            className="bg-white
                    rounded-2xl
                    border
                    border-slate-200
                    p-6"
-      >
+        >
 
-        <div className="mb-6">
+          <div className="mb-6">
 
-          <h2
-            className="text-lg
+            <h2
+                className="text-lg
                        font-bold
                        text-slate-900"
-          >
-            Your Projects
-          </h2>
+            >
+              Your Projects
+            </h2>
 
-          <p
-            className="text-sm
+            <p
+                className="text-sm
                        text-slate-500
                        mt-1"
-          >
-            Projects you have created.
-          </p>
+            >
+              Projects you have created.
+            </p>
 
-        </div>
+          </div>
 
-        {projects.length === 0 ? (
+          {projects.length === 0 ? (
 
-          <div
-            className="py-16
+              <div
+                  className="py-16
                        text-center"
-          >
+              >
 
-            <div
-              className="w-16 h-16
+                <div
+                    className="w-16 h-16
                          rounded-2xl
                          bg-blue-50
                          text-blue-600
@@ -1948,36 +1918,36 @@ const Projects = () => {
                          justify-center
                          mx-auto
                          mb-4"
-            >
-              <FolderKanban
-                size={30}
-              />
-            </div>
+                >
+                  <FolderKanban
+                      size={30}
+                  />
+                </div>
 
-            <h3
-              className="text-lg
+                <h3
+                    className="text-lg
                          font-bold
                          text-slate-900"
-            >
-              No projects yet
-            </h3>
+                >
+                  No projects yet
+                </h3>
 
-            <p
-              className="text-sm
+                <p
+                    className="text-sm
                          text-slate-500
                          mt-2
                          max-w-md
                          mx-auto"
-            >
-              Add your first project to build
-              your NEXUS project portfolio.
-            </p>
+                >
+                  Add your first project to build
+                  your NEXUS project portfolio.
+                </p>
 
-            <button
-              onClick={
-                openAddProject
-              }
-              className="mt-5
+                <button
+                    onClick={
+                      openAddProject
+                    }
+                    className="mt-5
                          inline-flex
                          items-center
                          gap-2
@@ -1989,53 +1959,53 @@ const Projects = () => {
                          text-sm
                          font-semibold
                          hover:bg-blue-700"
-            >
-              <Plus size={17} />
-              Add Your First Project
-            </button>
+                >
+                  <Plus size={17} />
+                  Add Your First Project
+                </button>
 
-          </div>
+              </div>
 
-        ) : (
+          ) : (
 
-          <div
-            className="grid
+              <div
+                  className="grid
                        grid-cols-1
                        lg:grid-cols-2
                        gap-5"
-          >
+              >
 
-            {projects.map(
-              (project) => (
+                {projects.map(
+                    (project) => (
 
-                <div
-                  key={project.id}
-                  className="border
+                        <div
+                            key={project.id}
+                            className="border
                              border-slate-200
                              rounded-2xl
                              p-6
                              hover:shadow-md
                              transition"
-                >
+                        >
 
-                  {/* PROJECT HEADER */}
+                          {/* PROJECT HEADER */}
 
-                  <div
-                    className="flex
+                          <div
+                              className="flex
                                items-start
                                justify-between
                                gap-3"
-                  >
+                          >
 
-                    <div
-                      className="flex
+                            <div
+                                className="flex
                                  items-start
                                  gap-3
                                  min-w-0"
-                    >
+                            >
 
-                      <div
-                        className="w-12 h-12
+                              <div
+                                  className="w-12 h-12
                                    rounded-xl
                                    bg-blue-50
                                    text-blue-600
@@ -2043,306 +2013,306 @@ const Projects = () => {
                                    items-center
                                    justify-center
                                    shrink-0"
-                      >
-                        <FolderKanban
-                          size={23}
-                        />
-                      </div>
+                              >
+                                <FolderKanban
+                                    size={23}
+                                />
+                              </div>
 
-                      <div
-                        className="min-w-0"
-                      >
+                              <div
+                                  className="min-w-0"
+                              >
 
-                        <h3
-                          className="text-lg
+                                <h3
+                                    className="text-lg
                                      font-bold
                                      text-slate-900
                                      break-words"
-                        >
-                          {
-                            project.projectTitle
-                          }
-                        </h3>
+                                >
+                                  {
+                                    project.projectTitle
+                                  }
+                                </h3>
 
-                        <p
-                          className="text-xs
+                                <p
+                                    className="text-xs
                                      text-slate-400
                                      mt-1"
-                        >
-                          Project #{project.id}
-                        </p>
+                                >
+                                  Project #{project.id}
+                                </p>
 
-                      </div>
+                              </div>
 
-                    </div>
+                            </div>
 
-                    {/* ACTION BUTTONS */}
+                            {/* ACTION BUTTONS */}
 
-                    <div
-                      className="flex
+                            <div
+                                className="flex
                                  gap-1
                                  shrink-0"
-                    >
+                            >
 
-                      <button
-                        onClick={() =>
-                          openEditProject(
-                            project
-                          )
-                        }
-                        className="p-2
+                              <button
+                                  onClick={() =>
+                                      openEditProject(
+                                          project
+                                      )
+                                  }
+                                  className="p-2
                                    rounded-lg
                                    text-slate-500
                                    hover:bg-blue-50
                                    hover:text-blue-600
                                    transition"
-                        title="Edit project"
-                      >
-                        <Pencil
-                          size={17}
-                        />
-                      </button>
+                                  title="Edit project"
+                              >
+                                <Pencil
+                                    size={17}
+                                />
+                              </button>
 
-                      <button
-                        onClick={() =>
-                          handleDeleteProject(
-                            project
-                          )
-                        }
-                        disabled={
-                          deleting
-                        }
-                        className="p-2
+                              <button
+                                  onClick={() =>
+                                      handleDeleteProject(
+                                          project
+                                      )
+                                  }
+                                  disabled={
+                                    deleting
+                                  }
+                                  className="p-2
                                    rounded-lg
                                    text-slate-500
                                    hover:bg-red-50
                                    hover:text-red-600
                                    transition
                                    disabled:opacity-50"
-                        title="Delete project"
-                      >
-                        <Trash2
-                          size={17}
-                        />
-                      </button>
+                                  title="Delete project"
+                              >
+                                <Trash2
+                                    size={17}
+                                />
+                              </button>
 
-                    </div>
+                            </div>
 
-                  </div>
+                          </div>
 
-                  {/* DESCRIPTION */}
+                          {/* DESCRIPTION */}
 
-                  {project.description && (
-                    <p
-                      className="mt-5
+                          {project.description && (
+                              <p
+                                  className="mt-5
                                  text-sm
                                  text-slate-600
                                  leading-relaxed"
-                    >
-                      {
-                        project.description
-                      }
-                    </p>
-                  )}
+                              >
+                                {
+                                  project.description
+                                }
+                              </p>
+                          )}
 
-                  {/* TECHNOLOGIES */}
+                          {/* TECHNOLOGIES */}
 
-                  {project.technologiesUsed && (
-                    <div
-                      className="mt-5"
-                    >
+                          {project.technologiesUsed && (
+                              <div
+                                  className="mt-5"
+                              >
 
-                      <p
-                        className="text-xs
+                                <p
+                                    className="text-xs
                                    font-semibold
                                    text-slate-500
                                    uppercase
                                    tracking-wide
                                    mb-2"
-                      >
-                        Technologies
-                      </p>
+                                >
+                                  Technologies
+                                </p>
 
-                      <div
-                        className="flex
+                                <div
+                                    className="flex
                                    flex-wrap
                                    gap-2"
-                      >
+                                >
 
-                        {project
-                          .technologiesUsed
-                          .split(",")
-                          .map(
-                            (
-                              technology,
-                              index
-                            ) => (
-                              <span
-                                key={`${technology}-${index}`}
-                                className="px-3
+                                  {project
+                                      .technologiesUsed
+                                      .split(",")
+                                      .map(
+                                          (
+                                              technology,
+                                              index
+                                          ) => (
+                                              <span
+                                                  key={`${technology}-${index}`}
+                                                  className="px-3
                                            py-1.5
                                            rounded-lg
                                            bg-slate-100
                                            text-slate-700
                                            text-xs
                                            font-medium"
-                              >
+                                              >
                                 {
                                   technology.trim()
                                 }
                               </span>
-                            )
+                                          )
+                                      )}
+
+                                </div>
+
+                              </div>
                           )}
 
-                      </div>
+                          {/* DATES */}
 
-                    </div>
-                  )}
-
-                  {/* DATES */}
-
-                  {(project.startDate ||
-                    project.endDate) && (
-                    <div
-                      className="mt-5
+                          {(project.startDate ||
+                              project.endDate) && (
+                              <div
+                                  className="mt-5
                                  flex
                                  flex-wrap
                                  gap-4"
-                    >
+                              >
 
-                      {project.startDate && (
-                        <div
-                          className="flex
+                                {project.startDate && (
+                                    <div
+                                        className="flex
                                      items-center
                                      gap-2
                                      text-xs
                                      text-slate-500"
-                        >
-                          <CalendarDays
-                            size={15}
-                          />
+                                    >
+                                      <CalendarDays
+                                          size={15}
+                                      />
 
-                          <span>
+                                      <span>
                             Start:{" "}
 
-                            <span
-                              className="font-medium
+                                        <span
+                                            className="font-medium
                                          text-slate-700"
-                            >
+                                        >
                               {formatDate(
-                                project.startDate
+                                  project.startDate
                               )}
                             </span>
 
                           </span>
 
-                        </div>
-                      )}
+                                    </div>
+                                )}
 
-                      {project.endDate && (
-                        <div
-                          className="flex
+                                {project.endDate && (
+                                    <div
+                                        className="flex
                                      items-center
                                      gap-2
                                      text-xs
                                      text-slate-500"
-                        >
+                                    >
 
-                          <CalendarDays
-                            size={15}
-                          />
+                                      <CalendarDays
+                                          size={15}
+                                      />
 
-                          <span>
+                                      <span>
                             End:{" "}
 
-                            <span
-                              className="font-medium
+                                        <span
+                                            className="font-medium
                                          text-slate-700"
-                            >
+                                        >
                               {formatDate(
-                                project.endDate
+                                  project.endDate
                               )}
                             </span>
 
                           </span>
 
-                        </div>
-                      )}
+                                    </div>
+                                )}
 
-                    </div>
-                  )}
+                              </div>
+                          )}
 
-                  {/* ==========================================
+                          {/* ==========================================
                       PROJECT MEMBERS
                   ========================================== */}
 
-                  <div
-                    className="mt-6
+                          <div
+                              className="mt-6
                                pt-5
                                border-t
                                border-slate-100"
-                  >
+                          >
 
-                    <div
-                      className="flex
+                            <div
+                                className="flex
                                  items-center
                                  justify-between
                                  gap-3"
-                    >
+                            >
 
-                      <div
-                        className="flex
+                              <div
+                                  className="flex
                                    items-center
                                    gap-2"
-                      >
+                              >
 
-                        <Users
-                          size={17}
-                          className="text-blue-600"
-                        />
+                                <Users
+                                    size={17}
+                                    className="text-blue-600"
+                                />
 
-                        <p
-                          className="text-sm
+                                <p
+                                    className="text-sm
                                      font-semibold
                                      text-slate-800"
-                        >
-                          Team Members
-                        </p>
+                                >
+                                  Team Members
+                                </p>
 
-                        {projectMembers[
-                          project.id
-                        ] && (
-                          <span
-                            className="px-2
+                                {projectMembers[
+                                    project.id
+                                    ] && (
+                                    <span
+                                        className="px-2
                                        py-0.5
                                        rounded-full
                                        bg-blue-50
                                        text-blue-700
                                        text-xs
                                        font-semibold"
-                          >
+                                    >
                             {
                               projectMembers[
-                                project.id
-                              ].length
+                                  project.id
+                                  ].length
                             }
                           </span>
-                        )}
+                                )}
 
-                      </div>
+                              </div>
 
-                      <button
-                        onClick={() =>
-                          loadProjectMembers(
-                            project.id
-                          )
-                        }
-                        disabled={
-                          projectMembersLoading[
-                            project.id
-                          ]
-                        }
-                        className="inline-flex
+                              <button
+                                  onClick={() =>
+                                      loadProjectMembers(
+                                          project.id
+                                      )
+                                  }
+                                  disabled={
+                                    projectMembersLoading[
+                                        project.id
+                                        ]
+                                  }
+                                  className="inline-flex
                                    items-center
                                    gap-1.5
                                    px-3
@@ -2355,86 +2325,86 @@ const Projects = () => {
                                    font-semibold
                                    hover:bg-slate-50
                                    disabled:opacity-50"
-                      >
+                              >
 
-                        <Users
-                          size={14}
-                        />
+                                <Users
+                                    size={14}
+                                />
 
-                        {projectMembersLoading[
-                          project.id
-                        ]
-                          ? "Loading..."
-                          : projectMembers[
-                              project.id
-                            ]
-                            ? "Refresh"
-                            : "View Members"}
+                                {projectMembersLoading[
+                                    project.id
+                                    ]
+                                    ? "Loading..."
+                                    : projectMembers[
+                                        project.id
+                                        ]
+                                        ? "Refresh"
+                                        : "View Members"}
 
-                      </button>
+                              </button>
 
-                    </div>
+                            </div>
 
-                    {/* MEMBERS LIST */}
+                            {/* MEMBERS LIST */}
 
-                    {projectMembers[
-                      project.id
-                    ] && (
+                            {projectMembers[
+                                project.id
+                                ] && (
 
-                      <div
-                        className="mt-4
+                                <div
+                                    className="mt-4
                                    space-y-2"
-                      >
+                                >
 
-                        {projectMembers[
-                          project.id
-                        ].length === 0 ? (
+                                  {projectMembers[
+                                      project.id
+                                      ].length === 0 ? (
 
-                          <div
-                            className="p-4
+                                      <div
+                                          className="p-4
                                        rounded-xl
                                        bg-slate-50
                                        text-center"
-                          >
+                                      >
 
-                            <p
-                              className="text-sm
+                                        <p
+                                            className="text-sm
                                          text-slate-500"
-                            >
-                              No members found.
-                            </p>
+                                        >
+                                          No members found.
+                                        </p>
 
-                          </div>
+                                      </div>
 
-                        ) : (
+                                  ) : (
 
-                          projectMembers[
-                            project.id
-                          ].map(
-                            (member) => (
+                                      projectMembers[
+                                          project.id
+                                          ].map(
+                                          (member) => (
 
-                              <div
-                                key={
-                                  member.id
-                                }
-                                className="flex
+                                              <div
+                                                  key={
+                                                    member.id
+                                                  }
+                                                  className="flex
                                            items-center
                                            justify-between
                                            gap-3
                                            p-3
                                            rounded-xl
                                            bg-slate-50"
-                              >
+                                              >
 
-                                <div
-                                  className="flex
+                                                <div
+                                                    className="flex
                                              items-center
                                              gap-3
                                              min-w-0"
-                                >
+                                                >
 
-                                  <div
-                                    className="w-9 h-9
+                                                  <div
+                                                      className="w-9 h-9
                                                rounded-lg
                                                bg-blue-100
                                                text-blue-700
@@ -2442,50 +2412,50 @@ const Projects = () => {
                                                items-center
                                                justify-center
                                                shrink-0"
-                                  >
-                                    <Users
-                                      size={17}
-                                    />
-                                  </div>
+                                                  >
+                                                    <Users
+                                                        size={17}
+                                                    />
+                                                  </div>
 
-                                  <div
-                                    className="min-w-0"
-                                  >
+                                                  <div
+                                                      className="min-w-0"
+                                                  >
 
-                                    <p
-                                      className="text-sm
+                                                    <p
+                                                        className="text-sm
                                                  font-semibold
                                                  text-slate-800
                                                  truncate"
-                                    >
-                                      {
-                                        member.studentName
-                                      }
-                                    </p>
+                                                    >
+                                                      {
+                                                        member.studentName
+                                                      }
+                                                    </p>
 
-                                    <p
-                                      className="text-xs
+                                                    <p
+                                                        className="text-xs
                                                  text-slate-500
                                                  truncate"
-                                    >
-                                      {
-                                        member.studentEmail
-                                      }
-                                    </p>
+                                                    >
+                                                      {
+                                                        member.studentEmail
+                                                      }
+                                                    </p>
 
-                                  </div>
+                                                  </div>
 
-                                </div>
+                                                </div>
 
-                                <div
-                                  className="flex
+                                                <div
+                                                    className="flex
                                             items-center
                                             gap-2
                                             shrink-0"
-                                >
+                                                >
 
                                   <span
-                                    className="px-2.5
+                                      className="px-2.5
                                                py-1
                                                rounded-lg
                                                bg-blue-50
@@ -2495,21 +2465,21 @@ const Projects = () => {
                                                whitespace-nowrap"
                                   >
                                     {getRoleLabel(
-                                      member.role
+                                        member.role
                                     )}
                                   </span>
 
-                                  {member.role !== "LEADER" && (
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        handleRemoveMember(
-                                          project.id,
-                                          member.id,
-                                          member.studentName
-                                        )
-                                      }
-                                      className="inline-flex
+                                                  {member.role !== "LEADER" && (
+                                                      <button
+                                                          type="button"
+                                                          onClick={() =>
+                                                              handleRemoveMember(
+                                                                  project.id,
+                                                                  member.id,
+                                                                  member.studentName
+                                                              )
+                                                          }
+                                                          className="inline-flex
                                                  items-center
                                                  gap-1.5
                                                  px-2.5
@@ -2522,49 +2492,49 @@ const Projects = () => {
                                                  font-semibold
                                                  hover:bg-red-50
                                                  transition"
-                                      title="Remove member"
-                                    >
-                                      <Trash2 size={13} />
-                                      Remove
-                                    </button>
+                                                          title="Remove member"
+                                                      >
+                                                        <Trash2 size={13} />
+                                                        Remove
+                                                      </button>
+                                                  )}
+
+                                                </div>
+
+                                              </div>
+
+                                          )
+                                      )
+
                                   )}
 
                                 </div>
+                            )}
 
-                              </div>
+                          </div>
 
-                            )
-                          )
+                          {/* LINKS */}
 
-                        )}
-
-                      </div>
-                    )}
-
-                  </div>
-
-                  {/* LINKS */}
-
-                  {(project.githubUrl ||
-                    project.liveDemoUrl) && (
-                    <div
-                      className="mt-6
+                          {(project.githubUrl ||
+                              project.liveDemoUrl) && (
+                              <div
+                                  className="mt-6
                                  pt-5
                                  border-t
                                  border-slate-100
                                  flex
                                  flex-wrap
                                  gap-3"
-                    >
+                              >
 
-                      {project.githubUrl && (
-                        <a
-                          href={
-                            project.githubUrl
-                          }
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex
+                                {project.githubUrl && (
+                                    <a
+                                        href={
+                                          project.githubUrl
+                                        }
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex
                                      items-center
                                      gap-2
                                      px-3.5
@@ -2576,22 +2546,22 @@ const Projects = () => {
                                      font-semibold
                                      hover:bg-slate-800
                                      transition"
-                        >
-                          <ExternalLink
-                            size={15}
-                          />
-                          GitHub
-                        </a>
-                      )}
+                                    >
+                                      <ExternalLink
+                                          size={15}
+                                      />
+                                      GitHub
+                                    </a>
+                                )}
 
-                      {project.liveDemoUrl && (
-                        <a
-                          href={
-                            project.liveDemoUrl
-                          }
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex
+                                {project.liveDemoUrl && (
+                                    <a
+                                        href={
+                                          project.liveDemoUrl
+                                        }
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex
                                      items-center
                                      gap-2
                                      px-3.5
@@ -2603,88 +2573,88 @@ const Projects = () => {
                                      font-semibold
                                      hover:bg-blue-700
                                      transition"
-                        >
-                          <ExternalLink
-                            size={15}
-                          />
-                          Live Demo
-                        </a>
-                      )}
+                                    >
+                                      <ExternalLink
+                                          size={15}
+                                      />
+                                      Live Demo
+                                    </a>
+                                )}
 
-                    </div>
-                  )}
+                              </div>
+                          )}
 
-                </div>
-              )
-            )}
+                        </div>
+                    )
+                )}
 
-          </div>
-        )}
+              </div>
+          )}
 
-      </section>
+        </section>
 
-      {/* ==========================================
+        {/* ==========================================
           MY PROJECT MEMBERSHIPS
       ========================================== */}
 
-      <section
-        className="bg-white
+        <section
+            className="bg-white
                    rounded-2xl
                    border
                    border-slate-200
                    p-6
                    mt-6"
-      >
-
-        <div
-          className="flex
-                     items-center
-                     gap-3
-                     mb-6"
         >
 
           <div
-            className="p-3
-                       rounded-xl
-                       bg-purple-50
-                       text-purple-600"
-          >
-            <Users
-              size={21}
-            />
-          </div>
-
-          <div>
-
-            <h2
-              className="text-lg
-                         font-bold
-                         text-slate-900"
-            >
-              My Project Memberships
-            </h2>
-
-            <p
-              className="text-sm
-                         text-slate-500
-                         mt-1"
-            >
-              Projects you have joined as a member.
-            </p>
-
-          </div>
-
-        </div>
-
-        {membersLoading ? (
-
-          <div
-            className="py-10
-                       text-center"
+              className="flex
+                     items-center
+                     gap-3
+                     mb-6"
           >
 
             <div
-              className="w-8 h-8
+                className="p-3
+                       rounded-xl
+                       bg-purple-50
+                       text-purple-600"
+            >
+              <Users
+                  size={21}
+              />
+            </div>
+
+            <div>
+
+              <h2
+                  className="text-lg
+                         font-bold
+                         text-slate-900"
+              >
+                My Project Memberships
+              </h2>
+
+              <p
+                  className="text-sm
+                         text-slate-500
+                         mt-1"
+              >
+                Projects you have joined as a member.
+              </p>
+
+            </div>
+
+          </div>
+
+          {membersLoading ? (
+
+              <div
+                  className="py-10
+                       text-center"
+              >
+
+                <div
+                    className="w-8 h-8
                          border-4
                          border-blue-600
                          border-t-transparent
@@ -2692,84 +2662,84 @@ const Projects = () => {
                          animate-spin
                          mx-auto
                          mb-3"
-            />
+                />
 
-            <p
-              className="text-sm
+                <p
+                    className="text-sm
                          text-slate-500"
-            >
-              Loading memberships...
-            </p>
+                >
+                  Loading memberships...
+                </p>
 
-          </div>
+              </div>
 
-        ) : memberships.length === 0 ? (
+          ) : memberships.length === 0 ? (
 
-          <div
-            className="py-12
+              <div
+                  className="py-12
                        text-center
                        bg-slate-50
                        rounded-xl"
-          >
+              >
 
-            <Users
-              size={32}
-              className="mx-auto
+                <Users
+                    size={32}
+                    className="mx-auto
                          text-slate-400
                          mb-3"
-            />
+                />
 
-            <h3
-              className="font-semibold
+                <h3
+                    className="font-semibold
                          text-slate-800"
-            >
-              No project memberships
-            </h3>
+                >
+                  No project memberships
+                </h3>
 
-            <p
-              className="text-sm
+                <p
+                    className="text-sm
                          text-slate-500
                          mt-1"
-            >
-              Join a project above to see it here.
-            </p>
+                >
+                  Join a project above to see it here.
+                </p>
 
-          </div>
+              </div>
 
-        ) : (
+          ) : (
 
-          <div
-            className="space-y-3"
-          >
+              <div
+                  className="space-y-3"
+              >
 
-            {memberships.map(
-              (membership) => (
+                {memberships.map(
+                    (membership) => (
 
-                <div
-                  key={membership.id}
-                  className="border
+                        <div
+                            key={membership.id}
+                            className="border
                              border-slate-200
                              rounded-xl
                              p-4"
-                >
+                        >
 
-                  <div
-                    className="flex
+                          <div
+                              className="flex
                                flex-col
                                sm:flex-row
                                sm:items-center
                                justify-between
                                gap-4"
-                  >
+                          >
 
-                    <div
-                      className="flex
+                            <div
+                                className="flex
                                  items-center
                                  gap-3"
-                    >
+                            >
 
-                      <div
-                        className="w-11 h-11
+                              <div
+                                  className="w-11 h-11
                                    rounded-xl
                                    bg-purple-50
                                    text-purple-600
@@ -2777,67 +2747,67 @@ const Projects = () => {
                                    items-center
                                    justify-center
                                    shrink-0"
-                      >
-                        <Users
-                          size={20}
-                        />
-                      </div>
+                              >
+                                <Users
+                                    size={20}
+                                />
+                              </div>
 
-                      <div>
+                              <div>
 
-                        <h3
-                          className="font-semibold
+                                <h3
+                                    className="font-semibold
                                      text-slate-900"
-                        >
-                          {
-                            membership.projectTitle
-                          }
-                        </h3>
+                                >
+                                  {
+                                    membership.projectTitle
+                                  }
+                                </h3>
 
-                        <p
-                          className="text-xs
+                                <p
+                                    className="text-xs
                                      text-slate-500
                                      mt-1"
-                        >
-                          Joined{" "}
+                                >
+                                  Joined{" "}
 
-                          {formatDate(
-                            membership.joinedAt
-                          )}
+                                  {formatDate(
+                                      membership.joinedAt
+                                  )}
 
-                        </p>
+                                </p>
 
-                      </div>
+                              </div>
 
-                    </div>
+                            </div>
 
-                    {/* ROLE */}
+                            {/* ROLE */}
 
-                    {editingMemberId ===
-                    membership.id ? (
+                            {editingMemberId ===
+                            membership.id ? (
 
-                      <div
-                        className="flex
+                                <div
+                                    className="flex
                                    flex-col
                                    sm:flex-row
                                    gap-2"
-                      >
+                                >
 
-                        <select
-                          value={
-                            editingRole
-                          }
-                          onChange={(
-                            event
-                          ) =>
-                            setEditingRole(
-                              event.target.value
-                            )
-                          }
-                          disabled={
-                            updatingMember
-                          }
-                          className="px-3
+                                  <select
+                                      value={
+                                        editingRole
+                                      }
+                                      onChange={(
+                                          event
+                                      ) =>
+                                          setEditingRole(
+                                              event.target.value
+                                          )
+                                      }
+                                      disabled={
+                                        updatingMember
+                                      }
+                                      className="px-3
                                      py-2
                                      rounded-lg
                                      border
@@ -2846,37 +2816,37 @@ const Projects = () => {
                                      focus:outline-none
                                      focus:ring-2
                                      focus:ring-blue-500"
-                        >
+                                  >
 
-                          {MEMBER_ROLES.map(
-                            (role) => (
-                              <option
-                                key={
-                                  role.value
-                                }
-                                value={
-                                  role.value
-                                }
-                              >
-                                {
-                                  role.label
-                                }
-                              </option>
-                            )
-                          )}
+                                    {MEMBER_ROLES.map(
+                                        (role) => (
+                                            <option
+                                                key={
+                                                  role.value
+                                                }
+                                                value={
+                                                  role.value
+                                                }
+                                            >
+                                              {
+                                                role.label
+                                              }
+                                            </option>
+                                        )
+                                    )}
 
-                        </select>
+                                  </select>
 
-                        <button
-                          onClick={() =>
-                            handleUpdateMember(
-                              membership
-                            )
-                          }
-                          disabled={
-                            updatingMember
-                          }
-                          className="inline-flex
+                                  <button
+                                      onClick={() =>
+                                          handleUpdateMember(
+                                              membership
+                                          )
+                                      }
+                                      disabled={
+                                        updatingMember
+                                      }
+                                      className="inline-flex
                                      items-center
                                      justify-center
                                      gap-2
@@ -2889,21 +2859,21 @@ const Projects = () => {
                                      font-semibold
                                      hover:bg-blue-700
                                      disabled:opacity-50"
-                        >
-                          <Save
-                            size={15}
-                          />
-                          Save
-                        </button>
+                                  >
+                                    <Save
+                                        size={15}
+                                    />
+                                    Save
+                                  </button>
 
-                        <button
-                          onClick={
-                            cancelEditMember
-                          }
-                          disabled={
-                            updatingMember
-                          }
-                          className="px-3
+                                  <button
+                                      onClick={
+                                        cancelEditMember
+                                      }
+                                      disabled={
+                                        updatingMember
+                                      }
+                                      className="px-3
                                      py-2
                                      rounded-lg
                                      border
@@ -2912,23 +2882,23 @@ const Projects = () => {
                                      text-sm
                                      font-semibold
                                      hover:bg-slate-50"
-                        >
-                          Cancel
-                        </button>
+                                  >
+                                    Cancel
+                                  </button>
 
-                      </div>
+                                </div>
 
-                    ) : (
+                            ) : (
 
-                      <div
-                        className="flex
+                                <div
+                                    className="flex
                                    flex-wrap
                                    items-center
                                    gap-2"
-                      >
+                                >
 
                         <span
-                          className="px-3
+                            className="px-3
                                      py-1.5
                                      rounded-lg
                                      bg-blue-50
@@ -2937,17 +2907,17 @@ const Projects = () => {
                                      font-semibold"
                         >
                           {getRoleLabel(
-                            membership.role
+                              membership.role
                           )}
                         </span>
 
-                        <button
-                          onClick={() =>
-                            startEditMember(
-                              membership
-                            )
-                          }
-                          className="inline-flex
+                                  <button
+                                      onClick={() =>
+                                          startEditMember(
+                                              membership
+                                          )
+                                      }
+                                      className="inline-flex
                                      items-center
                                      gap-1.5
                                      px-3
@@ -2959,24 +2929,24 @@ const Projects = () => {
                                      text-xs
                                      font-semibold
                                      hover:bg-slate-50"
-                        >
-                          <Pencil
-                            size={13}
-                          />
-                          Edit Role
-                        </button>
+                                  >
+                                    <Pencil
+                                        size={13}
+                                    />
+                                    Edit Role
+                                  </button>
 
-                        <button
-                          onClick={() =>
-                            handleLeaveProject(
-                              membership
-                            )
-                          }
-                          disabled={
-                            leavingMemberId ===
-                            membership.id
-                          }
-                          className="inline-flex
+                                  <button
+                                      onClick={() =>
+                                          handleLeaveProject(
+                                              membership
+                                          )
+                                      }
+                                      disabled={
+                                          leavingMemberId ===
+                                          membership.id
+                                      }
+                                      className="inline-flex
                                      items-center
                                      gap-1.5
                                      px-3
@@ -2989,204 +2959,204 @@ const Projects = () => {
                                      font-semibold
                                      hover:bg-red-50
                                      disabled:opacity-50"
-                        >
-                          <LogOut
-                            size={13}
-                          />
+                                  >
+                                    <LogOut
+                                        size={13}
+                                    />
 
-                          {leavingMemberId ===
-                          membership.id
-                            ? "Leaving..."
-                            : "Leave"}
+                                    {leavingMemberId ===
+                                    membership.id
+                                        ? "Leaving..."
+                                        : "Leave"}
 
-                        </button>
+                                  </button>
 
-                      </div>
+                                </div>
 
-                    )}
+                            )}
 
-                  </div>
+                          </div>
 
-                </div>
+                        </div>
 
-              )
-            )}
+                    )
+                )}
 
-          </div>
+              </div>
 
-        )}
+          )}
 
-      </section>
+        </section>
 
-      {/* ==========================================
+        {/* ==========================================
           JOIN PROJECT SECTION
       ========================================== */}
 
-      <section
-        className="bg-white
+        <section
+            className="bg-white
                    rounded-2xl
                    border
                    border-slate-200
                    p-6
                    mt-6"
-      >
-
-        <div
-          className="flex
-                     items-center
-                     gap-3
-                     mb-6"
         >
 
           <div
-            className="p-3
+              className="flex
+                     items-center
+                     gap-3
+                     mb-6"
+          >
+
+            <div
+                className="p-3
                        rounded-xl
                        bg-green-50
                        text-green-600"
-          >
-            <UserPlus
-              size={21}
-            />
-          </div>
+            >
+              <UserPlus
+                  size={21}
+              />
+            </div>
 
-          <div>
+            <div>
 
-            <h2
-              className="text-lg
+              <h2
+                  className="text-lg
                          font-bold
                          text-slate-900"
-            >
-              Join a Project
-            </h2>
+              >
+                Join a Project
+              </h2>
 
-            <p
-              className="text-sm
+              <p
+                  className="text-sm
                          text-slate-500
                          mt-1"
-            >
-              Join one of your available campus projects.
-            </p>
+              >
+                Join one of your available campus projects.
+              </p>
+
+            </div>
 
           </div>
 
-        </div>
+          {availableProjects.length === 0 ? (
 
-        {availableProjects.length === 0 ? (
-
-          <div
-            className="p-5
+              <div
+                  className="p-5
                        rounded-xl
                        bg-slate-50
                        text-sm
                        text-slate-500"
-          >
-            No projects are currently available to
-            join.
-          </div>
+              >
+                No projects are currently available to
+                join.
+              </div>
 
-        ) : (
+          ) : (
 
-          <div
-            className="grid
+              <div
+                  className="grid
                        grid-cols-1
                        lg:grid-cols-2
                        gap-4"
-          >
+              >
 
-            {availableProjects.map(
-              (project) => {
+                {availableProjects.map(
+                    (project) => {
 
-                const alreadyJoined =
-                  memberships.some(
-                    (membership) =>
-                      membership.projectTitle ===
-                      project.projectTitle
-                  );
+                      const alreadyJoined =
+                          memberships.some(
+                              (membership) =>
+                                  membership.projectTitle ===
+                                  project.projectTitle
+                          );
 
-                return (
-                  <div
-                    id={`join-project-${project.id}`}
-                    key={`join-${project.id}`}
-                    className="border
+                      return (
+                          <div
+                              id={`join-project-${project.id}`}
+                              key={`join-${project.id}`}
+                              className="border
                                border-slate-200
                                rounded-xl
                                p-5"
-                  >
+                          >
 
-                    <div
-                      className="flex
+                            <div
+                                className="flex
                                  items-start
                                  justify-between
                                  gap-3"
-                    >
+                            >
 
-                      <div>
+                              <div>
 
-                        <h3
-                          className="font-semibold
+                                <h3
+                                    className="font-semibold
                                      text-slate-900"
-                        >
-                          {
-                            project.projectTitle
-                          }
-                        </h3>
+                                >
+                                  {
+                                    project.projectTitle
+                                  }
+                                </h3>
 
-                        {project.description && (
-                          <p
-                            className="text-sm
+                                {project.description && (
+                                    <p
+                                        className="text-sm
                                        text-slate-500
                                        mt-1
                                        line-clamp-2"
-                          >
-                            {
-                              project.description
-                            }
-                          </p>
-                        )}
+                                    >
+                                      {
+                                        project.description
+                                      }
+                                    </p>
+                                )}
 
-                      </div>
+                              </div>
 
-                      <FolderKanban
-                        size={20}
-                        className="text-blue-600
+                              <FolderKanban
+                                  size={20}
+                                  className="text-blue-600
                                    shrink-0"
-                      />
+                              />
 
-                    </div>
+                            </div>
 
-                    {joinProjectId ===
-                    project.id ? (
+                            {joinProjectId ===
+                            project.id ? (
 
-                      <div
-                        className="mt-4
+                                <div
+                                    className="mt-4
                                    pt-4
                                    border-t
                                    border-slate-200"
-                      >
+                                >
 
-                        <label
-                          className="block
+                                  <label
+                                      className="block
                                      text-xs
                                      font-semibold
                                      text-slate-600
                                      mb-2"
-                        >
-                          Select your role
-                        </label>
+                                  >
+                                    Select your role
+                                  </label>
 
-                        <select
-                          value={joinRole}
-                          onChange={(
-                            event
-                          ) =>
-                            setJoinRole(
-                              event.target.value
-                            )
-                          }
-                          disabled={
-                            joining
-                          }
-                          className="w-full
+                                  <select
+                                      value={joinRole}
+                                      onChange={(
+                                          event
+                                      ) =>
+                                          setJoinRole(
+                                              event.target.value
+                                          )
+                                      }
+                                      disabled={
+                                        joining
+                                      }
+                                      className="w-full
                                      px-3
                                      py-2.5
                                      rounded-lg
@@ -3196,43 +3166,43 @@ const Projects = () => {
                                      focus:outline-none
                                      focus:ring-2
                                      focus:ring-blue-500"
-                        >
+                                  >
 
-                          {MEMBER_ROLES.map(
-                            (role) => (
-                              <option
-                                key={
-                                  role.value
-                                }
-                                value={
-                                  role.value
-                                }
-                              >
-                                {
-                                  role.label
-                                }
-                              </option>
-                            )
-                          )}
+                                    {MEMBER_ROLES.map(
+                                        (role) => (
+                                            <option
+                                                key={
+                                                  role.value
+                                                }
+                                                value={
+                                                  role.value
+                                                }
+                                            >
+                                              {
+                                                role.label
+                                              }
+                                            </option>
+                                        )
+                                    )}
 
-                        </select>
+                                  </select>
 
-                        <div
-                          className="flex
+                                  <div
+                                      className="flex
                                      gap-2
                                      mt-3"
-                        >
+                                  >
 
-                          <button
-                            onClick={() =>
-                              handleJoinProject(
-                                project.id
-                              )
-                            }
-                            disabled={
-                              joining
-                            }
-                            className="flex-1
+                                    <button
+                                        onClick={() =>
+                                            handleJoinProject(
+                                                project.id
+                                            )
+                                        }
+                                        disabled={
+                                          joining
+                                        }
+                                        className="flex-1
                                        inline-flex
                                        items-center
                                        justify-center
@@ -3246,26 +3216,26 @@ const Projects = () => {
                                        font-semibold
                                        hover:bg-blue-700
                                        disabled:opacity-50"
-                          >
+                                    >
 
-                            <UserPlus
-                              size={16}
-                            />
+                                      <UserPlus
+                                          size={16}
+                                      />
 
-                            {joining
-                              ? "Joining..."
-                              : "Confirm Join"}
+                                      {joining
+                                          ? "Sending..."
+                                          : "Send Request"}
 
-                          </button>
+                                    </button>
 
-                          <button
-                            onClick={
-                              cancelJoin
-                            }
-                            disabled={
-                              joining
-                            }
-                            className="px-4
+                                    <button
+                                        onClick={
+                                          cancelJoin
+                                        }
+                                        disabled={
+                                          joining
+                                        }
+                                        className="px-4
                                        py-2.5
                                        rounded-lg
                                        border
@@ -3274,18 +3244,18 @@ const Projects = () => {
                                        text-sm
                                        font-semibold
                                        hover:bg-slate-50"
-                          >
-                            Cancel
-                          </button>
+                                    >
+                                      Cancel
+                                    </button>
 
-                        </div>
+                                  </div>
 
-                      </div>
+                                </div>
 
-                    ) : alreadyJoined ? (
+                            ) : alreadyJoined ? (
 
-                      <div
-                        className="mt-4
+                                <div
+                                    className="mt-4
                                    px-3
                                    py-2.5
                                    rounded-lg
@@ -3294,19 +3264,19 @@ const Projects = () => {
                                    text-xs
                                    font-semibold
                                    text-center"
-                      >
-                        Already a member
-                      </div>
+                                >
+                                  Already a member
+                                </div>
 
-                    ) : (
+                            ) : (
 
-                      <button
-                        onClick={() =>
-                          openJoinProject(
-                            project.id
-                          )
-                        }
-                        className="mt-4
+                                <button
+                                    onClick={() =>
+                                        openJoinProject(
+                                            project.id
+                                        )
+                                    }
+                                    className="mt-4
                                    w-full
                                    inline-flex
                                    items-center
@@ -3321,81 +3291,81 @@ const Projects = () => {
                                    font-semibold
                                    hover:bg-blue-700
                                    transition"
-                      >
-                        <UserPlus size={16} />
-                        Join Project
-                      </button>
-                    )}
+                                >
+                                  <UserPlus size={16} />
+                                  Request to Join
+                                </button>
+                            )}
 
-                  </div>
-                );
-              }
-            )}
+                          </div>
+                      );
+                    }
+                )}
 
-          </div>
-        )}
+              </div>
+          )}
 
-      </section>
+        </section>
 
-      {/* ==========================================
+        {/* ==========================================
           ADD PROJECT MODAL
       ========================================== */}
 
-      {addOpen && (
-        <ProjectModal
-          title="Add Project"
-          subtitle="Add your project details to NEXUS."
-          formData={formData}
-          handleChange={handleChange}
-          handleSubmit={handleAddProject}
-          onClose={closeAddModal}
-          saving={saving}
-          submitText="Add Project"
-          mySkills={mySkills}
-          requiredSkills={requiredSkills}
-          selectedSkillId={selectedSkillId}
-          selectedSkillImportance={selectedSkillImportance}
-          skillsLoading={skillsLoading}
-          setSelectedSkillId={setSelectedSkillId}
-          setSelectedSkillImportance={setSelectedSkillImportance}
-          handleAddRequiredSkill={handleAddRequiredSkill}
-          handleRemoveRequiredSkill={handleRemoveRequiredSkill}
-          handleRequiredSkillImportanceChange={
-            handleRequiredSkillImportanceChange
-          }
-        />
-      )}
+        {addOpen && (
+            <ProjectModal
+                title="Add Project"
+                subtitle="Add your project details to NEXUS."
+                formData={formData}
+                handleChange={handleChange}
+                handleSubmit={handleAddProject}
+                onClose={closeAddModal}
+                saving={saving}
+                submitText="Add Project"
+                mySkills={mySkills}
+                requiredSkills={requiredSkills}
+                selectedSkillId={selectedSkillId}
+                selectedSkillImportance={selectedSkillImportance}
+                skillsLoading={skillsLoading}
+                setSelectedSkillId={setSelectedSkillId}
+                setSelectedSkillImportance={setSelectedSkillImportance}
+                handleAddRequiredSkill={handleAddRequiredSkill}
+                handleRemoveRequiredSkill={handleRemoveRequiredSkill}
+                handleRequiredSkillImportanceChange={
+                  handleRequiredSkillImportanceChange
+                }
+            />
+        )}
 
-      {/* ==========================================
+        {/* ==========================================
           EDIT PROJECT MODAL
       ========================================== */}
 
-      {editOpen && (
-        <ProjectModal
-          title="Edit Project"
-          subtitle="Update your project information."
-          formData={formData}
-          handleChange={handleChange}
-          handleSubmit={handleUpdateProject}
-          onClose={closeEditModal}
-          saving={saving}
-          submitText="Save Changes"
-          mySkills={mySkills}
-          requiredSkills={requiredSkills}
-          selectedSkillId={selectedSkillId}
-          selectedSkillImportance={selectedSkillImportance}
-          skillsLoading={skillsLoading}
-          setSelectedSkillId={setSelectedSkillId}
-          setSelectedSkillImportance={setSelectedSkillImportance}
-          handleAddRequiredSkill={handleAddRequiredSkill}
-          handleRemoveRequiredSkill={handleRemoveRequiredSkill}
-          handleRequiredSkillImportanceChange={
-            handleRequiredSkillImportanceChange
-          }
-        />
-      )}
+        {editOpen && (
+            <ProjectModal
+                title="Edit Project"
+                subtitle="Update your project information."
+                formData={formData}
+                handleChange={handleChange}
+                handleSubmit={handleUpdateProject}
+                onClose={closeEditModal}
+                saving={saving}
+                submitText="Save Changes"
+                mySkills={mySkills}
+                requiredSkills={requiredSkills}
+                selectedSkillId={selectedSkillId}
+                selectedSkillImportance={selectedSkillImportance}
+                skillsLoading={skillsLoading}
+                setSelectedSkillId={setSelectedSkillId}
+                setSelectedSkillImportance={setSelectedSkillImportance}
+                handleAddRequiredSkill={handleAddRequiredSkill}
+                handleRemoveRequiredSkill={handleRemoveRequiredSkill}
+                handleRequiredSkillImportanceChange={
+                  handleRequiredSkillImportanceChange
+                }
+            />
+        )}
 
-    </DashboardLayout>
+      </DashboardLayout>
   );
 };
 
@@ -3404,28 +3374,28 @@ const Projects = () => {
 // ==========================================
 
 const ProjectModal = ({
-  title,
-  subtitle,
-  formData,
-  handleChange,
-  handleSubmit,
-  onClose,
-  saving,
-  submitText,
-  mySkills,
-  requiredSkills,
-  selectedSkillId,
-  selectedSkillImportance,
-  skillsLoading,
-  setSelectedSkillId,
-  setSelectedSkillImportance,
-  handleAddRequiredSkill,
-  handleRemoveRequiredSkill,
-  handleRequiredSkillImportanceChange,
-}) => {
+                        title,
+                        subtitle,
+                        formData,
+                        handleChange,
+                        handleSubmit,
+                        onClose,
+                        saving,
+                        submitText,
+                        mySkills,
+                        requiredSkills,
+                        selectedSkillId,
+                        selectedSkillImportance,
+                        skillsLoading,
+                        setSelectedSkillId,
+                        setSelectedSkillImportance,
+                        handleAddRequiredSkill,
+                        handleRemoveRequiredSkill,
+                        handleRequiredSkillImportanceChange,
+                      }) => {
   return (
-    <div
-      className="fixed
+      <div
+          className="fixed
                  inset-0
                  z-[100]
                  bg-black/50
@@ -3433,30 +3403,30 @@ const ProjectModal = ({
                  items-center
                  justify-center
                  p-4"
-      onMouseDown={(event) => {
-        if (
-          event.target ===
-          event.currentTarget
-        ) {
-          onClose();
-        }
-      }}
-    >
+          onMouseDown={(event) => {
+            if (
+                event.target ===
+                event.currentTarget
+            ) {
+              onClose();
+            }
+          }}
+      >
 
-      <div
-        className="w-full
+        <div
+            className="w-full
                    max-w-2xl
                    max-h-[90vh]
                    overflow-y-auto
                    bg-white
                    rounded-2xl
                    shadow-2xl"
-      >
+        >
 
-        {/* HEADER */}
+          {/* HEADER */}
 
-        <div
-          className="sticky
+          <div
+              className="sticky
                      top-0
                      z-10
                      bg-white
@@ -3467,215 +3437,215 @@ const ProjectModal = ({
                      py-5
                      border-b
                      border-slate-200"
-        >
+          >
 
-          <div>
+            <div>
 
-            <h2
-              className="text-xl
+              <h2
+                  className="text-xl
                          font-bold
                          text-slate-900"
-            >
-              {title}
-            </h2>
+              >
+                {title}
+              </h2>
 
-            <p
-              className="text-sm
+              <p
+                  className="text-sm
                          text-slate-500
                          mt-1"
-            >
-              {subtitle}
-            </p>
+              >
+                {subtitle}
+              </p>
 
-          </div>
+            </div>
 
-          <button
-            onClick={onClose}
-            disabled={saving}
-            className="p-2
+            <button
+                onClick={onClose}
+                disabled={saving}
+                className="p-2
                        rounded-lg
                        hover:bg-slate-100
                        text-slate-500
                        disabled:opacity-50"
+            >
+              <X size={20} />
+            </button>
+
+          </div>
+
+          {/* FORM */}
+
+          <form
+              onSubmit={handleSubmit}
+              className="p-6 space-y-5"
           >
-            <X size={20} />
-          </button>
 
-        </div>
+            <FormField
+                label="Project Title"
+                required
+            >
+              <input
+                  name="projectTitle"
+                  type="text"
+                  value={
+                    formData.projectTitle
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  placeholder="e.g. Smart Queue Management"
+                  className="input-field"
+              />
+            </FormField>
 
-        {/* FORM */}
-
-        <form
-          onSubmit={handleSubmit}
-          className="p-6 space-y-5"
-        >
-
-          <FormField
-            label="Project Title"
-            required
-          >
-            <input
-              name="projectTitle"
-              type="text"
-              value={
-                formData.projectTitle
-              }
-              onChange={
-                handleChange
-              }
-              placeholder="e.g. Smart Queue Management"
-              className="input-field"
-            />
-          </FormField>
-
-          <FormField label="Description">
+            <FormField label="Description">
             <textarea
-              name="description"
-              value={
-                formData.description
-              }
-              onChange={
-                handleChange
-              }
-              placeholder="Describe your project..."
-              rows={4}
-              className="input-field resize-none"
+                name="description"
+                value={
+                  formData.description
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="Describe your project..."
+                rows={4}
+                className="input-field resize-none"
             />
-          </FormField>
+            </FormField>
 
-          <FormField label="Technologies Used">
-            <input
-              name="technologiesUsed"
-              type="text"
-              value={
-                formData.technologiesUsed
-              }
-              onChange={
-                handleChange
-              }
-              placeholder="Java, Spring Boot, PostgreSQL, React"
-              className="input-field"
-            />
+            <FormField label="Technologies Used">
+              <input
+                  name="technologiesUsed"
+                  type="text"
+                  value={
+                    formData.technologiesUsed
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  placeholder="Java, Spring Boot, PostgreSQL, React"
+                  className="input-field"
+              />
 
-            <p
-              className="text-xs
+              <p
+                  className="text-xs
                          text-slate-400
                          mt-1"
-            >
-              Separate technologies with commas.
-            </p>
-          </FormField>
+              >
+                Separate technologies with commas.
+              </p>
+            </FormField>
 
-          {/* ==========================================
+            {/* ==========================================
               REQUIRED PROJECT SKILLS
           ========================================== */}
 
-          <div
-            className="rounded-2xl
+            <div
+                className="rounded-2xl
                        border
                        border-slate-200
                        bg-slate-50
                        p-5"
-          >
+            >
 
-            <div className="mb-4">
-              <h3
-                className="text-sm
+              <div className="mb-4">
+                <h3
+                    className="text-sm
                            font-bold
                            text-slate-800"
-              >
-                Required Project Skills
-              </h3>
+                >
+                  Required Project Skills
+                </h3>
 
-              <p
-                className="text-xs
+                <p
+                    className="text-xs
                            text-slate-500
                            mt-1"
-              >
-                Select skills that are required for this project.
-                These skills are used by NEXUS Smart Matching.
-              </p>
-            </div>
+                >
+                  Select skills that are required for this project.
+                  These skills are used by NEXUS Smart Matching.
+                </p>
+              </div>
 
-            <div
-              className="grid
+              <div
+                  className="grid
                          grid-cols-1
                          md:grid-cols-[1fr_160px_auto]
                          gap-3
                          items-end"
-            >
+              >
 
-              <FormField label="Skill">
-                <select
-                  value={selectedSkillId}
-                  onChange={(event) =>
-                    setSelectedSkillId(event.target.value)
-                  }
-                  disabled={skillsLoading || saving}
-                  className="input-field"
-                >
-                  <option value="">
-                    {skillsLoading
-                      ? "Loading your skills..."
-                      : mySkills.length === 0
-                        ? "No skills added to your profile"
-                        : "Select a skill"}
-                  </option>
+                <FormField label="Skill">
+                  <select
+                      value={selectedSkillId}
+                      onChange={(event) =>
+                          setSelectedSkillId(event.target.value)
+                      }
+                      disabled={skillsLoading || saving}
+                      className="input-field"
+                  >
+                    <option value="">
+                      {skillsLoading
+                          ? "Loading your skills..."
+                          : mySkills.length === 0
+                              ? "No skills added to your profile"
+                              : "Select a skill"}
+                    </option>
 
-                  {mySkills
-                    .filter(
-                      (skill) =>
-                        !requiredSkills.some(
-                          (selected) =>
-                            Number(selected.skillId) ===
-                            Number(skill.skillId)
+                    {mySkills
+                        .filter(
+                            (skill) =>
+                                !requiredSkills.some(
+                                    (selected) =>
+                                        Number(selected.skillId) ===
+                                        Number(skill.skillId)
+                                )
                         )
-                    )
-                    .map((skill) => (
-                      <option
-                        key={skill.skillId}
-                        value={skill.skillId}
-                      >
-                        {skill.skillName}
-                      </option>
-                    ))}
-                </select>
-              </FormField>
+                        .map((skill) => (
+                            <option
+                                key={skill.skillId}
+                                value={skill.skillId}
+                            >
+                              {skill.skillName}
+                            </option>
+                        ))}
+                  </select>
+                </FormField>
 
-              <FormField label="Importance">
-                <select
-                  value={selectedSkillImportance}
-                  onChange={(event) =>
-                    setSelectedSkillImportance(
-                      event.target.value
-                    )
-                  }
-                  disabled={saving}
-                  className="input-field"
-                >
-                  {SKILL_IMPORTANCE.map(
-                    (importance) => (
-                      <option
-                        key={importance.value}
-                        value={importance.value}
-                      >
-                        {importance.label}
-                      </option>
-                    )
-                  )}
-                </select>
-              </FormField>
+                <FormField label="Importance">
+                  <select
+                      value={selectedSkillImportance}
+                      onChange={(event) =>
+                          setSelectedSkillImportance(
+                              event.target.value
+                          )
+                      }
+                      disabled={saving}
+                      className="input-field"
+                  >
+                    {SKILL_IMPORTANCE.map(
+                        (importance) => (
+                            <option
+                                key={importance.value}
+                                value={importance.value}
+                            >
+                              {importance.label}
+                            </option>
+                        )
+                    )}
+                  </select>
+                </FormField>
 
-              <button
-                type="button"
-                onClick={handleAddRequiredSkill}
-                disabled={
-                  saving ||
-                  skillsLoading ||
-                  mySkills.length === 0 ||
-                  !selectedSkillId
-                }
-                className="inline-flex
+                <button
+                    type="button"
+                    onClick={handleAddRequiredSkill}
+                    disabled={
+                        saving ||
+                        skillsLoading ||
+                        mySkills.length === 0 ||
+                        !selectedSkillId
+                    }
+                    className="inline-flex
                            items-center
                            justify-center
                            gap-2
@@ -3689,16 +3659,16 @@ const ProjectModal = ({
                            hover:bg-blue-700
                            disabled:opacity-50
                            disabled:cursor-not-allowed"
-              >
-                <Plus size={16} />
-                Add Skill
-              </button>
+                >
+                  <Plus size={16} />
+                  Add Skill
+                </button>
 
-            </div>
+              </div>
 
-            {mySkills.length === 0 && !skillsLoading && (
-              <div
-                className="mt-4
+              {mySkills.length === 0 && !skillsLoading && (
+                  <div
+                      className="mt-4
                            rounded-xl
                            bg-amber-50
                            border
@@ -3706,22 +3676,22 @@ const ProjectModal = ({
                            p-3
                            text-xs
                            text-amber-700"
-              >
-                Add skills to your NEXUS profile first.
-                You can then select them as required skills
-                for this project.
-              </div>
-            )}
+                  >
+                    Add skills to your NEXUS profile first.
+                    You can then select them as required skills
+                    for this project.
+                  </div>
+              )}
 
-            {requiredSkills.length > 0 && (
-              <div
-                className="mt-4
-                           space-y-2"
-              >
-                {requiredSkills.map((skill) => (
+              {requiredSkills.length > 0 && (
                   <div
-                    key={skill.skillId}
-                    className="flex
+                      className="mt-4
+                           space-y-2"
+                  >
+                    {requiredSkills.map((skill) => (
+                        <div
+                            key={skill.skillId}
+                            className="flex
                                flex-col
                                sm:flex-row
                                sm:items-center
@@ -3732,10 +3702,10 @@ const ProjectModal = ({
                                border-slate-200
                                bg-white
                                p-3"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-9 h-9
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                                className="w-9 h-9
                                    rounded-lg
                                    bg-blue-50
                                    text-blue-600
@@ -3743,44 +3713,44 @@ const ProjectModal = ({
                                    items-center
                                    justify-center
                                    shrink-0"
-                      >
-                        <Sparkles size={16} />
-                      </div>
+                            >
+                              <Sparkles size={16} />
+                            </div>
 
-                      <div>
-                        <p
-                          className="text-sm
+                            <div>
+                              <p
+                                  className="text-sm
                                      font-semibold
                                      text-slate-800"
-                        >
-                          {skill.skillName}
-                        </p>
+                              >
+                                {skill.skillName}
+                              </p>
 
-                        <p
-                          className="text-xs
+                              <p
+                                  className="text-xs
                                      text-slate-400
                                      mt-0.5"
-                        >
-                          Required skill
-                        </p>
-                      </div>
-                    </div>
+                              >
+                                Required skill
+                              </p>
+                            </div>
+                          </div>
 
-                    <div
-                      className="flex
+                          <div
+                              className="flex
                                  items-center
                                  gap-2"
-                    >
-                      <select
-                        value={skill.importance}
-                        onChange={(event) =>
-                          handleRequiredSkillImportanceChange(
-                            skill.skillId,
-                            event.target.value
-                          )
-                        }
-                        disabled={saving}
-                        className="px-3
+                          >
+                            <select
+                                value={skill.importance}
+                                onChange={(event) =>
+                                    handleRequiredSkillImportanceChange(
+                                        skill.skillId,
+                                        event.target.value
+                                    )
+                                }
+                                disabled={saving}
+                                className="px-3
                                    py-2
                                    rounded-lg
                                    border
@@ -3791,138 +3761,138 @@ const ProjectModal = ({
                                    focus:outline-none
                                    focus:ring-2
                                    focus:ring-blue-500"
-                      >
-                        {SKILL_IMPORTANCE.map(
-                          (importance) => (
-                            <option
-                              key={importance.value}
-                              value={importance.value}
                             >
-                              {importance.label}
-                            </option>
-                          )
-                        )}
-                      </select>
+                              {SKILL_IMPORTANCE.map(
+                                  (importance) => (
+                                      <option
+                                          key={importance.value}
+                                          value={importance.value}
+                                      >
+                                        {importance.label}
+                                      </option>
+                                  )
+                              )}
+                            </select>
 
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleRemoveRequiredSkill(
-                            skill.skillId
-                          )
-                        }
-                        disabled={saving}
-                        className="p-2
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    handleRemoveRequiredSkill(
+                                        skill.skillId
+                                    )
+                                }
+                                disabled={saving}
+                                className="p-2
                                    rounded-lg
                                    text-slate-400
                                    hover:bg-red-50
                                    hover:text-red-600
                                    transition
                                    disabled:opacity-50"
-                        title="Remove required skill"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
+                                title="Remove required skill"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
+              )}
 
-          </div>
+            </div>
 
-          <div
-            className="grid
+            <div
+                className="grid
                        grid-cols-1
                        md:grid-cols-2
                        gap-4"
-          >
+            >
 
-            <FormField label="GitHub URL">
-              <input
-                name="githubUrl"
-                type="url"
-                value={
-                  formData.githubUrl
-                }
-                onChange={
-                  handleChange
-                }
-                placeholder="https://github.com/..."
-                className="input-field"
-              />
-            </FormField>
+              <FormField label="GitHub URL">
+                <input
+                    name="githubUrl"
+                    type="url"
+                    value={
+                      formData.githubUrl
+                    }
+                    onChange={
+                      handleChange
+                    }
+                    placeholder="https://github.com/..."
+                    className="input-field"
+                />
+              </FormField>
 
-            <FormField label="Live Demo URL">
-              <input
-                name="liveDemoUrl"
-                type="url"
-                value={
-                  formData.liveDemoUrl
-                }
-                onChange={
-                  handleChange
-                }
-                placeholder="https://..."
-                className="input-field"
-              />
-            </FormField>
+              <FormField label="Live Demo URL">
+                <input
+                    name="liveDemoUrl"
+                    type="url"
+                    value={
+                      formData.liveDemoUrl
+                    }
+                    onChange={
+                      handleChange
+                    }
+                    placeholder="https://..."
+                    className="input-field"
+                />
+              </FormField>
 
-          </div>
+            </div>
 
-          <div
-            className="grid
+            <div
+                className="grid
                        grid-cols-1
                        md:grid-cols-2
                        gap-4"
-          >
+            >
 
-            <FormField label="Start Date">
-              <input
-                name="startDate"
-                type="date"
-                value={
-                  formData.startDate
-                }
-                onChange={
-                  handleChange
-                }
-                className="input-field"
-              />
-            </FormField>
+              <FormField label="Start Date">
+                <input
+                    name="startDate"
+                    type="date"
+                    value={
+                      formData.startDate
+                    }
+                    onChange={
+                      handleChange
+                    }
+                    className="input-field"
+                />
+              </FormField>
 
-            <FormField label="End Date">
-              <input
-                name="endDate"
-                type="date"
-                value={
-                  formData.endDate
-                }
-                onChange={
-                  handleChange
-                }
-                className="input-field"
-              />
-            </FormField>
+              <FormField label="End Date">
+                <input
+                    name="endDate"
+                    type="date"
+                    value={
+                      formData.endDate
+                    }
+                    onChange={
+                      handleChange
+                    }
+                    className="input-field"
+                />
+              </FormField>
 
-          </div>
+            </div>
 
-          {/* BUTTONS */}
+            {/* BUTTONS */}
 
-          <div
-            className="flex
+            <div
+                className="flex
                        justify-end
                        gap-3
                        pt-5
                        border-t
                        border-slate-200"
-          >
+            >
 
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={saving}
-              className="px-5
+              <button
+                  type="button"
+                  onClick={onClose}
+                  disabled={saving}
+                  className="px-5
                          py-2.5
                          rounded-xl
                          border
@@ -3931,14 +3901,14 @@ const ProjectModal = ({
                          font-semibold
                          hover:bg-slate-50
                          disabled:opacity-50"
-            >
-              Cancel
-            </button>
+              >
+                Cancel
+              </button>
 
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex
+              <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex
                          items-center
                          gap-2
                          px-5
@@ -3949,39 +3919,39 @@ const ProjectModal = ({
                          font-semibold
                          hover:bg-blue-700
                          disabled:opacity-60"
-            >
+              >
 
-              {saving ? (
-                <>
-                  <div
-                    className="w-4 h-4
+                {saving ? (
+                    <>
+                      <div
+                          className="w-4 h-4
                                border-2
                                border-white
                                border-t-transparent
                                rounded-full
                                animate-spin"
-                  />
+                      />
 
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save
-                    size={17}
-                  />
-                  {submitText}
-                </>
-              )}
+                      Saving...
+                    </>
+                ) : (
+                    <>
+                      <Save
+                          size={17}
+                      />
+                      {submitText}
+                    </>
+                )}
 
-            </button>
+              </button>
 
-          </div>
+            </div>
 
-        </form>
+          </form>
+
+        </div>
 
       </div>
-
-    </div>
   );
 };
 
@@ -3990,57 +3960,57 @@ const ProjectModal = ({
 // ==========================================
 
 const SummaryCard = ({
-  title,
-  value,
-  icon,
-}) => {
+                       title,
+                       value,
+                       icon,
+                     }) => {
   return (
-    <div
-      className="bg-white
+      <div
+          className="bg-white
                  rounded-2xl
                  border
                  border-slate-200
                  p-5"
-    >
-
-      <div
-        className="flex
-                   items-center
-                   justify-between"
       >
 
-        <div>
+        <div
+            className="flex
+                   items-center
+                   justify-between"
+        >
 
-          <p
-            className="text-sm
+          <div>
+
+            <p
+                className="text-sm
                        text-slate-500"
-          >
-            {title}
-          </p>
+            >
+              {title}
+            </p>
 
-          <p
-            className="text-2xl
+            <p
+                className="text-2xl
                        font-bold
                        text-slate-900
                        mt-2"
-          >
-            {value}
-          </p>
+            >
+              {value}
+            </p>
 
-        </div>
+          </div>
 
-        <div
-          className="p-3
+          <div
+              className="p-3
                      rounded-xl
                      bg-blue-50
                      text-blue-600"
-        >
-          {icon}
+          >
+            {icon}
+          </div>
+
         </div>
 
       </div>
-
-    </div>
   );
 };
 
@@ -4049,37 +4019,37 @@ const SummaryCard = ({
 // ==========================================
 
 const FormField = ({
-  label,
-  required = false,
-  children,
-}) => {
+                     label,
+                     required = false,
+                     children,
+                   }) => {
   return (
-    <div>
+      <div>
 
-      <label
-        className="block
+        <label
+            className="block
                    text-sm
                    font-semibold
                    text-slate-700
                    mb-2"
-      >
+        >
 
-        {label}
+          {label}
 
-        {required && (
-          <span
-            className="text-red-500
+          {required && (
+              <span
+                  className="text-red-500
                        ml-1"
-          >
+              >
             *
           </span>
-        )}
+          )}
 
-      </label>
+        </label>
 
-      {children}
+        {children}
 
-    </div>
+      </div>
   );
 };
 

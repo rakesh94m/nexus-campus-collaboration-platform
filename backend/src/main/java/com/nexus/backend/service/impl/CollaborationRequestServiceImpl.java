@@ -99,49 +99,24 @@ public class CollaborationRequestServiceImpl
 
         Student sender = getCurrentStudent();
 
-        Student receiver =
-                studentRepository
-                        .findById(request.getReceiverId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Receiver student not found."
-                                ));
+        Project project = projectRepository
+                .findById(request.getProjectId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Project not found."));
 
-        // Prevent sending to yourself
+        Student receiver = project.getStudent();
+
+        // Cannot join own project
         if (receiver.getId().equals(sender.getId())) {
-
             throw new DuplicateResourceException(
-                    "You cannot send a collaboration request to yourself."
-            );
-        }
-
-        Project project =
-                projectRepository
-                        .findById(request.getProjectId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Project not found."
-                                ));
-
-        // Project must belong to sender
-        if (!project.getStudent()
-                .getId()
-                .equals(sender.getId())) {
-
-            throw new DuplicateResourceException(
-                    "You can only send collaboration requests using your own project."
+                    "You are the owner of this project."
             );
         }
 
         // Already a member
-        if (projectMemberRepository
-                .existsByProjectAndStudent(
-                        project,
-                        receiver
-                )) {
-
+        if (projectMemberRepository.existsByProjectAndStudent(project, sender)) {
             throw new DuplicateResourceException(
-                    "This student is already a member of the project."
+                    "You are already a member of this project."
             );
         }
 
@@ -156,11 +131,10 @@ public class CollaborationRequestServiceImpl
                 .isPresent()) {
 
             throw new DuplicateResourceException(
-                    "A collaboration request is already pending for this student."
+                    "You already have a pending request for this project."
             );
         }
 
-        // Create collaboration request
         CollaborationRequest collaborationRequest =
                 CollaborationRequest.builder()
                         .sender(sender)
@@ -170,41 +144,25 @@ public class CollaborationRequestServiceImpl
                         .status(CollaborationStatus.PENDING)
                         .build();
 
-        collaborationRequestRepository.save(
-                collaborationRequest
-        );
-
-        // =========================================
-        // CREATE PROJECT INVITATION NOTIFICATION
-        // =========================================
+        collaborationRequestRepository.save(collaborationRequest);
 
         Notification notification =
                 Notification.builder()
                         .student(receiver)
                         .type(NotificationType.PROJECT_INVITE)
                         .message(
-                                sender.getFirstName()
-                                        + " "
-                                        + sender.getLastName()
-                                        + " invited you to collaborate on project \""
-                                        + project.getProjectTitle()
-                                        + "\"."
+                                sender.getFirstName() + " " +
+                                        sender.getLastName() +
+                                        " requested to join your project \"" +
+                                        project.getProjectTitle() + "\"."
                         )
                         .status(NotificationStatus.UNREAD)
-
-                        // IMPORTANT:
-                        // Store CollaborationRequest ID
-                        .referenceId(
-                                collaborationRequest.getId()
-                        )
-
+                        .referenceId(collaborationRequest.getId())
                         .build();
 
         notificationRepository.save(notification);
 
-        return mapToResponse(
-                collaborationRequest
-        );
+        return mapToResponse(collaborationRequest);
     }
 
     // =========================================
@@ -251,148 +209,81 @@ public class CollaborationRequestServiceImpl
             Long id,
             UpdateCollaborationRequest request) {
 
-        Student receiver = getCurrentStudent();
+        Student owner = getCurrentStudent();
 
         CollaborationRequest collaborationRequest =
                 collaborationRequestRepository
-                        .findByIdAndReceiver(
-                                id,
-                                receiver
-                        )
+                        .findByIdAndReceiver(id, owner)
                         .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Request not found."
-                                ));
+                                new ResourceNotFoundException("Request not found."));
 
-        // Request already processed
-        if (collaborationRequest.getStatus()
-                != CollaborationStatus.PENDING) {
-
+        if (collaborationRequest.getStatus() != CollaborationStatus.PENDING) {
             throw new DuplicateResourceException(
-                    "This collaboration request has already been processed."
+                    "This request has already been processed."
             );
         }
 
-        Project project =
-                collaborationRequest.getProject();
+        Project project = collaborationRequest.getProject();
+        Student applicant = collaborationRequest.getSender();
 
-        Student sender =
-                collaborationRequest.getSender();
+        // Reject
+        if (request.getStatus() == CollaborationStatus.REJECTED) {
 
-        // =========================================
-        // REJECT REQUEST
-        // =========================================
+            collaborationRequest.setStatus(CollaborationStatus.REJECTED);
+            collaborationRequestRepository.save(collaborationRequest);
 
-        if (request.getStatus()
-                == CollaborationStatus.REJECTED) {
-
-            collaborationRequest.setStatus(
-                    CollaborationStatus.REJECTED
-            );
-
-            collaborationRequestRepository.save(
-                    collaborationRequest
-            );
-
-            Notification notification =
+            notificationRepository.save(
                     Notification.builder()
-                            .student(sender)
-                            .type(
-                                    NotificationType.REQUEST_REJECTED
-                            )
+                            .student(applicant)
+                            .type(NotificationType.REQUEST_REJECTED)
                             .message(
-                                    receiver.getFirstName()
-                                            + " "
-                                            + receiver.getLastName()
-                                            + " rejected your collaboration request for project \""
-                                            + project.getProjectTitle()
-                                            + "\"."
+                                    "Your request to join \"" +
+                                            project.getProjectTitle() +
+                                            "\" was rejected."
                             )
-                            .status(
-                                    NotificationStatus.UNREAD
-                            )
-                            .referenceId(
-                                    collaborationRequest.getId()
-                            )
-                            .build();
-
-            notificationRepository.save(notification);
-
-            return mapToResponse(
-                    collaborationRequest
+                            .status(NotificationStatus.UNREAD)
+                            .referenceId(collaborationRequest.getId())
+                            .build()
             );
+
+            return mapToResponse(collaborationRequest);
         }
 
-        // =========================================
-        // ACCEPT REQUEST
-        // =========================================
+        // Accept
+        if (request.getStatus() == CollaborationStatus.ACCEPTED) {
 
-        if (request.getStatus()
-                == CollaborationStatus.ACCEPTED) {
+            if (!projectMemberRepository.existsByProjectAndStudent(project, applicant)) {
 
-            // Add receiver as project member
-            if (!projectMemberRepository
-                    .existsByProjectAndStudent(
-                            project,
-                            receiver
-                    )) {
-
-                ProjectMember member =
+                projectMemberRepository.save(
                         ProjectMember.builder()
                                 .project(project)
-                                .student(receiver)
+                                .student(applicant)
                                 .role(MemberRole.MEMBER)
-                                .build();
-
-                projectMemberRepository.save(member);
+                                .build()
+                );
             }
 
-            // Update collaboration request
-            collaborationRequest.setStatus(
-                    CollaborationStatus.ACCEPTED
-            );
+            collaborationRequest.setStatus(CollaborationStatus.ACCEPTED);
+            collaborationRequestRepository.save(collaborationRequest);
 
-            collaborationRequestRepository.save(
-                    collaborationRequest
-            );
-
-            // Notify sender
-            Notification notification =
+            notificationRepository.save(
                     Notification.builder()
-                            .student(sender)
-                            .type(
-                                    NotificationType.REQUEST_ACCEPTED
-                            )
+                            .student(applicant)
+                            .type(NotificationType.REQUEST_ACCEPTED)
                             .message(
-                                    receiver.getFirstName()
-                                            + " "
-                                            + receiver.getLastName()
-                                            + " accepted your collaboration request for project \""
-                                            + project.getProjectTitle()
-                                            + "\"."
+                                    "Your request to join \"" +
+                                            project.getProjectTitle() +
+                                            "\" has been accepted."
                             )
-                            .status(
-                                    NotificationStatus.UNREAD
-                            )
-                            .referenceId(
-                                    collaborationRequest.getId()
-                            )
-                            .build();
-
-            notificationRepository.save(notification);
-
-            return mapToResponse(
-                    collaborationRequest
+                            .status(NotificationStatus.UNREAD)
+                            .referenceId(collaborationRequest.getId())
+                            .build()
             );
+
+            return mapToResponse(collaborationRequest);
         }
 
-        // =========================================
-        // INVALID STATUS
-        // =========================================
-
-        throw new DuplicateResourceException(
-                "Invalid collaboration request status."
-        );
+        throw new DuplicateResourceException("Invalid request status.");
     }
 
     // =========================================

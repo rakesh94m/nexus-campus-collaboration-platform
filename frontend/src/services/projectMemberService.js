@@ -6,7 +6,6 @@ import api from "./api";
 
 export const getMyProjectMembers = async () => {
   const response = await api.get("/project-members");
-
   return response.data;
 };
 
@@ -16,44 +15,44 @@ export const getMyProjectMembers = async () => {
 
 export const getProjectMembers = async (projectId) => {
   const response = await api.get(
-    `/project-members/project/${projectId}`
+      `/project-members/project/${projectId}`
   );
 
   return response.data;
 };
 
 // ==========================================
-// JOIN A PROJECT
+// SEND JOIN REQUEST
+// (Creates Collaboration Request)
 // ==========================================
 
 export const joinProject = async (
-  projectId,
-  role
+    projectId,
+    role = "MEMBER"
 ) => {
   const response = await api.post(
-    "/project-members",
-    {
-      projectId: Number(projectId),
-      role,
-    }
+      "/collaboration-requests",
+      {
+        projectId: Number(projectId),
+        receiverId: 0,
+        message: `I would like to join this project as ${role}.`,
+      }
   );
 
   return response.data;
 };
 
 // ==========================================
-// UPDATE MY / PROJECT MEMBER ROLE
+// UPDATE MEMBER ROLE
 // ==========================================
 
 export const updateProjectMember = async (
-  id,
-  role
+    id,
+    role
 ) => {
   const response = await api.put(
-    `/project-members/${id}`,
-    {
-      role,
-    }
+      `/project-members/${id}`,
+      { role }
   );
 
   return response.data;
@@ -64,20 +63,18 @@ export const updateProjectMember = async (
 // ==========================================
 
 export const leaveProject = async (id) => {
-  await api.delete(
-    `/project-members/${id}`
-  );
+  await api.delete(`/project-members/${id}`);
 };
 
 // ==========================================
-// REMOVE MEMBER BY PROJECT OWNER
+// REMOVE MEMBER
 // ==========================================
 
 export const removeProjectMember = async (
-  projectId,
-  memberId
+    projectId,
+    memberId
 ) => {
   await api.delete(
-    `/project-members/project/${projectId}/member/${memberId}`
+      `/project-members/project/${projectId}/member/${memberId}`
   );
 };
