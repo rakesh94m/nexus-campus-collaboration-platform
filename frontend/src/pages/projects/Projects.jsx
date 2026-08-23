@@ -37,7 +37,10 @@ import {
   removeProjectMember,
 } from "../../services/projectMemberService";
 
-import { getMySkills } from "../../services/skillService";
+import {
+  getAllSkills,
+  createSkill,
+} from "../../services/skillService";
 import { getProjectMatches } from "../../services/matchingService";
 
 // ==========================================
@@ -154,22 +157,16 @@ const Projects = () => {
       useState(null);
 
   // ==========================================
-  // PROJECT SKILLS
+  // PROJECT SKILLS (master Skill table, not the
+  // student's own profile skills)
   // ==========================================
 
-  const [mySkills, setMySkills] = useState([]);
+  const [allSkills, setAllSkills] = useState([]);
+
+  const [skillSearch, setSkillSearch] = useState("");
 
   const [requiredSkills, setRequiredSkills] =
       useState([]);
-
-  const [selectedSkillId, setSelectedSkillId] =
-      useState("");
-
-  const [selectedSkillImportance, setSelectedSkillImportance] =
-      useState("HIGH");
-
-  const [skillsLoading, setSkillsLoading] =
-      useState(false);
 
   // ==========================================
   // SMART MATCHING
@@ -242,21 +239,21 @@ const Projects = () => {
   useEffect(() => {
     loadProjects();
     loadMemberships();
-    loadSkills();
+    loadAllSkills();
     loadProjectMatches();
   }, []);
 
   // ==========================================
-  // LOAD MY SKILLS
+  // LOAD ALL MASTER SKILLS (for the required-skill
+  // search/create UI — independent of the student's
+  // own profile skills)
   // ==========================================
 
-  const loadSkills = async () => {
+  const loadAllSkills = async () => {
     try {
-      setSkillsLoading(true);
+      const data = await getAllSkills();
 
-      const data = await getMySkills();
-
-      setMySkills(
+      setAllSkills(
           Array.isArray(data)
               ? data
               : []
@@ -269,11 +266,9 @@ const Projects = () => {
 
       const message =
           error.response?.data?.message ||
-          "Unable to load your skills.";
+          "Unable to load skills.";
 
       toast.error(message);
-    } finally {
-      setSkillsLoading(false);
     }
   };
 
@@ -463,51 +458,7 @@ const Projects = () => {
     });
 
     setRequiredSkills([]);
-    setSelectedSkillId("");
-    setSelectedSkillImportance("HIGH");
-  };
-
-  // ==========================================
-  // ADD REQUIRED PROJECT SKILL
-  // ==========================================
-
-  const handleAddRequiredSkill = () => {
-    if (!selectedSkillId) {
-      toast.error("Please select a skill.");
-      return;
-    }
-
-    const skillId = Number(selectedSkillId);
-
-    const alreadyAdded = requiredSkills.some(
-        (skill) => Number(skill.skillId) === skillId
-    );
-
-    if (alreadyAdded) {
-      toast.error("This skill is already added.");
-      return;
-    }
-
-    const skill = mySkills.find(
-        (item) => Number(item.skillId) === skillId
-    );
-
-    if (!skill) {
-      toast.error("Selected skill was not found.");
-      return;
-    }
-
-    setRequiredSkills((previous) => [
-      ...previous,
-      {
-        skillId,
-        importance: selectedSkillImportance,
-        skillName: skill.skillName,
-      },
-    ]);
-
-    setSelectedSkillId("");
-    setSelectedSkillImportance("HIGH");
+    setSkillSearch("");
   };
 
   // ==========================================
@@ -1729,13 +1680,7 @@ const Projects = () => {
                                   {match.projectTitle}
                                 </h3>
 
-                                <p
-                                    className="text-xs
-                                       text-slate-400
-                                       mt-1"
-                                >
-                                  Project #{match.projectId}
-                                </p>
+
 
                               </div>
 
@@ -2071,13 +2016,7 @@ const Projects = () => {
                                   }
                                 </h3>
 
-                                <p
-                                    className="text-xs
-                                     text-slate-400
-                                     mt-1"
-                                >
-                                  Project #{project.id}
-                                </p>
+
 
                               </div>
 
@@ -3416,14 +3355,12 @@ const Projects = () => {
                 onClose={closeAddModal}
                 saving={saving}
                 submitText="Add Project"
-                mySkills={mySkills}
+                allSkills={allSkills}
+                setAllSkills={setAllSkills}
+                skillSearch={skillSearch}
+                setSkillSearch={setSkillSearch}
                 requiredSkills={requiredSkills}
-                selectedSkillId={selectedSkillId}
-                selectedSkillImportance={selectedSkillImportance}
-                skillsLoading={skillsLoading}
-                setSelectedSkillId={setSelectedSkillId}
-                setSelectedSkillImportance={setSelectedSkillImportance}
-                handleAddRequiredSkill={handleAddRequiredSkill}
+                setRequiredSkills={setRequiredSkills}
                 handleRemoveRequiredSkill={handleRemoveRequiredSkill}
                 handleRequiredSkillImportanceChange={
                   handleRequiredSkillImportanceChange
@@ -3445,14 +3382,12 @@ const Projects = () => {
                 onClose={closeEditModal}
                 saving={saving}
                 submitText="Save Changes"
-                mySkills={mySkills}
+                allSkills={allSkills}
+                setAllSkills={setAllSkills}
+                skillSearch={skillSearch}
+                setSkillSearch={setSkillSearch}
                 requiredSkills={requiredSkills}
-                selectedSkillId={selectedSkillId}
-                selectedSkillImportance={selectedSkillImportance}
-                skillsLoading={skillsLoading}
-                setSelectedSkillId={setSelectedSkillId}
-                setSelectedSkillImportance={setSelectedSkillImportance}
-                handleAddRequiredSkill={handleAddRequiredSkill}
+                setRequiredSkills={setRequiredSkills}
                 handleRemoveRequiredSkill={handleRemoveRequiredSkill}
                 handleRequiredSkillImportanceChange={
                   handleRequiredSkillImportanceChange
@@ -3477,17 +3412,21 @@ const ProjectModal = ({
                         onClose,
                         saving,
                         submitText,
-                        mySkills,
+                        allSkills,
+                        setAllSkills,
+                        skillSearch,
+                        setSkillSearch,
                         requiredSkills,
-                        selectedSkillId,
-                        selectedSkillImportance,
-                        skillsLoading,
-                        setSelectedSkillId,
-                        setSelectedSkillImportance,
-                        handleAddRequiredSkill,
+                        setRequiredSkills,
                         handleRemoveRequiredSkill,
                         handleRequiredSkillImportanceChange,
                       }) => {
+  const filteredSkills = allSkills.filter((skill) =>
+      skill.skillName
+          .toLowerCase()
+          .includes(skillSearch.toLowerCase())
+  );
+
   return (
       <div
           className="fixed
@@ -3662,121 +3601,94 @@ const ProjectModal = ({
                 </p>
               </div>
 
-              <div
-                  className="grid
-                         grid-cols-1
-                         md:grid-cols-[1fr_160px_auto]
-                         gap-3
-                         items-end"
-              >
+              <input
+                  type="text"
+                  placeholder="Search skill... (e.g. Py → Python)"
+                  value={skillSearch}
+                  onChange={(event) =>
+                      setSkillSearch(event.target.value)
+                  }
+                  disabled={saving}
+                  className="w-full px-3 py-2 border rounded-lg mb-2"
+              />
 
-                <FormField label="Skill">
-                  <select
-                      value={selectedSkillId}
-                      onChange={(event) =>
-                          setSelectedSkillId(event.target.value)
-                      }
-                      disabled={skillsLoading || saving}
-                      className="input-field"
-                  >
-                    <option value="">
-                      {skillsLoading
-                          ? "Loading your skills..."
-                          : mySkills.length === 0
-                              ? "No skills added to your profile"
-                              : "Select a skill"}
-                    </option>
+              <div className="max-h-40 overflow-y-auto border rounded-lg">
 
-                    {mySkills
-                        .filter(
-                            (skill) =>
-                                !requiredSkills.some(
-                                    (selected) =>
-                                        Number(selected.skillId) ===
-                                        Number(skill.skillId)
-                                )
-                        )
-                        .map((skill) => (
-                            <option
-                                key={skill.skillId}
-                                value={skill.skillId}
-                            >
-                              {skill.skillName}
-                            </option>
-                        ))}
-                  </select>
-                </FormField>
+                {filteredSkills
+                    .filter(
+                        (skill) =>
+                            !requiredSkills.some(
+                                (selected) =>
+                                    Number(selected.skillId) ===
+                                    Number(skill.id)
+                            )
+                    )
+                    .map((skill) => (
+                        <button
+                            key={skill.id}
+                            type="button"
+                            onClick={() => {
+                              setRequiredSkills([
+                                ...requiredSkills,
+                                {
+                                  skillId: skill.id,
+                                  skillName: skill.skillName,
+                                  importance: "MEDIUM",
+                                },
+                              ]);
+                              setSkillSearch("");
+                            }}
+                            className="w-full text-left px-3 py-2 hover:bg-gray-100"
+                        >
+                          {skill.skillName}
+                        </button>
+                    ))}
 
-                <FormField label="Importance">
-                  <select
-                      value={selectedSkillImportance}
-                      onChange={(event) =>
-                          setSelectedSkillImportance(
-                              event.target.value
-                          )
-                      }
-                      disabled={saving}
-                      className="input-field"
-                  >
-                    {SKILL_IMPORTANCE.map(
-                        (importance) => (
-                            <option
-                                key={importance.value}
-                                value={importance.value}
-                            >
-                              {importance.label}
-                            </option>
-                        )
+                {skillSearch &&
+                    filteredSkills.length === 0 && (
+                        <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                const newSkill = await createSkill(
+                                    skillSearch
+                                );
+
+                                setAllSkills([
+                                  ...allSkills,
+                                  newSkill,
+                                ]);
+
+                                setRequiredSkills([
+                                  ...requiredSkills,
+                                  {
+                                    skillId: newSkill.id,
+                                    skillName: newSkill.skillName,
+                                    importance: "MEDIUM",
+                                  },
+                                ]);
+
+                                setSkillSearch("");
+                              } catch (error) {
+                                console.error(
+                                    "Create skill error:",
+                                    error
+                                );
+
+                                const message =
+                                    error.response?.data?.message ||
+                                    "Unable to create skill.";
+
+                                toast.error(message);
+                              }
+                            }}
+                            className="w-full text-left px-3 py-2 text-blue-600 font-medium hover:bg-blue-50"
+                        >
+                          + Create "{skillSearch}"
+                        </button>
                     )}
-                  </select>
-                </FormField>
-
-                <button
-                    type="button"
-                    onClick={handleAddRequiredSkill}
-                    disabled={
-                        saving ||
-                        skillsLoading ||
-                        mySkills.length === 0 ||
-                        !selectedSkillId
-                    }
-                    className="inline-flex
-                           items-center
-                           justify-center
-                           gap-2
-                           px-4
-                           py-2.5
-                           rounded-xl
-                           bg-blue-600
-                           text-white
-                           text-sm
-                           font-semibold
-                           hover:bg-blue-700
-                           disabled:opacity-50
-                           disabled:cursor-not-allowed"
-                >
-                  <Plus size={16} />
-                  Add Skill
-                </button>
 
               </div>
-
-              {mySkills.length === 0 && !skillsLoading && (
-                  <div
-                      className="mt-4
-                           rounded-xl
-                           bg-amber-50
-                           border
-                           border-amber-200
-                           p-3
-                           text-xs
-                           text-amber-700"
-                  >
-                    Add skills to your NEXUS profile first.
-                    You can then select them as required skills
-                    for this project.
-                  </div>
-              )}
 
               {requiredSkills.length > 0 && (
                   <div

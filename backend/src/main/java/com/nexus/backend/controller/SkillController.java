@@ -17,55 +17,43 @@ public class SkillController {
 
     private final SkillService skillService;
 
-    // =====================================
-    // Add Skill
-    // =====================================
-
+    // Student skills
     @PostMapping
-    public SkillResponse addSkill(
-            @Valid @RequestBody AddSkillRequest request
-    ) {
-
+    public SkillResponse addSkill(@Valid @RequestBody AddSkillRequest request) {
         return skillService.addSkill(request);
-
     }
-
-    // =====================================
-    // Get My Skills
-    // =====================================
 
     @GetMapping
     public List<SkillResponse> getMySkills() {
-
         return skillService.getMySkills();
-
     }
-
-    // =====================================
-    // Update Skill
-    // =====================================
 
     @PutMapping("/{id}")
     public SkillResponse updateSkill(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateSkillRequest request
-    ) {
-
+            @Valid @RequestBody UpdateSkillRequest request) {
         return skillService.updateSkill(id, request);
-
     }
-
-    // =====================================
-    // Delete Skill
-    // =====================================
 
     @DeleteMapping("/{id}")
-    public void deleteSkill(
-            @PathVariable Long id
-    ) {
-
+    public void deleteSkill(@PathVariable Long id) {
         skillService.deleteSkill(id);
-
     }
 
+    // Master skill catalog
+    @GetMapping("/catalog")
+    public List<SkillResponse> getAllSkills() {
+        return skillService.getAllSkills();
+    }
+
+    @PostMapping("/catalog")
+    public SkillResponse createSkill(@Valid @RequestBody AddSkillRequest request) {
+        return skillService.createSkill(request);
+    }
+
+    @GetMapping("/catalog/search")
+    public List<SkillResponse> searchSkills(
+            @RequestParam String keyword) {
+        return skillService.searchSkills(keyword);
+    }
 }

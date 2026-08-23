@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface SkillService {
 
+    // Student Skills
     SkillResponse addSkill(AddSkillRequest request);
 
     List<SkillResponse> getMySkills();
@@ -16,4 +17,10 @@ public interface SkillService {
 
     void deleteSkill(Long id);
 
+    // Global Skill Catalog
+    List<SkillResponse> getAllSkills();
+
+    SkillResponse createSkill(AddSkillRequest request);
+
+    List<SkillResponse> searchSkills(String keyword);
 }

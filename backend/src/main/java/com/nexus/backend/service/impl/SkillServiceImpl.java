@@ -47,8 +47,7 @@ public class SkillServiceImpl implements SkillService {
     // Mapper
     // =========================================
 
-
-        private SkillResponse mapToResponse(StudentSkill studentSkill) {
+    private SkillResponse mapToResponse(StudentSkill studentSkill) {
 
         return SkillResponse.builder()
                 .id(studentSkill.getId())
@@ -56,10 +55,20 @@ public class SkillServiceImpl implements SkillService {
                 .skillName(studentSkill.getSkill().getSkillName())
                 .proficiency(studentSkill.getProficiency())
                 .build();
-        }
+    }
+
+    private SkillResponse mapSkillResponse(Skill skill) {
+
+        return SkillResponse.builder()
+                .id(skill.getId())
+                .skillId(skill.getId())
+                .skillName(skill.getSkillName())
+                .proficiency(null)
+                .build();
+    }
 
     // =========================================
-    // Add Skill
+    // Add Skill (Auto Create + Ignore Case)
     // =========================================
 
     @Override
@@ -67,9 +76,18 @@ public class SkillServiceImpl implements SkillService {
 
         Student student = getCurrentStudent();
 
-        Skill skill = skillRepository.findBySkillName(request.getSkillName())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Skill not found."));
+        String skillName = request.getSkillName().trim();
+
+        Skill skill = skillRepository
+                .findBySkillNameIgnoreCase(skillName)
+                .orElseGet(() -> {
+
+                    Skill newSkill = Skill.builder()
+                            .skillName(skillName)
+                            .build();
+
+                    return skillRepository.save(newSkill);
+                });
 
         if (studentSkillRepository.existsByStudentAndSkill(student, skill)) {
             throw new DuplicateResourceException("Skill already added.");
@@ -98,6 +116,68 @@ public class SkillServiceImpl implements SkillService {
         return studentSkillRepository.findByStudent(student)
                 .stream()
                 .map(this::mapToResponse)
+                .toList();
+    }
+
+    // =========================================
+    // Get All Skills (Catalog)
+    // =========================================
+
+    @Override
+    public List<SkillResponse> getAllSkills() {
+
+        return skillRepository.findAll()
+                .stream()
+                .map(this::mapSkillResponse)
+                .toList();
+    }
+
+    // =========================================
+    // Create Skill In Catalog
+    // =========================================
+
+    @Override
+    public SkillResponse createSkill(AddSkillRequest request) {
+
+        String skillName = request.getSkillName().trim();
+
+        Skill skill = skillRepository
+                .findBySkillNameIgnoreCase(skillName)
+                .orElseGet(() -> {
+
+                    Skill newSkill = Skill.builder()
+                            .skillName(skillName)
+                            .build();
+
+                    return skillRepository.save(newSkill);
+                });
+
+        return mapSkillResponse(skill);
+    }
+
+    // =========================================
+    // Search Catalog Skills
+    // =========================================
+
+    @Override
+    public List<SkillResponse> searchSkills(String keyword) {
+
+        List<Skill> skills;
+
+        if (keyword == null || keyword.isBlank()) {
+            skills = skillRepository.findAll();
+        } else {
+            skills = skillRepository.findAll()
+                    .stream()
+                    .filter(skill ->
+                            skill.getSkillName()
+                                    .toLowerCase()
+                                    .contains(keyword.toLowerCase()))
+                    .toList();
+        }
+
+        return skills.stream()
+                .map(this::mapSkillResponse)
                 .toList();
     }
 
@@ -138,5 +218,4 @@ public class SkillServiceImpl implements SkillService {
 
         studentSkillRepository.delete(studentSkill);
     }
-
 }
