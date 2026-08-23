@@ -1,12 +1,12 @@
 package com.nexus.backend.util;
 
 import com.nexus.backend.entity.Project;
+import com.nexus.backend.entity.ProjectSkill;
 import com.nexus.backend.entity.Student;
 import com.nexus.backend.entity.StudentInterest;
 import com.nexus.backend.entity.StudentSkill;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,23 +25,20 @@ public class MatchScoreCalculator {
 
         // =========================================
         // 1. SKILL MATCHING - 60%
+        // Uses ProjectSkill table instead of technologiesUsed
         // =========================================
 
-        Set<String> studentSkills =
-                new HashSet<>();
+        Set<String> studentSkills = new HashSet<>();
 
         if (student.getStudentSkills() != null) {
 
-            for (StudentSkill studentSkill :
-                    student.getStudentSkills()) {
+            for (StudentSkill studentSkill : student.getStudentSkills()) {
 
                 if (studentSkill.getSkill() != null &&
-                        studentSkill.getSkill()
-                                .getSkillName() != null) {
+                        studentSkill.getSkill().getSkillName() != null) {
 
                     studentSkills.add(
-                            studentSkill
-                                    .getSkill()
+                            studentSkill.getSkill()
                                     .getSkillName()
                                     .toLowerCase()
                                     .trim()
@@ -50,44 +47,32 @@ public class MatchScoreCalculator {
             }
         }
 
-        Set<String> projectTechnologies =
-                new HashSet<>();
-
-        if (project.getTechnologiesUsed() != null &&
-                !project.getTechnologiesUsed()
-                        .trim()
-                        .isEmpty()) {
-
-            Arrays.stream(
-                            project.getTechnologiesUsed()
-                                    .split(",")
-                    )
-                    .map(String::trim)
-                    .map(String::toLowerCase)
-                    .filter(value -> !value.isEmpty())
-                    .forEach(
-                            projectTechnologies::add
-                    );
-        }
-
+        int totalRequiredSkills = 0;
         int matchedSkills = 0;
 
-        for (String technology :
-                projectTechnologies) {
+        if (project.getProjectSkills() != null) {
 
-            if (studentSkills.contains(
-                    technology)) {
+            for (ProjectSkill projectSkill : project.getProjectSkills()) {
 
-                matchedSkills++;
+                if (projectSkill.getSkill() == null) continue;
+
+                totalRequiredSkills++;
+
+                String requiredSkill =
+                        projectSkill.getSkill()
+                                .getSkillName()
+                                .toLowerCase()
+                                .trim();
+
+                if (studentSkills.contains(requiredSkill)) {
+                    matchedSkills++;
+                }
             }
         }
 
-        if (!projectTechnologies.isEmpty()) {
+        if (totalRequiredSkills > 0) {
 
-            score +=
-                    ((double) matchedSkills /
-                            projectTechnologies.size())
-                            * 60;
+            score += ((double) matchedSkills / totalRequiredSkills) * 60;
         }
 
         // =========================================
