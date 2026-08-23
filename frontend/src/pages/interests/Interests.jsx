@@ -440,13 +440,7 @@ const Interests = () => {
                         {interest.interestName}
                       </h3>
 
-                      <p
-                        className="text-xs
-                                   text-slate-400
-                                   mt-1"
-                      >
-                        Interest #{interest.id}
-                      </p>
+                      
 
                     </div>
 

@@ -26,21 +26,26 @@ export const getProjectMembers = async (projectId) => {
 // (Creates Collaboration Request)
 // ==========================================
 
-export const joinProject = async (
-    projectId,
-    role = "MEMBER"
-) => {
-  const response = await api.post(
-      "/collaboration-requests",
-      {
-        projectId: Number(projectId),
-        receiverId: 0,
-        message: `I would like to join this project as ${role}.`,
-      }
-  );
 
-  return response.data;
-};
+
+    export const joinProject = async (
+        projectId,
+        role = "MEMBER"
+    ) => {
+        const response = await api.post(
+            "/collaboration-requests",
+            {
+                projectId: Number(projectId),
+                receiverId: 0, // This gets handled by the backend automatically
+                requestedRole: role,
+                message: `I would like to join this project as ${role}.`,
+            }
+        );
+
+        return response.data;
+    };
+
+
 
 // ==========================================
 // UPDATE MEMBER ROLE

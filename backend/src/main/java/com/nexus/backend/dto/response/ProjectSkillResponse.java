@@ -1,6 +1,5 @@
 package com.nexus.backend.dto.response;
 
-import com.nexus.backend.entity.enums.SkillImportance;
 import lombok.*;
 
 @Getter
@@ -23,10 +22,4 @@ public class ProjectSkillResponse {
     private Long skillId;
 
     private String skillName;
-
-    // =========================================
-    // Importance
-    // =========================================
-
-    private SkillImportance importance;
 }

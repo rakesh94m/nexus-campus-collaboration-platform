@@ -1,6 +1,5 @@
 package com.nexus.backend.entity;
 
-import com.nexus.backend.entity.enums.SkillImportance;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,9 +28,4 @@ public class ProjectSkill {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "skill_id", nullable = false)
     private Skill skill;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private SkillImportance importance;
-
 }

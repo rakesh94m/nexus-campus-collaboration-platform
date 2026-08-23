@@ -70,7 +70,8 @@ public class ProjectServiceImpl implements ProjectService {
 
     private ProjectResponse mapToResponse(Project project) {
 
-        List<ProjectSkillResponse> requiredSkills = new ArrayList<>();
+        List<ProjectSkillResponse> requiredSkills =
+                new ArrayList<>();
 
         List<ProjectSkill> projectSkills =
                 projectSkillRepository.findByProject(project);
@@ -85,14 +86,19 @@ public class ProjectServiceImpl implements ProjectService {
                     ProjectSkillResponse.builder()
                             .id(projectSkill.getId())
                             .skillId(projectSkill.getSkill().getId())
-                            .skillName(projectSkill.getSkill().getSkillName())
-                            .importance(projectSkill.getImportance())
+                            .skillName(
+                                    projectSkill
+                                            .getSkill()
+                                            .getSkillName()
+                            )
                             .build()
             );
         }
 
         int memberCount =
-                projectMemberRepository.findByProject(project).size() + 1;
+                projectMemberRepository
+                        .findByProject(project)
+                        .size() + 1;
 
         Student owner = project.getStudent();
 
@@ -108,7 +114,11 @@ public class ProjectServiceImpl implements ProjectService {
 
                 // Owner
                 .ownerId(owner.getId())
-                .ownerName(owner.getFirstName() + " " + owner.getLastName())
+                .ownerName(
+                        owner.getFirstName()
+                                + " "
+                                + owner.getLastName()
+                )
                 .ownerDepartment(owner.getDepartment())
                 .ownerYear(owner.getYear())
 
@@ -117,6 +127,7 @@ public class ProjectServiceImpl implements ProjectService {
 
                 // Skills
                 .requiredSkills(requiredSkills)
+
                 .build();
     }
 
@@ -204,9 +215,6 @@ public class ProjectServiceImpl implements ProjectService {
                     ProjectSkill.builder()
                             .project(project)
                             .skill(skill)
-                            .importance(
-                                    request.getImportance()
-                            )
                             .build();
 
             projectSkillRepository.save(

@@ -8,8 +8,6 @@ import com.nexus.backend.entity.ProjectSkill;
 import com.nexus.backend.entity.Student;
 import com.nexus.backend.entity.StudentSkill;
 import com.nexus.backend.entity.enums.MatchType;
-import com.nexus.backend.entity.enums.ProficiencyLevel;
-import com.nexus.backend.entity.enums.SkillImportance;
 import com.nexus.backend.exception.ResourceNotFoundException;
 import com.nexus.backend.repository.MatchHistoryRepository;
 import com.nexus.backend.repository.ProjectMemberRepository;
@@ -120,7 +118,7 @@ public class MatchingServiceImpl implements MatchingService {
 
             // -----------------------------------------
             // Only recommend projects with
-            // meaningful skill compatibility
+            // at least one matching skill
             // -----------------------------------------
 
             if (score <= 0) {
@@ -244,11 +242,12 @@ public class MatchingServiceImpl implements MatchingService {
                                 )
                         );
 
-        double totalPossibleWeight = 0.0;
-        double achievedWeight = 0.0;
+        int totalRequiredSkills = 0;
+        int matchedSkills = 0;
 
         // -----------------------------------------
-        // Compare every required project skill
+        // Compare required project skills
+        // with student's skills
         // -----------------------------------------
 
         for (ProjectSkill projectSkill :
@@ -265,87 +264,42 @@ public class MatchingServiceImpl implements MatchingService {
                             .getSkill()
                             .getId();
 
-            StudentSkill studentSkill =
-                    studentSkillMap.get(skillId);
+            totalRequiredSkills++;
 
-            double importanceWeight =
-                    getImportanceWeight(
-                            projectSkill.getImportance()
-                    );
+            // -----------------------------------------
+            // Skill exists in student's profile
+            // -----------------------------------------
 
-            totalPossibleWeight +=
-                    importanceWeight;
+            if (studentSkillMap.containsKey(skillId)) {
 
-            if (studentSkill == null) {
-                continue;
+                matchedSkills++;
             }
-
-            double proficiencyScore =
-                    getProficiencyScore(
-                            studentSkill.getProficiency()
-                    );
-
-            achievedWeight +=
-                    importanceWeight
-                            * proficiencyScore;
         }
 
-        if (totalPossibleWeight == 0) {
+        if (totalRequiredSkills == 0) {
             return 0.0;
         }
 
+        // -----------------------------------------
+        // Skill Match Percentage
+        //
+        // Example:
+        // Project requires:
+        // Python, React, Java
+        //
+        // Student has:
+        // Python, React
+        //
+        // Score = 2 / 3 * 100
+        //       = 66.67
+        // -----------------------------------------
+
         double score =
-                (achievedWeight
-                        / totalPossibleWeight)
+                ((double) matchedSkills
+                        / totalRequiredSkills)
                         * 100.0;
 
         return Math.round(score * 100.0)
                 / 100.0;
-    }
-
-    // =========================================
-    // Skill Importance Weight
-    // =========================================
-
-    private double getImportanceWeight(
-            SkillImportance importance
-    ) {
-
-        if (importance == null) {
-            return 1.0;
-        }
-
-        return switch (importance) {
-
-            case HIGH -> 3.0;
-
-            case MEDIUM -> 2.0;
-
-            case LOW -> 1.0;
-        };
-    }
-
-    // =========================================
-    // Student Proficiency Score
-    // =========================================
-
-    private double getProficiencyScore(
-            ProficiencyLevel proficiency
-    ) {
-
-        if (proficiency == null) {
-            return 0.0;
-        }
-
-        return switch (proficiency) {
-
-            case BEGINNER -> 0.25;
-
-            case INTERMEDIATE -> 0.50;
-
-            case ADVANCED -> 0.75;
-
-            case EXPERT -> 1.00;
-        };
     }
 }

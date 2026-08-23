@@ -32,7 +32,6 @@ import {
   getMyProjectMembers,
   getProjectMembers,
   joinProject,
-  updateProjectMember,
   leaveProject,
   removeProjectMember,
 } from "../../services/projectMemberService";
@@ -65,16 +64,8 @@ const MEMBER_ROLES = [
     label: "AI Engineer",
   },
   {
-    value: "ML_ENGINEER",
-    label: "ML Engineer",
-  },
-  {
     value: "DATABASE_ENGINEER",
     label: "Database Engineer",
-  },
-  {
-    value: "UI_UX_DESIGNER",
-    label: "UI/UX Designer",
   },
   {
     value: "TESTER",
@@ -98,14 +89,6 @@ const JOIN_ROLES = [
     label: "Member",
   },
   {
-    value: "UI_UX_DESIGNER",
-    label: "UI/UX Designer",
-  },
-  {
-    value: "ML_ENGINEER",
-    label: "ML Engineer",
-  },
-  {
     value: "BACKEND_DEVELOPER",
     label: "Backend Developer",
   },
@@ -113,20 +96,17 @@ const JOIN_ROLES = [
     value: "FRONTEND_DEVELOPER",
     label: "Frontend Developer",
   },
-];
-
-const SKILL_IMPORTANCE = [
   {
-    value: "HIGH",
-    label: "High",
+    value: "AI_ENGINEER",
+    label: "AI Engineer",
   },
   {
-    value: "MEDIUM",
-    label: "Medium",
+    value: "DATABASE_ENGINEER",
+    label: "Database Engineer",
   },
   {
-    value: "LOW",
-    label: "Low",
+    value: "TESTER",
+    label: "Tester",
   },
 ];
 
@@ -208,15 +188,6 @@ const Projects = () => {
       useState("MEMBER");
 
   const [joining, setJoining] =
-      useState(false);
-
-  const [editingMemberId, setEditingMemberId] =
-      useState(null);
-
-  const [editingRole, setEditingRole] =
-      useState("MEMBER");
-
-  const [updatingMember, setUpdatingMember] =
       useState(false);
 
   const [leavingMemberId, setLeavingMemberId] =
@@ -474,26 +445,6 @@ const Projects = () => {
   };
 
   // ==========================================
-  // UPDATE REQUIRED SKILL IMPORTANCE
-  // ==========================================
-
-  const handleRequiredSkillImportanceChange = (
-      skillId,
-      importance
-  ) => {
-    setRequiredSkills((previous) =>
-        previous.map((skill) =>
-            Number(skill.skillId) === Number(skillId)
-                ? {
-                  ...skill,
-                  importance,
-                }
-                : skill
-        )
-    );
-  };
-
-  // ==========================================
   // OPEN ADD PROJECT
   // ==========================================
 
@@ -562,7 +513,6 @@ const Projects = () => {
             requiredSkills:
                 requiredSkills.map((skill) => ({
                   skillId: skill.skillId,
-                  importance: skill.importance,
                 })),
           });
 
@@ -693,7 +643,6 @@ const Projects = () => {
                     requiredSkills:
                         requiredSkills.map((skill) => ({
                           skillId: skill.skillId,
-                          importance: skill.importance,
                         })),
                   }
               );
@@ -852,94 +801,6 @@ const Projects = () => {
       setJoining(false);
     }
   };
-
-  // ==========================================
-  // START EDIT MEMBER ROLE
-  // ==========================================
-
-  const startEditMember = (
-      membership
-  ) => {
-    setEditingMemberId(
-        membership.id
-    );
-
-    setEditingRole(
-        membership.role
-    );
-  };
-
-  // ==========================================
-  // CANCEL EDIT MEMBER
-  // ==========================================
-
-  const cancelEditMember = () => {
-    if (updatingMember) return;
-
-    setEditingMemberId(null);
-    setEditingRole("MEMBER");
-  };
-
-  // ==========================================
-  // UPDATE MEMBER ROLE
-  // ==========================================
-
-  const handleUpdateMember =
-      async (membership) => {
-        setUpdatingMember(true);
-
-        try {
-          const updatedMembership =
-              await updateProjectMember(
-                  membership.id,
-                  editingRole
-              );
-
-          setMemberships(
-              (previous) =>
-                  previous.map(
-                      (item) =>
-                          item.id ===
-                          updatedMembership.id
-                              ? updatedMembership
-                              : item
-                  )
-          );
-
-          // Refresh team members for
-          // this project if already loaded
-          const projectId =
-              membership.projectId;
-
-          if (
-              projectId &&
-              projectMembers[projectId]
-          ) {
-            await loadProjectMembers(
-                projectId
-            );
-          }
-
-          setEditingMemberId(null);
-
-          toast.success(
-              "Project role updated!"
-          );
-        } catch (error) {
-          console.error(
-              "Update project member error:",
-              error
-          );
-
-          const message =
-              error.response?.data?.message ||
-              "Unable to update project role.";
-
-          toast.error(message);
-        } finally {
-          setUpdatingMember(false);
-        }
-      };
 
   // ==========================================
   // LEAVE PROJECT
@@ -2254,12 +2115,10 @@ const Projects = () => {
                                      font-semibold
                                      text-slate-800"
                                 >
-                                  Team Members
+                                  Current Team
                                 </p>
 
-                                {projectMembers[
-                                    project.id
-                                    ] && (
+                                {projectMembers[project.id] && (
                                     <span
                                         className="px-2
                                        py-0.5
@@ -2269,12 +2128,10 @@ const Projects = () => {
                                        text-xs
                                        font-semibold"
                                     >
-                            {
-                              projectMembers[
-                                  project.id
-                                  ].length
-                            }
-                          </span>
+                                      {projectMembers[project.id]
+                                          ? projectMembers[project.id].length + 1
+                                          : project.teamMemberCount}
+                                    </span>
                                 )}
 
                               </div>
@@ -2325,167 +2182,61 @@ const Projects = () => {
 
                             {/* MEMBERS LIST */}
 
-                            {projectMembers[
-                                project.id
-                                ] && (
-
-                                <div
-                                    className="mt-4
-                                   space-y-2"
-                                >
-
-                                  {projectMembers[
-                                      project.id
-                                      ].length === 0 ? (
-
-                                      <div
-                                          className="p-4
-                                       rounded-xl
-                                       bg-slate-50
-                                       text-center"
-                                      >
-
-                                        <p
-                                            className="text-sm
-                                         text-slate-500"
-                                        >
-                                          No members found.
-                                        </p>
-
+                            {projectMembers[project.id] && (
+                                <div className="mt-4 space-y-2">
+                                  {/* PROJECT OWNER */}
+                                  <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-blue-50">
+                                    <div className="flex items-center gap-3 min-w-0">
+                                      <div className="w-9 h-9 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                                        <Users size={17} />
                                       </div>
+                                      <div className="min-w-0">
+                                        <p className="text-sm font-semibold text-slate-800 truncate">
+                                          {project.ownerName}
+                                        </p>
+                                        <p className="text-xs text-slate-500 truncate">
+                                          Project Owner
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <span className="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-700 text-xs font-semibold whitespace-nowrap">
+                                      Leader
+                                    </span>
+                                  </div>
 
-                                  ) : (
-
-                                      projectMembers[
-                                          project.id
-                                          ].map(
-                                          (member) => (
-
-                                              <div
-                                                  key={
-                                                    member.id
-                                                  }
-                                                  className="flex
-                                           items-center
-                                           justify-between
-                                           gap-3
-                                           p-3
-                                           rounded-xl
-                                           bg-slate-50"
+                                  {/* PROJECT MEMBERS */}
+                                  {projectMembers[project.id].map((member) => (
+                                      <div key={member.id} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50">
+                                        <div className="flex items-center gap-3 min-w-0">
+                                          <div className="w-9 h-9 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                                            <Users size={17} />
+                                          </div>
+                                          <div className="min-w-0">
+                                            <p className="text-sm font-semibold text-slate-800 truncate">
+                                              {member.studentName}
+                                            </p>
+                                            <p className="text-xs text-slate-500 truncate">
+                                              {member.studentEmail}
+                                            </p>
+                                          </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 shrink-0">
+                                          <span className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-semibold whitespace-nowrap">
+                                            {getRoleLabel(member.role)}
+                                          </span>
+                                          {member.role !== "LEADER" && (
+                                              <button
+                                                  type="button"
+                                                  onClick={() => handleRemoveMember(project.id, member.id, member.studentName)}
+                                                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-red-200 text-red-600 text-xs font-semibold hover:bg-red-50 transition"
                                               >
-
-                                                <div
-                                                    className="flex
-                                             items-center
-                                             gap-3
-                                             min-w-0"
-                                                >
-
-                                                  <div
-                                                      className="w-9 h-9
-                                               rounded-lg
-                                               bg-blue-100
-                                               text-blue-700
-                                               flex
-                                               items-center
-                                               justify-center
-                                               shrink-0"
-                                                  >
-                                                    <Users
-                                                        size={17}
-                                                    />
-                                                  </div>
-
-                                                  <div
-                                                      className="min-w-0"
-                                                  >
-
-                                                    <p
-                                                        className="text-sm
-                                                 font-semibold
-                                                 text-slate-800
-                                                 truncate"
-                                                    >
-                                                      {
-                                                        member.studentName
-                                                      }
-                                                    </p>
-
-                                                    <p
-                                                        className="text-xs
-                                                 text-slate-500
-                                                 truncate"
-                                                    >
-                                                      {
-                                                        member.studentEmail
-                                                      }
-                                                    </p>
-
-                                                  </div>
-
-                                                </div>
-
-                                                <div
-                                                    className="flex
-                                            items-center
-                                            gap-2
-                                            shrink-0"
-                                                >
-
-                                  <span
-                                      className="px-2.5
-                                               py-1
-                                               rounded-lg
-                                               bg-blue-50
-                                               text-blue-700
-                                               text-xs
-                                               font-semibold
-                                               whitespace-nowrap"
-                                  >
-                                    {getRoleLabel(
-                                        member.role
-                                    )}
-                                  </span>
-
-                                                  {member.role !== "LEADER" && (
-                                                      <button
-                                                          type="button"
-                                                          onClick={() =>
-                                                              handleRemoveMember(
-                                                                  project.id,
-                                                                  member.id,
-                                                                  member.studentName
-                                                              )
-                                                          }
-                                                          className="inline-flex
-                                                 items-center
-                                                 gap-1.5
-                                                 px-2.5
-                                                 py-1.5
-                                                 rounded-lg
-                                                 border
-                                                 border-red-200
-                                                 text-red-600
-                                                 text-xs
-                                                 font-semibold
-                                                 hover:bg-red-50
-                                                 transition"
-                                                          title="Remove member"
-                                                      >
-                                                        <Trash2 size={13} />
-                                                        Remove
-                                                      </button>
-                                                  )}
-
-                                                </div>
-
-                                              </div>
-
-                                          )
-                                      )
-
-                                  )}
-
+                                                <Trash2 size={13} />
+                                                Remove
+                                              </button>
+                                          )}
+                                        </div>
+                                      </div>
+                                  ))}
                                 </div>
                             )}
 
@@ -2889,30 +2640,32 @@ const Projects = () => {
                           )}
                         </span>
 
-                                  <button
-                                      onClick={() =>
-                                          startEditMember(
-                                              membership
-                                          )
-                                      }
-                                      className="inline-flex
-                                     items-center
-                                     gap-1.5
-                                     px-3
-                                     py-1.5
-                                     rounded-lg
-                                     border
-                                     border-slate-300
-                                     text-slate-600
-                                     text-xs
-                                     font-semibold
-                                     hover:bg-slate-50"
-                                  >
-                                    <Pencil
-                                        size={13}
-                                    />
-                                    Edit Role
-                                  </button>
+                                  {membership.role !== "LEADER" && (
+                                      <button
+                                          onClick={() =>
+                                              startEditMember(
+                                                  membership
+                                              )
+                                          }
+                                          className="inline-flex
+                                       items-center
+                                       gap-1.5
+                                       px-3
+                                       py-1.5
+                                       rounded-lg
+                                       border
+                                       border-slate-300
+                                       text-slate-600
+                                       text-xs
+                                       font-semibold
+                                       hover:bg-slate-50"
+                                      >
+                                        <Pencil
+                                            size={13}
+                                        />
+                                        Edit Role
+                                      </button>
+                                  )}
 
                                   <button
                                       onClick={() =>
@@ -3106,6 +2859,47 @@ const Projects = () => {
                                 >
                                   👥 Team: {project.teamMemberCount} member(s)
                                 </p>
+
+                                {project.technologiesUsed && (
+                                    <div className="mt-3">
+                                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+                                        Technologies
+                                      </p>
+
+                                      <div className="flex flex-wrap gap-2">
+                                        {project.technologiesUsed
+                                            .split(",")
+                                            .map((technology, index) => (
+                                                <span
+                                                    key={`${technology}-${index}`}
+                                                    className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-medium"
+                                                >
+                                                  {technology.trim()}
+                                                </span>
+                                            ))}
+                                      </div>
+                                    </div>
+                                )}
+
+                                {project.requiredSkills &&
+                                    project.requiredSkills.length > 0 && (
+                                        <div className="mt-3">
+                                          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+                                            Required Skills
+                                          </p>
+
+                                          <div className="flex flex-wrap gap-2">
+                                            {project.requiredSkills.map((skill) => (
+                                                <span
+                                                    key={skill.skillId}
+                                                    className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-medium"
+                                                >
+                                                  {skill.skillName}
+                                                </span>
+                                            ))}
+                                          </div>
+                                        </div>
+                                    )}
 
                               </div>
 
@@ -3412,9 +3206,6 @@ const Projects = () => {
                 requiredSkills={requiredSkills}
                 setRequiredSkills={setRequiredSkills}
                 handleRemoveRequiredSkill={handleRemoveRequiredSkill}
-                handleRequiredSkillImportanceChange={
-                  handleRequiredSkillImportanceChange
-                }
             />
         )}
 
@@ -3439,9 +3230,6 @@ const Projects = () => {
                 requiredSkills={requiredSkills}
                 setRequiredSkills={setRequiredSkills}
                 handleRemoveRequiredSkill={handleRemoveRequiredSkill}
-                handleRequiredSkillImportanceChange={
-                  handleRequiredSkillImportanceChange
-                }
             />
         )}
 
@@ -3469,7 +3257,6 @@ const ProjectModal = ({
                         requiredSkills,
                         setRequiredSkills,
                         handleRemoveRequiredSkill,
-                        handleRequiredSkillImportanceChange,
                       }) => {
   const filteredSkills = allSkills.filter((skill) =>
       skill.skillName
@@ -3683,7 +3470,6 @@ const ProjectModal = ({
                                 {
                                   skillId: skill.id,
                                   skillName: skill.skillName,
-                                  importance: "MEDIUM",
                                 },
                               ]);
                               setSkillSearch("");
@@ -3714,7 +3500,6 @@ const ProjectModal = ({
                                   {
                                     skillId: newSkill.id,
                                     skillName: newSkill.skillName,
-                                    importance: "MEDIUM",
                                   },
                                 ]);
 
@@ -3798,39 +3583,6 @@ const ProjectModal = ({
                                  items-center
                                  gap-2"
                           >
-                            <select
-                                value={skill.importance}
-                                onChange={(event) =>
-                                    handleRequiredSkillImportanceChange(
-                                        skill.skillId,
-                                        event.target.value
-                                    )
-                                }
-                                disabled={saving}
-                                className="px-3
-                                   py-2
-                                   rounded-lg
-                                   border
-                                   border-slate-300
-                                   text-xs
-                                   font-medium
-                                   text-slate-700
-                                   focus:outline-none
-                                   focus:ring-2
-                                   focus:ring-blue-500"
-                            >
-                              {SKILL_IMPORTANCE.map(
-                                  (importance) => (
-                                      <option
-                                          key={importance.value}
-                                          value={importance.value}
-                                      >
-                                        {importance.label}
-                                      </option>
-                                  )
-                              )}
-                            </select>
-
                             <button
                                 type="button"
                                 onClick={() =>

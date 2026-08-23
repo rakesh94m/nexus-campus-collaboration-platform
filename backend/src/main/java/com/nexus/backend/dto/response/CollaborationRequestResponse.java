@@ -1,6 +1,7 @@
 package com.nexus.backend.dto.response;
 
 import com.nexus.backend.entity.enums.CollaborationStatus;
+import com.nexus.backend.entity.enums.MemberRole;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -24,6 +25,7 @@ public class CollaborationRequestResponse {
 
     private CollaborationStatus status;
 
-    private LocalDateTime createdAt;
+    private MemberRole requestedRole;
 
+    private LocalDateTime createdAt;
 }

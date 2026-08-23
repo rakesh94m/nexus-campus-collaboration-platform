@@ -1,6 +1,7 @@
 package com.nexus.backend.entity;
 
 import com.nexus.backend.entity.enums.CollaborationStatus;
+import com.nexus.backend.entity.enums.MemberRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -41,11 +42,15 @@ public class CollaborationRequest {
     @Column(nullable = false)
     private CollaborationStatus status;
 
+    // Role requested by the student
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MemberRole requestedRole;
+
     @Column(columnDefinition = "TEXT")
     private String message;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
 }

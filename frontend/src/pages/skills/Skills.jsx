@@ -17,6 +17,7 @@ import {
   addSkill,
   updateSkill,
   deleteSkill,
+  searchSkills,
 } from "../../services/skillService";
 
 const Skills = () => {
@@ -37,6 +38,9 @@ const Skills = () => {
     proficiency: "",
   });
 
+  const [skillSuggestions, setSkillSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
   useEffect(() => {
     loadSkills();
   }, []);
@@ -53,8 +57,8 @@ const Skills = () => {
       console.error("Skills error:", error);
 
       const message =
-        error.response?.data?.message ||
-        "Unable to load skills.";
+          error.response?.data?.message ||
+          "Unable to load skills.";
 
       toast.error(message);
     } finally {
@@ -73,6 +77,30 @@ const Skills = () => {
       ...previous,
       [name]: value,
     }));
+  };
+
+  // ==========================================
+  // SEARCH SKILLS
+  // ==========================================
+  const handleSkillSearch = async (value) => {
+    setFormData((prev) => ({
+      ...prev,
+      skillName: value,
+    }));
+
+    if (!value.trim()) {
+      setSkillSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    try {
+      const data = await searchSkills(value);
+      setSkillSuggestions(data);
+      setShowSuggestions(true);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   // ==========================================
@@ -110,6 +138,8 @@ const Skills = () => {
         proficiency: "",
       });
 
+      setShowSuggestions(false);
+      setSkillSuggestions([]);
       setAddOpen(false);
 
       toast.success("Skill added successfully!");
@@ -117,8 +147,8 @@ const Skills = () => {
       console.error("Add skill error:", error);
 
       const message =
-        error.response?.data?.message ||
-        "Unable to add skill.";
+          error.response?.data?.message ||
+          "Unable to add skill.";
 
       toast.error(message);
     } finally {
@@ -157,18 +187,18 @@ const Skills = () => {
 
     try {
       const updatedSkill = await updateSkill(
-        selectedSkill.id,
-        {
-          proficiency: formData.proficiency,
-        }
+          selectedSkill.id,
+          {
+            proficiency: formData.proficiency,
+          }
       );
 
       setSkills((previous) =>
-        previous.map((skill) =>
-          skill.id === updatedSkill.id
-            ? updatedSkill
-            : skill
-        )
+          previous.map((skill) =>
+              skill.id === updatedSkill.id
+                  ? updatedSkill
+                  : skill
+          )
       );
 
       setEditOpen(false);
@@ -184,8 +214,8 @@ const Skills = () => {
       console.error("Update skill error:", error);
 
       const message =
-        error.response?.data?.message ||
-        "Unable to update skill.";
+          error.response?.data?.message ||
+          "Unable to update skill.";
 
       toast.error(message);
     } finally {
@@ -215,10 +245,10 @@ const Skills = () => {
       await deleteSkill(selectedSkill.id);
 
       setSkills((previous) =>
-        previous.filter(
-          (skill) =>
-            skill.id !== selectedSkill.id
-        )
+          previous.filter(
+              (skill) =>
+                  skill.id !== selectedSkill.id
+          )
       );
 
       setDeleteOpen(false);
@@ -229,8 +259,8 @@ const Skills = () => {
       console.error("Delete skill error:", error);
 
       const message =
-        error.response?.data?.message ||
-        "Unable to delete skill.";
+          error.response?.data?.message ||
+          "Unable to delete skill.";
 
       toast.error(message);
     } finally {
@@ -246,6 +276,8 @@ const Skills = () => {
     if (saving) return;
 
     setAddOpen(false);
+    setShowSuggestions(false);
+    setSkillSuggestions([]);
 
     setFormData({
       skillName: "",
@@ -299,11 +331,11 @@ const Skills = () => {
     if (!proficiency) return "Not specified";
 
     return proficiency
-      .replaceAll("_", " ")
-      .toLowerCase()
-      .replace(/\b\w/g, (letter) =>
-        letter.toUpperCase()
-      );
+        .replaceAll("_", " ")
+        .toLowerCase()
+        .replace(/\b\w/g, (letter) =>
+            letter.toUpperCase()
+        );
   };
 
   // ==========================================
@@ -312,70 +344,70 @@ const Skills = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+          <div className="text-center">
 
-          <div
-            className="w-10 h-10 border-4
+            <div
+                className="w-10 h-10 border-4
                        border-blue-600
                        border-t-transparent
                        rounded-full
                        animate-spin
                        mx-auto mb-4"
-          />
+            />
 
-          <p className="text-slate-600 font-medium">
-            Loading your skills...
-          </p>
+            <p className="text-slate-600 font-medium">
+              Loading your skills...
+            </p>
 
+          </div>
         </div>
-      </div>
     );
   }
 
   return (
-    <DashboardLayout>
+      <DashboardLayout>
 
-      {/* ==========================================
+        {/* ==========================================
           PAGE HEADER
       ========================================== */}
 
-      <section
-        className="flex flex-col sm:flex-row
+        <section
+            className="flex flex-col sm:flex-row
                    sm:items-center
                    justify-between
                    gap-4 mb-8"
-      >
+        >
 
-        <div>
+          <div>
 
-          <p
-            className="text-sm font-medium
+            <p
+                className="text-sm font-medium
                        text-blue-600 mb-1"
-          >
-            Student Profile
-          </p>
+            >
+              Student Profile
+            </p>
 
-          <h1
-            className="text-3xl font-bold
+            <h1
+                className="text-3xl font-bold
                        text-slate-900"
-          >
-            My Skills
-          </h1>
+            >
+              My Skills
+            </h1>
 
-          <p
-            className="mt-2
+            <p
+                className="mt-2
                        text-slate-500"
-          >
-            Manage the technical and professional
-            skills you have developed.
-          </p>
+            >
+              Manage the technical and professional
+              skills you have developed.
+            </p>
 
-        </div>
+          </div>
 
-        <button
-          onClick={() => setAddOpen(true)}
-          className="flex items-center
+          <button
+              onClick={() => setAddOpen(true)}
+              className="flex items-center
                      justify-center gap-2
                      px-5 py-3
                      bg-blue-600
@@ -384,125 +416,125 @@ const Skills = () => {
                      font-semibold
                      hover:bg-blue-700
                      transition"
-        >
-          <Plus size={19} />
-          Add Skill
-        </button>
+          >
+            <Plus size={19} />
+            Add Skill
+          </button>
 
-      </section>
+        </section>
 
-      {/* ==========================================
+        {/* ==========================================
           SUMMARY
       ========================================== */}
 
-      <section
-        className="grid grid-cols-1
+        <section
+            className="grid grid-cols-1
                    sm:grid-cols-3
                    gap-4 mb-6"
-      >
+        >
 
-        <SummaryCard
-          title="Total Skills"
-          value={skills.length}
-          icon={<Award size={21} />}
-        />
+          <SummaryCard
+              title="Total Skills"
+              value={skills.length}
+              icon={<Award size={21} />}
+          />
 
-        <SummaryCard
-          title="Advanced / Expert"
-          value={
-            skills.filter(
-              (skill) =>
-                skill.proficiency === "ADVANCED" ||
-                skill.proficiency === "EXPERT"
-            ).length
-          }
-          icon={<Sparkles size={21} />}
-        />
+          <SummaryCard
+              title="Advanced / Expert"
+              value={
+                skills.filter(
+                    (skill) =>
+                        skill.proficiency === "ADVANCED" ||
+                        skill.proficiency === "EXPERT"
+                ).length
+              }
+              icon={<Sparkles size={21} />}
+          />
 
-        <SummaryCard
-          title="Skill Diversity"
-          value={
-            new Set(
-              skills.map((skill) =>
-                skill.skillName?.toLowerCase()
-              )
-            ).size
-          }
-          icon={<Award size={21} />}
-        />
+          <SummaryCard
+              title="Skill Diversity"
+              value={
+                new Set(
+                    skills.map((skill) =>
+                        skill.skillName?.toLowerCase()
+                    )
+                ).size
+              }
+              icon={<Award size={21} />}
+          />
 
-      </section>
+        </section>
 
-      {/* ==========================================
+        {/* ==========================================
           SKILLS LIST
       ========================================== */}
 
-      <section
-        className="bg-white
+        <section
+            className="bg-white
                    rounded-2xl
                    border border-slate-200
                    p-6"
-      >
+        >
 
-        <div className="mb-6">
+          <div className="mb-6">
 
-          <h2
-            className="text-lg font-bold
+            <h2
+                className="text-lg font-bold
                        text-slate-900"
-          >
-            Your Skills
-          </h2>
+            >
+              Your Skills
+            </h2>
 
-          <p
-            className="text-sm
+            <p
+                className="text-sm
                        text-slate-500 mt-1"
-          >
-            These skills are used by NEXUS for
-            project matching and recommendations.
-          </p>
+            >
+              These skills are used by NEXUS for
+              project matching and recommendations.
+            </p>
 
-        </div>
+          </div>
 
-        {skills.length === 0 ? (
+          {skills.length === 0 ? (
 
-          <div
-            className="py-16
+              <div
+                  className="py-16
                        text-center"
-          >
+              >
 
-            <div
-              className="w-16 h-16
+                <div
+                    className="w-16 h-16
                          rounded-2xl
                          bg-blue-50
                          text-blue-600
                          flex items-center
                          justify-center
                          mx-auto mb-4"
-            >
-              <Award size={30} />
-            </div>
+                >
+                  <Award size={30} />
+                </div>
 
-            <h3
-              className="text-lg font-bold
+                <h3
+                    className="text-lg font-bold
                          text-slate-900"
-            >
-              No skills added yet
-            </h3>
+                >
+                  No skills added yet
+                </h3>
 
-            <p
-              className="text-sm
+                <p
+                    className="text-sm
                          text-slate-500
                          mt-2 max-w-md
                          mx-auto"
-            >
-              Add your technical and professional
-              skills to improve project matching
-              and AI recommendations.
-            </p>
+                >
+                  Add your technical and professional
+                  skills to improve project matching
+                  and AI recommendations.
+                </p>
 
-            <button
-              onClick={() => setAddOpen(true)}
-              className="mt-5
+                <button
+                    onClick={() => setAddOpen(true)}
+                    className="mt-5
                          inline-flex
                          items-center
                          gap-2
@@ -513,525 +545,550 @@ const Skills = () => {
                          text-sm
                          font-semibold
                          hover:bg-blue-700"
-            >
-              <Plus size={17} />
-              Add Your First Skill
-            </button>
+                >
+                  <Plus size={17} />
+                  Add Your First Skill
+                </button>
 
-          </div>
+              </div>
 
-        ) : (
+          ) : (
 
-          <div
-            className="grid grid-cols-1
+              <div
+                  className="grid grid-cols-1
                        md:grid-cols-2
                        xl:grid-cols-3
                        gap-4"
-          >
+              >
 
-            {skills.map((skill) => (
+                {skills.map((skill) => (
 
-              <div
-                key={skill.id}
-                className="border
+                    <div
+                        key={skill.id}
+                        className="border
                            border-slate-200
                            rounded-2xl
                            p-5
                            hover:shadow-md
                            transition"
-              >
+                    >
 
-                <div
-                  className="flex items-start
+                      <div
+                          className="flex items-start
                              justify-between gap-4"
-                >
+                      >
 
-                  <div
-                    className="flex items-center
+                        <div
+                            className="flex items-center
                                gap-3"
-                  >
+                        >
 
-                    <div
-                      className="w-11 h-11
+                          <div
+                              className="w-11 h-11
                                  rounded-xl
                                  bg-blue-50
                                  text-blue-600
                                  flex items-center
                                  justify-center
                                  font-bold"
-                    >
-                      {skill.skillName
-                        ?.charAt(0)
-                        ?.toUpperCase()}
-                    </div>
+                          >
+                            {skill.skillName
+                                ?.charAt(0)
+                                ?.toUpperCase()}
+                          </div>
 
-                    <div>
+                          <div>
 
-                      <h3
-                        className="font-bold
+                            <h3
+                                className="font-bold
                                    text-slate-900"
-                      >
-                        {skill.skillName}
-                      </h3>
+                            >
+                              {skill.skillName}
+                            </h3>
 
-                      <p
-                        className="text-xs
-                                   text-slate-400
-                                   mt-1"
-                      >
-                        Skill #{skill.id}
-                      </p>
 
-                    </div>
 
-                  </div>
+                          </div>
 
-                </div>
+                        </div>
 
-                <div
-                  className="mt-5
+                      </div>
+
+                      <div
+                          className="mt-5
                              flex items-center
                              justify-between
                              gap-3"
-                >
+                      >
 
                   <span
-                    className={`inline-flex
+                      className={`inline-flex
                                px-3 py-1.5
                                rounded-full
                                text-xs
                                font-semibold
                                ${getProficiencyStyle(
-                                 skill.proficiency
-                               )}`}
+                          skill.proficiency
+                      )}`}
                   >
                     {formatProficiency(
-                      skill.proficiency
+                        skill.proficiency
                     )}
                   </span>
 
-                  <div
-                    className="flex items-center
+                        <div
+                            className="flex items-center
                                gap-1"
-                  >
+                        >
 
-                    <button
-                      onClick={() =>
-                        openEditSkill(skill)
-                      }
-                      className="p-2
+                          <button
+                              onClick={() =>
+                                  openEditSkill(skill)
+                              }
+                              className="p-2
                                  rounded-lg
                                  text-slate-500
                                  hover:bg-blue-50
                                  hover:text-blue-600
                                  transition"
-                      title="Edit skill"
-                    >
-                      <Pencil size={17} />
-                    </button>
+                              title="Edit skill"
+                          >
+                            <Pencil size={17} />
+                          </button>
 
-                    <button
-                      onClick={() =>
-                        openDeleteSkill(skill)
-                      }
-                      className="p-2
+                          <button
+                              onClick={() =>
+                                  openDeleteSkill(skill)
+                              }
+                              className="p-2
                                  rounded-lg
                                  text-slate-500
                                  hover:bg-red-50
                                  hover:text-red-600
                                  transition"
-                      title="Delete skill"
-                    >
-                      <Trash2 size={17} />
-                    </button>
+                              title="Delete skill"
+                          >
+                            <Trash2 size={17} />
+                          </button>
 
-                  </div>
+                        </div>
 
-                </div>
+                      </div>
+
+                    </div>
+
+                ))}
 
               </div>
 
-            ))}
+          )}
 
-          </div>
+        </section>
 
-        )}
-
-      </section>
-
-      {/* ==========================================
+        {/* ==========================================
           ADD SKILL MODAL
       ========================================== */}
 
-      {addOpen && (
+        {addOpen && (
 
-        <div
-          className="fixed inset-0
+            <div
+                className="fixed inset-0
                      z-[100]
                      bg-black/50
                      flex items-center
                      justify-center
                      p-4"
-          onMouseDown={(event) => {
+                onMouseDown={(event) => {
 
-            if (
-              event.target ===
-              event.currentTarget
-            ) {
-              closeAddModal();
-            }
+                  if (
+                      event.target ===
+                      event.currentTarget
+                  ) {
+                    closeAddModal();
+                  }
 
-          }}
-        >
+                }}
+            >
 
-          <div
-            className="w-full max-w-lg
+              <div
+                  className="w-full max-w-lg
                        bg-white
                        rounded-2xl
                        shadow-2xl"
-          >
+              >
 
-            <ModalHeader
-              title="Add Skill"
-              description="Add a skill to your NEXUS profile."
-              onClose={closeAddModal}
-              disabled={saving}
-            />
-
-            <form
-              onSubmit={handleAddSkill}
-              className="p-6 space-y-5"
-            >
-
-              <div>
-
-                <label
-                  htmlFor="skillName"
-                  className="block text-sm
-                             font-semibold
-                             text-slate-700 mb-2"
-                >
-                  Skill Name
-                </label>
-
-                <input
-                  id="skillName"
-                  name="skillName"
-                  type="text"
-                  value={formData.skillName}
-                  onChange={handleChange}
-                  placeholder="e.g. Java, Python, React"
-                  className="w-full px-4 py-3
-                             rounded-xl
-                             border border-slate-300
-                             focus:outline-none
-                             focus:ring-2
-                             focus:ring-blue-500"
+                <ModalHeader
+                    title="Add Skill"
+                    description="Add a skill to your NEXUS profile."
+                    onClose={closeAddModal}
+                    disabled={saving}
                 />
 
-              </div>
+                <form
+                    onSubmit={handleAddSkill}
+                    className="p-6 space-y-5"
+                >
 
-              <div>
+                  <div>
 
-                <label
-                  htmlFor="addProficiency"
-                  className="block text-sm
+                    <label
+                        htmlFor="skillName"
+                        className="block text-sm
                              font-semibold
                              text-slate-700 mb-2"
-                >
-                  Proficiency Level
-                </label>
+                    >
+                      Skill Name
+                    </label>
 
-                <select
-                  id="addProficiency"
-                  name="proficiency"
-                  value={formData.proficiency}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3
+                    <div className="relative">
+                      <input
+                          id="skillName"
+                          type="text"
+                          value={formData.skillName}
+                          onChange={(e) => handleSkillSearch(e.target.value)}
+                          onFocus={() => {
+                            if (skillSuggestions.length > 0)
+                              setShowSuggestions(true);
+                          }}
+                          placeholder="Type your Skill"
+                          className="w-full px-4 py-3 rounded-xl border border-slate-300
+                               focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+
+                      {showSuggestions && formData.skillName && (
+                          <div
+                              className="absolute z-20 mt-2 w-full bg-white border border-slate-200
+                                 rounded-xl shadow-lg max-h-52 overflow-y-auto"
+                          >
+                            {skillSuggestions.map((skill) => (
+                                <button
+                                    type="button"
+                                    key={skill.skillId}
+                                    onClick={() => {
+                                      setFormData((prev) => ({
+                                        ...prev,
+                                        skillName: skill.skillName,
+                                      }));
+                                      setShowSuggestions(false);
+                                    }}
+                                    className="w-full text-left px-4 py-3 hover:bg-blue-50"
+                                >
+                                  {skill.skillName}
+                                </button>
+                            ))}
+
+                            {skillSuggestions.length === 0 && (
+                                <div className="px-4 py-3 text-blue-600 font-medium">
+                                  New skill will be created: "{formData.skillName}"
+                                </div>
+                            )}
+                          </div>
+                      )}
+                    </div>
+
+                  </div>
+
+                  <div>
+
+                    <label
+                        htmlFor="addProficiency"
+                        className="block text-sm
+                             font-semibold
+                             text-slate-700 mb-2"
+                    >
+                      Proficiency Level
+                    </label>
+
+                    <select
+                        id="addProficiency"
+                        name="proficiency"
+                        value={formData.proficiency}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3
                              rounded-xl
                              border border-slate-300
                              bg-white
                              focus:outline-none
                              focus:ring-2
                              focus:ring-blue-500"
-                >
+                    >
 
-                  <option value="">
-                    Select proficiency
-                  </option>
+                      <option value="">
+                        Select proficiency
+                      </option>
 
-                  <option value="BEGINNER">
-                    Beginner
-                  </option>
+                      <option value="BEGINNER">
+                        Beginner
+                      </option>
 
-                  <option value="INTERMEDIATE">
-                    Intermediate
-                  </option>
+                      <option value="INTERMEDIATE">
+                        Intermediate
+                      </option>
 
-                  <option value="ADVANCED">
-                    Advanced
-                  </option>
+                      <option value="ADVANCED">
+                        Advanced
+                      </option>
 
-                  <option value="EXPERT">
-                    Expert
-                  </option>
+                      <option value="EXPERT">
+                        Expert
+                      </option>
 
-                </select>
+                    </select>
+
+                  </div>
+
+                  <ModalButtons
+                      onCancel={closeAddModal}
+                      saving={saving}
+                      saveText="Add Skill"
+                  />
+
+                </form>
 
               </div>
 
-              <ModalButtons
-                onCancel={closeAddModal}
-                saving={saving}
-                saveText="Add Skill"
-              />
+            </div>
 
-            </form>
+        )}
 
-          </div>
-
-        </div>
-
-      )}
-
-      {/* ==========================================
+        {/* ==========================================
           EDIT SKILL MODAL
       ========================================== */}
 
-      {editOpen && selectedSkill && (
+        {editOpen && selectedSkill && (
 
-        <div
-          className="fixed inset-0
+            <div
+                className="fixed inset-0
                      z-[100]
                      bg-black/50
                      flex items-center
                      justify-center
                      p-4"
-          onMouseDown={(event) => {
+                onMouseDown={(event) => {
 
-            if (
-              event.target ===
-              event.currentTarget
-            ) {
-              closeEditModal();
-            }
+                  if (
+                      event.target ===
+                      event.currentTarget
+                  ) {
+                    closeEditModal();
+                  }
 
-          }}
-        >
+                }}
+            >
 
-          <div
-            className="w-full max-w-lg
+              <div
+                  className="w-full max-w-lg
                        bg-white
                        rounded-2xl
                        shadow-2xl"
-          >
+              >
 
-            <ModalHeader
-              title="Edit Skill"
-              description={`Update the proficiency level for ${selectedSkill.skillName}.`}
-              onClose={closeEditModal}
-              disabled={saving}
-            />
+                <ModalHeader
+                    title="Edit Skill"
+                    description={`Update the proficiency level for ${selectedSkill.skillName}.`}
+                    onClose={closeEditModal}
+                    disabled={saving}
+                />
 
-            <form
-              onSubmit={handleUpdateSkill}
-              className="p-6 space-y-5"
-            >
+                <form
+                    onSubmit={handleUpdateSkill}
+                    className="p-6 space-y-5"
+                >
 
-              {/* Skill Name - Read Only */}
+                  {/* Skill Name - Read Only */}
 
-              <div>
+                  <div>
 
-                <label
-                  className="block text-sm
+                    <label
+                        className="block text-sm
                              font-semibold
                              text-slate-700 mb-2"
-                >
-                  Skill Name
-                </label>
+                    >
+                      Skill Name
+                    </label>
 
-                <input
-                  type="text"
-                  value={formData.skillName}
-                  disabled
-                  className="w-full px-4 py-3
+                    <input
+                        type="text"
+                        value={formData.skillName}
+                        disabled
+                        className="w-full px-4 py-3
                              rounded-xl
                              border border-slate-200
                              bg-slate-50
                              text-slate-500
                              cursor-not-allowed"
-                />
+                    />
 
-                <p
-                  className="text-xs
+                    <p
+                        className="text-xs
                              text-slate-400
                              mt-1"
-                >
-                  Skill name cannot be changed here.
-                </p>
+                    >
+                      Skill name cannot be changed here.
+                    </p>
 
-              </div>
+                  </div>
 
-              {/* Proficiency */}
+                  {/* Proficiency */}
 
-              <div>
+                  <div>
 
-                <label
-                  htmlFor="editProficiency"
-                  className="block text-sm
+                    <label
+                        htmlFor="editProficiency"
+                        className="block text-sm
                              font-semibold
                              text-slate-700 mb-2"
-                >
-                  Proficiency Level
-                </label>
+                    >
+                      Proficiency Level
+                    </label>
 
-                <select
-                  id="editProficiency"
-                  name="proficiency"
-                  value={formData.proficiency}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3
+                    <select
+                        id="editProficiency"
+                        name="proficiency"
+                        value={formData.proficiency}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3
                              rounded-xl
                              border border-slate-300
                              bg-white
                              focus:outline-none
                              focus:ring-2
                              focus:ring-blue-500"
-                >
+                    >
 
-                  <option value="BEGINNER">
-                    Beginner
-                  </option>
+                      <option value="BEGINNER">
+                        Beginner
+                      </option>
 
-                  <option value="INTERMEDIATE">
-                    Intermediate
-                  </option>
+                      <option value="INTERMEDIATE">
+                        Intermediate
+                      </option>
 
-                  <option value="ADVANCED">
-                    Advanced
-                  </option>
+                      <option value="ADVANCED">
+                        Advanced
+                      </option>
 
-                  <option value="EXPERT">
-                    Expert
-                  </option>
+                      <option value="EXPERT">
+                        Expert
+                      </option>
 
-                </select>
+                    </select>
+
+                  </div>
+
+                  <ModalButtons
+                      onCancel={closeEditModal}
+                      saving={saving}
+                      saveText="Save Changes"
+                  />
+
+                </form>
 
               </div>
 
-              <ModalButtons
-                onCancel={closeEditModal}
-                saving={saving}
-                saveText="Save Changes"
-              />
+            </div>
 
-            </form>
+        )}
 
-          </div>
-
-        </div>
-
-      )}
-
-      {/* ==========================================
+        {/* ==========================================
           DELETE CONFIRMATION
       ========================================== */}
 
-      {deleteOpen && selectedSkill && (
+        {deleteOpen && selectedSkill && (
 
-        <div
-          className="fixed inset-0
+            <div
+                className="fixed inset-0
                      z-[110]
                      bg-black/50
                      flex items-center
                      justify-center
                      p-4"
-        >
+            >
 
-          <div
-            className="w-full max-w-md
+              <div
+                  className="w-full max-w-md
                        bg-white
                        rounded-2xl
                        shadow-2xl
                        p-6"
-          >
+              >
 
-            <div className="flex items-start gap-4">
+                <div className="flex items-start gap-4">
 
-              <div
-                className="w-12 h-12
+                  <div
+                      className="w-12 h-12
                            rounded-xl
                            bg-red-50
                            text-red-600
                            flex items-center
                            justify-center
                            shrink-0"
-              >
-                <AlertTriangle size={23} />
-              </div>
+                  >
+                    <AlertTriangle size={23} />
+                  </div>
 
-              <div>
+                  <div>
 
-                <h2
-                  className="text-lg
+                    <h2
+                        className="text-lg
                              font-bold
                              text-slate-900"
-                >
-                  Delete Skill?
-                </h2>
+                    >
+                      Delete Skill?
+                    </h2>
 
-                <p
-                  className="text-sm
+                    <p
+                        className="text-sm
                              text-slate-500
                              mt-2 leading-relaxed"
-                >
-                  Are you sure you want to remove{" "}
-                  <span
-                    className="font-semibold
+                    >
+                      Are you sure you want to remove{" "}
+                      <span
+                          className="font-semibold
                                text-slate-700"
-                  >
+                      >
                     {selectedSkill.skillName}
                   </span>{" "}
-                  from your profile?
-                </p>
+                      from your profile?
+                    </p>
 
-                <p
-                  className="text-xs
+                    <p
+                        className="text-xs
                              text-slate-400
                              mt-2"
-                >
-                  This action cannot be undone.
-                </p>
+                    >
+                      This action cannot be undone.
+                    </p>
 
-              </div>
+                  </div>
 
-            </div>
+                </div>
 
-            <div
-              className="flex
+                <div
+                    className="flex
                          justify-end
                          gap-3
                          mt-6"
-            >
+                >
 
-              <button
-                onClick={closeDeleteModal}
-                disabled={deleting}
-                className="px-5 py-2.5
+                  <button
+                      onClick={closeDeleteModal}
+                      disabled={deleting}
+                      className="px-5 py-2.5
                            rounded-xl
                            border border-slate-300
                            text-slate-700
                            font-semibold
                            hover:bg-slate-50
                            disabled:opacity-50"
-              >
-                Cancel
-              </button>
+                  >
+                    Cancel
+                  </button>
 
-              <button
-                onClick={handleDeleteSkill}
-                disabled={deleting}
-                className="flex
+                  <button
+                      onClick={handleDeleteSkill}
+                      disabled={deleting}
+                      className="flex
                            items-center
                            gap-2
                            px-5 py-2.5
@@ -1041,39 +1098,39 @@ const Skills = () => {
                            font-semibold
                            hover:bg-red-700
                            disabled:opacity-60"
-              >
+                  >
 
-                {deleting ? (
-                  <>
-                    <div
-                      className="w-4 h-4
+                    {deleting ? (
+                        <>
+                          <div
+                              className="w-4 h-4
                                  border-2
                                  border-white
                                  border-t-transparent
                                  rounded-full
                                  animate-spin"
-                    />
+                          />
 
-                    Deleting...
-                  </>
-                ) : (
-                  <>
-                    <Trash2 size={17} />
-                    Delete
-                  </>
-                )}
+                          Deleting...
+                        </>
+                    ) : (
+                        <>
+                          <Trash2 size={17} />
+                          Delete
+                        </>
+                    )}
 
-              </button>
+                  </button>
+
+                </div>
+
+              </div>
 
             </div>
 
-          </div>
+        )}
 
-        </div>
-
-      )}
-
-    </DashboardLayout>
+      </DashboardLayout>
   );
 };
 
@@ -1082,56 +1139,56 @@ const Skills = () => {
 ========================================== */
 
 const SummaryCard = ({
-  title,
-  value,
-  icon,
-}) => {
+                       title,
+                       value,
+                       icon,
+                     }) => {
   return (
-    <div
-      className="bg-white
+      <div
+          className="bg-white
                  rounded-2xl
                  border border-slate-200
                  p-5"
-    >
-
-      <div
-        className="flex
-                   items-center
-                   justify-between"
       >
 
-        <div>
+        <div
+            className="flex
+                   items-center
+                   justify-between"
+        >
 
-          <p
-            className="text-sm
+          <div>
+
+            <p
+                className="text-sm
                        text-slate-500"
-          >
-            {title}
-          </p>
+            >
+              {title}
+            </p>
 
-          <p
-            className="text-3xl
+            <p
+                className="text-3xl
                        font-bold
                        text-slate-900
                        mt-2"
-          >
-            {value}
-          </p>
+            >
+              {value}
+            </p>
 
-        </div>
+          </div>
 
-        <div
-          className="p-3
+          <div
+              className="p-3
                      rounded-xl
                      bg-blue-50
                      text-blue-600"
-        >
-          {icon}
+          >
+            {icon}
+          </div>
+
         </div>
 
       </div>
-
-    </div>
   );
 };
 
@@ -1140,53 +1197,53 @@ const SummaryCard = ({
 ========================================== */
 
 const ModalHeader = ({
-  title,
-  description,
-  onClose,
-  disabled,
-}) => {
+                       title,
+                       description,
+                       onClose,
+                       disabled,
+                     }) => {
   return (
-    <div
-      className="flex items-center
+      <div
+          className="flex items-center
                  justify-between
                  px-6 py-5
                  border-b
                  border-slate-200"
-    >
+      >
 
-      <div>
+        <div>
 
-        <h2
-          className="text-xl
+          <h2
+              className="text-xl
                      font-bold
                      text-slate-900"
-        >
-          {title}
-        </h2>
+          >
+            {title}
+          </h2>
 
-        <p
-          className="text-sm
+          <p
+              className="text-sm
                      text-slate-500
                      mt-1"
-        >
-          {description}
-        </p>
+          >
+            {description}
+          </p>
 
-      </div>
+        </div>
 
-      <button
-        onClick={onClose}
-        disabled={disabled}
-        className="p-2
+        <button
+            onClick={onClose}
+            disabled={disabled}
+            className="p-2
                    rounded-lg
                    hover:bg-slate-100
                    text-slate-500
                    disabled:opacity-50"
-      >
-        <X size={20} />
-      </button>
+        >
+          <X size={20} />
+        </button>
 
-    </div>
+      </div>
   );
 };
 
@@ -1195,37 +1252,37 @@ const ModalHeader = ({
 ========================================== */
 
 const ModalButtons = ({
-  onCancel,
-  saving,
-  saveText,
-}) => {
+                        onCancel,
+                        saving,
+                        saveText,
+                      }) => {
   return (
-    <div
-      className="flex justify-end
+      <div
+          className="flex justify-end
                  gap-3 pt-4
                  border-t
                  border-slate-200"
-    >
+      >
 
-      <button
-        type="button"
-        onClick={onCancel}
-        disabled={saving}
-        className="px-5 py-2.5
+        <button
+            type="button"
+            onClick={onCancel}
+            disabled={saving}
+            className="px-5 py-2.5
                    rounded-xl
                    border border-slate-300
                    text-slate-700
                    font-semibold
                    hover:bg-slate-50
                    disabled:opacity-50"
-      >
-        Cancel
-      </button>
+        >
+          Cancel
+        </button>
 
-      <button
-        type="submit"
-        disabled={saving}
-        className="flex items-center
+        <button
+            type="submit"
+            disabled={saving}
+            className="flex items-center
                    gap-2 px-5 py-2.5
                    rounded-xl
                    bg-blue-600
@@ -1234,31 +1291,31 @@ const ModalButtons = ({
                    hover:bg-blue-700
                    disabled:opacity-60
                    disabled:cursor-not-allowed"
-      >
+        >
 
-        {saving ? (
-          <>
-            <div
-              className="w-4 h-4
+          {saving ? (
+              <>
+                <div
+                    className="w-4 h-4
                          border-2
                          border-white
                          border-t-transparent
                          rounded-full
                          animate-spin"
-            />
+                />
 
-            Saving...
-          </>
-        ) : (
-          <>
-            <Save size={17} />
-            {saveText}
-          </>
-        )}
+                Saving...
+              </>
+          ) : (
+              <>
+                <Save size={17} />
+                {saveText}
+              </>
+          )}
 
-      </button>
+        </button>
 
-    </div>
+      </div>
   );
 };
 

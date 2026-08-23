@@ -28,11 +28,7 @@ import {
   changePassword,
 } from "../../services/studentService";
 
-import {
-  getMySkills,
-  searchSkills,
-  addSkill,
-} from "../../services/skillService";
+import { getMySkills } from "../../services/skillService";
 import { getMyInterests } from "../../services/interestService";
 import { getMyGoals } from "../../services/goalService";
 
@@ -71,14 +67,6 @@ const Profile = () => {
     linkedinUrl: "",
     resumeUrl: "",
   });
-
-  // ==========================================
-  // SKILL SEARCH / ADD (autocomplete)
-  // ==========================================
-
-  const [skillName, setSkillName] = useState("");
-  const [proficiency, setProficiency] = useState("BEGINNER");
-  const [suggestions, setSuggestions] = useState([]);
 
   // ==========================================
   // LOAD PROFILE + SKILLS + INTERESTS + GOALS
@@ -379,47 +367,6 @@ const Profile = () => {
   };
 
   // ==========================================
-  // SKILL AUTOCOMPLETE + ADD SKILL
-  // ==========================================
-
-  const handleSkillSearch = async (value) => {
-    setSkillName(value);
-    if (value.trim().length === 0) {
-      setSuggestions([]);
-      return;
-    }
-    try {
-      const data = await searchSkills(value);
-      setSuggestions(data);
-    } catch {
-      setSuggestions([]);
-    }
-  };
-
-  const handleAddSkill = async () => {
-    if (!skillName.trim()) {
-      toast.error("Enter a skill.");
-      return;
-    }
-    try {
-      await addSkill({
-        skillName,
-        proficiency,
-      });
-      toast.success("Skill added!");
-      setSkillName("");
-      setSuggestions([]);
-      setProficiency("BEGINNER");
-      const updated = await getMySkills();
-      setSkills(updated);
-    } catch (error) {
-      toast.error(
-          error.response?.data?.message || "Unable to add skill."
-      );
-    }
-  };
-
-  // ==========================================
   // HELPERS
   // ==========================================
 
@@ -623,58 +570,6 @@ const Profile = () => {
               Manage Skills
               <ArrowRight size={16} />
             </a>
-          </div>
-
-          <div className="mb-6 space-y-3">
-            <div className="relative">
-              <input
-                  type="text"
-                  placeholder="Type a skill (Py → Python)"
-                  value={skillName}
-                  onChange={(e) => handleSkillSearch(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-300"
-              />
-              {suggestions.length > 0 && skillName && (
-                  <div className="absolute z-20 mt-1 w-full bg-white border rounded-xl shadow-lg max-h-44 overflow-y-auto">
-                    {suggestions.map((item) => (
-                        <button
-                            key={item}
-                            type="button"
-                            onClick={() => {
-                              setSkillName(item);
-                              setSuggestions([]);
-                            }}
-                            className="w-full text-left px-4 py-2 hover:bg-slate-100"
-                        >
-                          {item}
-                        </button>
-                    ))}
-                  </div>
-              )}
-            </div>
-            <div className="flex gap-3">
-              <select
-                  value={proficiency}
-                  onChange={(e) => setProficiency(e.target.value)}
-                  className="px-4 py-3 rounded-xl border border-slate-300"
-              >
-                <option value="BEGINNER">Beginner</option>
-                <option value="INTERMEDIATE">Intermediate</option>
-                <option value="ADVANCED">Advanced</option>
-              </select>
-              <button
-                  onClick={handleAddSkill}
-                  className="px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold"
-              >
-                Add Skill
-              </button>
-            </div>
-            {skillName &&
-                suggestions.length === 0 && (
-                    <p className="text-xs text-green-600">
-                      "{skillName}" doesn't exist. It will be created automatically.
-                    </p>
-                )}
           </div>
 
           {skills.length === 0 ? (

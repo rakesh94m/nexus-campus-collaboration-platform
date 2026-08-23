@@ -1,5 +1,6 @@
 package com.nexus.backend.dto.request;
 
+import com.nexus.backend.entity.enums.MemberRole;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -18,7 +19,13 @@ public class AddCollaborationRequest {
     @NotNull(message = "Project ID is required")
     private Long projectId;
 
+    @NotNull(message = "Role is required")
+    private MemberRole requestedRole;
+
     @NotBlank(message = "Message is required")
-    @Size(max = 1000, message = "Message cannot exceed 1000 characters")
+    @Size(
+            max = 1000,
+            message = "Message cannot exceed 1000 characters"
+    )
     private String message;
 }
