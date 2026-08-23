@@ -807,6 +807,8 @@ const Projects = () => {
   ) => {
     setJoinProjectId(projectId);
     setJoinRole("MEMBER");
+    // Load members dynamically when joining a project!
+    loadProjectMembers(projectId);
   };
 
   // ==========================================
@@ -3166,6 +3168,54 @@ const Projects = () => {
                             </span>{" "}
                                       {project.teamMemberCount} member(s)
                                     </p>
+                                  </div>
+
+                                  {/* Current Team */}
+                                  <div className="mt-5 mb-5 border-t border-slate-200 pt-4">
+                                    <h4 className="font-semibold text-slate-900 mb-3">
+                                      Current Team
+                                    </h4>
+
+                                    <div className="space-y-2">
+                                      <div className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2 border border-slate-100">
+                                        <div>
+                                          <p className="font-medium text-sm">
+                                            {project.ownerName}
+                                          </p>
+                                          <p className="text-xs text-slate-500">
+                                            Project Owner
+                                          </p>
+                                        </div>
+
+                                        <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                                          Leader
+                                        </span>
+                                      </div>
+
+                                      {projectMembersLoading[project.id] ? (
+                                          <div className="text-center py-2">
+                                            <p className="text-xs text-slate-500">Loading team members...</p>
+                                          </div>
+                                      ) : (
+                                          (projectMembers[project.id] || []).map((member) => (
+                                              <div
+                                                  key={member.id}
+                                                  className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2 border border-slate-100"
+                                              >
+                                                <div>
+                                                  <p className="font-medium text-sm">{member.studentName}</p>
+                                                  <p className="text-xs text-slate-500">
+                                                    {member.studentEmail}
+                                                  </p>
+                                                </div>
+
+                                                <span className="text-xs font-semibold bg-gray-200 text-gray-700 px-2 py-1 rounded-full">
+                                              {getRoleLabel(member.role)}
+                                            </span>
+                                              </div>
+                                          ))
+                                      )}
+                                    </div>
                                   </div>
 
                                   <label

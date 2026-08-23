@@ -192,42 +192,14 @@ public class ProjectMemberServiceImpl
     // =========================================
 
     @Override
-    public List<ProjectMemberResponse> getProjectMembers(
-            Long projectId) {
+    public List<ProjectMemberResponse> getProjectMembers(Long projectId) {
 
-        Student student = getCurrentStudent();
-
-        Project project =
-                projectRepository
-                        .findById(projectId)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Project not found."
-                                ));
-
-        // -----------------------------------------
-        // Only project owner or existing member
-        // can view the team
-        // -----------------------------------------
-
-        boolean isOwner =
-                project.getStudent()
-                        .getId()
-                        .equals(student.getId());
-
-        boolean isMember =
-                projectMemberRepository
-                        .existsByProjectAndStudent(
-                                project,
-                                student
-                        );
-
-        if (!isOwner && !isMember) {
-
-            throw new ResourceNotFoundException(
-                    "You are not a member of this project."
-            );
-        }
+        Project project = projectRepository
+                .findById(projectId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Project not found."
+                        ));
 
         return projectMemberRepository
                 .findByProject(project)
