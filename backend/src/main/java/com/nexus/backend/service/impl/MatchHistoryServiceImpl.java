@@ -125,11 +125,15 @@ public class MatchHistoryServiceImpl
 
     // =========================================
     // Get Match History By ID
+    // ONLY OWNER CAN ACCESS
     // =========================================
 
     @Override
     public MatchHistoryResponse
     getMatchHistoryById(Long id) {
+
+        Student currentStudent =
+                getCurrentStudent();
 
         MatchHistory matchHistory =
                 matchHistoryRepository
@@ -138,6 +142,19 @@ public class MatchHistoryServiceImpl
                                 new ResourceNotFoundException(
                                         "Match history not found."
                                 ));
+
+        // =========================================
+        // Authorization Check
+        // =========================================
+
+        if (!matchHistory.getStudent()
+                .getId()
+                .equals(currentStudent.getId())) {
+
+            throw new ResourceNotFoundException(
+                    "Match history not found."
+            );
+        }
 
         return mapToResponse(
                 matchHistory
@@ -146,12 +163,16 @@ public class MatchHistoryServiceImpl
 
     // =========================================
     // Update Match History
+    // ONLY OWNER CAN UPDATE
     // =========================================
 
     @Override
     public MatchHistoryResponse updateMatchHistory(
             Long id,
             UpdateMatchHistoryRequest request) {
+
+        Student currentStudent =
+                getCurrentStudent();
 
         MatchHistory matchHistory =
                 matchHistoryRepository
@@ -160,6 +181,19 @@ public class MatchHistoryServiceImpl
                                 new ResourceNotFoundException(
                                         "Match history not found."
                                 ));
+
+        // =========================================
+        // Authorization Check
+        // =========================================
+
+        if (!matchHistory.getStudent()
+                .getId()
+                .equals(currentStudent.getId())) {
+
+            throw new ResourceNotFoundException(
+                    "Match history not found."
+            );
+        }
 
         Project project = null;
 
@@ -198,10 +232,14 @@ public class MatchHistoryServiceImpl
 
     // =========================================
     // Delete Match History
+    // ONLY OWNER CAN DELETE
     // =========================================
 
     @Override
     public void deleteMatchHistory(Long id) {
+
+        Student currentStudent =
+                getCurrentStudent();
 
         MatchHistory matchHistory =
                 matchHistoryRepository
@@ -210,6 +248,19 @@ public class MatchHistoryServiceImpl
                                 new ResourceNotFoundException(
                                         "Match history not found."
                                 ));
+
+        // =========================================
+        // Authorization Check
+        // =========================================
+
+        if (!matchHistory.getStudent()
+                .getId()
+                .equals(currentStudent.getId())) {
+
+            throw new ResourceNotFoundException(
+                    "Match history not found."
+            );
+        }
 
         matchHistoryRepository.delete(
                 matchHistory

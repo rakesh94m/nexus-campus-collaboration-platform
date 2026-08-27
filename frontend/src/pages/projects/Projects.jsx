@@ -609,6 +609,18 @@ const Projects = () => {
           project.endDate || "",
     });
 
+    // Load existing required skills
+    setRequiredSkills(
+        Array.isArray(project.requiredSkills)
+            ? project.requiredSkills.map((skill) => ({
+              skillId: skill.skillId,
+              skillName: skill.skillName,
+            }))
+            : []
+    );
+
+    setSkillSearch("");
+
     setEditOpen(true);
   };
 
@@ -2094,6 +2106,43 @@ const Projects = () => {
 
                               </div>
                           )}
+
+                          {/* REQUIRED SKILLS */}
+
+                          {project.requiredSkills &&
+                              project.requiredSkills.length > 0 && (
+                                  <div className="mt-5">
+
+                                    <p
+                                        className="text-xs
+                                   font-semibold
+                                   text-slate-500
+                                   uppercase
+                                   tracking-wide
+                                   mb-2"
+                                    >
+                                      Required Skills
+                                    </p>
+
+                                    <div className="flex flex-wrap gap-2">
+                                      {project.requiredSkills.map((skill) => (
+                                          <span
+                                              key={skill.skillId}
+                                              className="px-3
+                                   py-1.5
+                                   rounded-lg
+                                   bg-blue-50
+                                   text-blue-700
+                                   text-xs
+                                   font-medium"
+                                          >
+                                        {skill.skillName}
+                                      </span>
+                                      ))}
+                                    </div>
+
+                                  </div>
+                              )}
 
                           {/* DATES */}
 

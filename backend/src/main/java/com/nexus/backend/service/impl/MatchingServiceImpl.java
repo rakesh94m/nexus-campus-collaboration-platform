@@ -1,5 +1,6 @@
 package com.nexus.backend.service.impl;
 
+import com.nexus.backend.dto.response.GeminiRecommendationResponse;
 import com.nexus.backend.dto.response.MatchResponse;
 import com.nexus.backend.entity.MatchHistory;
 import com.nexus.backend.entity.Project;
@@ -13,6 +14,7 @@ import com.nexus.backend.repository.MatchHistoryRepository;
 import com.nexus.backend.repository.ProjectMemberRepository;
 import com.nexus.backend.repository.ProjectRepository;
 import com.nexus.backend.repository.StudentRepository;
+import com.nexus.backend.service.GeminiService;
 import com.nexus.backend.service.MatchingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -37,6 +39,8 @@ public class MatchingServiceImpl implements MatchingService {
     private final ProjectRepository projectRepository;
     private final ProjectMemberRepository projectMemberRepository;
 
+    private final GeminiService geminiService;
+
     // =========================================
     // Get Logged-in Student
     // =========================================
@@ -59,7 +63,11 @@ public class MatchingServiceImpl implements MatchingService {
     }
 
     // =========================================
-    // Get AI Recommended Projects
+    // GET SMART PROJECT MATCHES
+    //
+    // Java-based matching only.
+    //
+    // NO GEMINI API CALL.
     // =========================================
 
     @Override
@@ -68,23 +76,22 @@ public class MatchingServiceImpl implements MatchingService {
 
         Student student = getCurrentStudent();
 
-        // -----------------------------------------
-        // Get all projects
-        // -----------------------------------------
-
         List<Project> projects =
                 projectRepository.findAll();
 
         List<MatchResponse> matches =
                 new ArrayList<>();
 
-        // -----------------------------------------
+        // =========================================
         // Calculate match for every project
-        // -----------------------------------------
+        // =========================================
 
         for (Project project : projects) {
 
+            // -----------------------------------------
             // Do not recommend own project
+            // -----------------------------------------
+
             if (project.getStudent() != null
                     && project.getStudent()
                     .getId()
@@ -93,8 +100,11 @@ public class MatchingServiceImpl implements MatchingService {
                 continue;
             }
 
+            // -----------------------------------------
             // Do not recommend projects where
             // student is already a member
+            // -----------------------------------------
+
             boolean alreadyMember =
                     projectMemberRepository
                             .existsByProjectAndStudent(
@@ -107,7 +117,7 @@ public class MatchingServiceImpl implements MatchingService {
             }
 
             // -----------------------------------------
-            // Calculate score
+            // Calculate Java match score
             // -----------------------------------------
 
             double score =
@@ -117,7 +127,7 @@ public class MatchingServiceImpl implements MatchingService {
                     );
 
             // -----------------------------------------
-            // Only recommend projects with
+            // Only show projects with
             // at least one matching skill
             // -----------------------------------------
 
@@ -151,11 +161,17 @@ public class MatchingServiceImpl implements MatchingService {
 
             history.setMatchScore(score);
 
-            matchHistoryRepository.save(history);
+            history =
+                    matchHistoryRepository.save(
+                            history
+                    );
 
-            // -----------------------------------------
+            // =========================================
             // Build response
-            // -----------------------------------------
+            //
+            // IMPORTANT:
+            // NO GEMINI CALL HERE.
+            // =========================================
 
             MatchResponse response =
                     MatchResponse.builder()
@@ -179,9 +195,9 @@ public class MatchingServiceImpl implements MatchingService {
             matches.add(response);
         }
 
-        // -----------------------------------------
+        // =========================================
         // Highest match first
-        // -----------------------------------------
+        // =========================================
 
         matches.sort(
                 Comparator.comparing(
@@ -194,13 +210,66 @@ public class MatchingServiceImpl implements MatchingService {
     }
 
     // =========================================
+    // GENERATE AI RECOMMENDATION
+    //
+    // Gemini is called ONLY when the user
+    // requests AI analysis for a project.
+    // =========================================
+
+    @Override
+    @Transactional
+    public GeminiRecommendationResponse
+    generateProjectRecommendation(Long projectId) {
+
+        // -----------------------------------------
+        // Get logged-in student
+        // -----------------------------------------
+
+        Student student =
+                getCurrentStudent();
+
+        // -----------------------------------------
+        // Get selected project
+        // -----------------------------------------
+
+        Project project =
+                projectRepository
+                        .findById(projectId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Project not found."
+                                ));
+
+        // -----------------------------------------
+        // Calculate Java match score
+        // -----------------------------------------
+
+        double score =
+                calculateMatchScore(
+                        student,
+                        project
+                );
+
+        // -----------------------------------------
+        // Generate Gemini recommendation
+        // -----------------------------------------
+
+        return geminiService.generateRecommendation(
+                student,
+                project,
+                score
+        );
+    }
+
+    // =========================================
     // Calculate Match Score
+    //
+    // Java-based skill matching.
     // =========================================
 
     private double calculateMatchScore(
             Student student,
-            Project project
-    ) {
+            Project project) {
 
         List<StudentSkill> studentSkills =
                 student.getStudentSkills();
@@ -221,7 +290,8 @@ public class MatchingServiceImpl implements MatchingService {
         }
 
         // -----------------------------------------
-        // Create map:
+        // Student skill map
+        //
         // Skill ID -> StudentSkill
         // -----------------------------------------
 
@@ -243,10 +313,11 @@ public class MatchingServiceImpl implements MatchingService {
                         );
 
         int totalRequiredSkills = 0;
+
         int matchedSkills = 0;
 
         // -----------------------------------------
-        // Compare required project skills
+        // Compare project skills
         // with student's skills
         // -----------------------------------------
 
@@ -266,10 +337,6 @@ public class MatchingServiceImpl implements MatchingService {
 
             totalRequiredSkills++;
 
-            // -----------------------------------------
-            // Skill exists in student's profile
-            // -----------------------------------------
-
             if (studentSkillMap.containsKey(skillId)) {
 
                 matchedSkills++;
@@ -281,17 +348,19 @@ public class MatchingServiceImpl implements MatchingService {
         }
 
         // -----------------------------------------
-        // Skill Match Percentage
+        // Score calculation
         //
         // Example:
-        // Project requires:
+        //
+        // Required:
         // Python, React, Java
         //
-        // Student has:
+        // Student:
         // Python, React
         //
-        // Score = 2 / 3 * 100
-        //       = 66.67
+        // Score:
+        // 2 / 3 * 100
+        // = 66.67%
         // -----------------------------------------
 
         double score =

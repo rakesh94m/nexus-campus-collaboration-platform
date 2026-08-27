@@ -145,39 +145,39 @@ public class GeminiServiceImpl
 
         return """
                 You are an expert AI Career Mentor.
-
+                
                 Analyze the student's profile and the recommended project.
-
+                
                 ## Student Details
-
+                
                 Name: %s %s
                 Department: %s
                 Specialization: %s
                 CGPA: %s
                 Availability: %s
-
+                
                 Skills:
                 %s
-
+                
                 Matched Skills:
                 %s
-
+                
                 Missing Skills:
                 %s
-
+                
                 Interests:
                 %s
-
+                
                 ## Project Details
-
+                
                 Title: %s
                 Technologies: %s
                 Description: %s
-
+                
                 Recommendation Score: %.2f%%
-
+                
                 Instructions:
-
+                
                 - Keep the total response concise.
                 - Be professional and useful.
                 - Do NOT repeat the student's profile.
@@ -188,9 +188,9 @@ public class GeminiServiceImpl
                   3. Learning roadmap with 3-4 steps.
                   4. Career advice.
                   5. One specific recommended certification.
-
+                
                 Return ONLY valid JSON.
-
+                
                 {
                   "reason": "",
                   "missingSkills": [],
@@ -198,7 +198,7 @@ public class GeminiServiceImpl
                   "careerAdvice": "",
                   "recommendedCertification": ""
                 }
-
+                
                 Do not return markdown.
                 Do not wrap JSON inside markdown code blocks.
                 Return only the JSON object.
@@ -220,8 +220,8 @@ public class GeminiServiceImpl
                                 .getAvailabilityStatus()
                                 != null
                                 ? student
-                                        .getAvailabilityStatus()
-                                        .name()
+                                .getAvailabilityStatus()
+                                .name()
                                 : null
                 ),
 
@@ -266,9 +266,9 @@ public class GeminiServiceImpl
                 .stream()
                 .filter(skill ->
                         skill != null &&
-                        skill.getSkill() != null &&
-                        skill.getSkill()
-                                .getSkillName() != null
+                                skill.getSkill() != null &&
+                                skill.getSkill()
+                                        .getSkillName() != null
                 )
                 .map(StudentSkill::getSkill)
                 .map(skill ->
@@ -296,9 +296,9 @@ public class GeminiServiceImpl
                 .stream()
                 .filter(interest ->
                         interest != null &&
-                        interest.getInterest() != null &&
-                        interest.getInterest()
-                                .getInterestName() != null
+                                interest.getInterest() != null &&
+                                interest.getInterest()
+                                        .getInterestName() != null
                 )
                 .map(StudentInterest::getInterest)
                 .map(interest ->
@@ -332,9 +332,9 @@ public class GeminiServiceImpl
                 .stream()
                 .filter(skill ->
                         skill != null &&
-                        skill.getSkill() != null &&
-                        skill.getSkill()
-                                .getSkillName() != null
+                                skill.getSkill() != null &&
+                                skill.getSkill()
+                                        .getSkillName() != null
                 )
                 .map(skill ->
                         skill.getSkill()
@@ -370,9 +370,9 @@ public class GeminiServiceImpl
                         .stream()
                         .filter(skill ->
                                 skill != null &&
-                                skill.getSkill() != null &&
-                                skill.getSkill()
-                                        .getSkillName() != null
+                                        skill.getSkill() != null &&
+                                        skill.getSkill()
+                                                .getSkillName() != null
                         )
                         .map(skill ->
                                 skill.getSkill()
@@ -477,22 +477,21 @@ public class GeminiServiceImpl
         return GeminiRecommendationResponse
                 .builder()
                 .reason(
-                        "This project matches your profile based on your current skills and interests."
+                        "AI analysis is temporarily unavailable. Please try again later."
                 )
                 .missingSkills(
-                        "Review the project technologies to identify additional skills."
+                        "AI analysis is currently unavailable."
                 )
                 .learningRoadmap(
-                        "1. Learn the missing technologies.\n" +
-                        "2. Build a small practice project.\n" +
-                        "3. Apply the skills to this project."
+                        "AI analysis is currently unavailable."
                 )
                 .careerAdvice(
-                        "Continue building practical projects and strengthen the technologies required for your target role."
+                        "Please try generating the AI analysis again later."
                 )
                 .recommendedCertification(
-                        "Consider a certification related to the project's main technology."
+                        "AI certification recommendation is currently unavailable."
                 )
                 .build();
     }
+
 }

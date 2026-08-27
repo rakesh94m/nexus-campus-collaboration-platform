@@ -330,6 +330,8 @@ public class ProjectServiceImpl implements ProjectService {
                 project
         );
 
+        projectSkillRepository.flush();
+
         saveProjectSkills(
                 project,
                 request.getRequiredSkills()

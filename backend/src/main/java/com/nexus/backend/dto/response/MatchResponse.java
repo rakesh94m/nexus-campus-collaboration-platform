@@ -19,10 +19,11 @@ public class MatchResponse {
 
     private String projectTitle;
 
+    private String technologiesUsed;
+
     private String matchType;
 
     private Double matchScore;
 
     private LocalDateTime matchedAt;
-
 }
