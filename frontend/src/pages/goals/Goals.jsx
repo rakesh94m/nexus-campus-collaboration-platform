@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
   Target,
@@ -10,6 +11,7 @@ import {
   Circle,
   RefreshCw,
   X,
+  ArrowLeft,
 } from "lucide-react";
 
 import toast from "react-hot-toast";
@@ -24,6 +26,8 @@ import {
 } from "../../services/goalService";
 
 const Goals = () => {
+  const navigate = useNavigate();
+
   // ==========================================
   // STATE
   // ==========================================
@@ -57,19 +61,19 @@ const Goals = () => {
       const data = await getMyGoals();
 
       setGoals(
-        Array.isArray(data)
-          ? data
-          : []
+          Array.isArray(data)
+              ? data
+              : []
       );
 
     } catch (error) {
       console.error(
-        "Goals loading error:",
-        error
+          "Goals loading error:",
+          error
       );
 
       toast.error(
-        error?.response?.data?.message ||
+          error?.response?.data?.message ||
           "Unable to load your goals."
       );
 
@@ -115,7 +119,7 @@ const Goals = () => {
       title: goal.title || "",
       description: goal.description || "",
       status:
-        goal.status || "NOT_STARTED",
+          goal.status || "NOT_STARTED",
     });
 
     setShowForm(true);
@@ -151,10 +155,10 @@ const Goals = () => {
     } = event.target;
 
     setFormData(
-      (previous) => ({
-        ...previous,
-        [name]: value,
-      })
+        (previous) => ({
+          ...previous,
+          [name]: value,
+        })
     );
   };
 
@@ -167,7 +171,7 @@ const Goals = () => {
 
     if (!formData.title.trim()) {
       toast.error(
-        "Please enter a goal title."
+          "Please enter a goal title."
       );
 
       return;
@@ -178,52 +182,52 @@ const Goals = () => {
 
       if (editingGoal) {
         const updatedGoal =
-          await updateGoal(
-            editingGoal.id,
-            {
-              title:
-                formData.title.trim(),
-              description:
-                formData.description.trim(),
-              status:
-                formData.status,
-            }
-          );
+            await updateGoal(
+                editingGoal.id,
+                {
+                  title:
+                      formData.title.trim(),
+                  description:
+                      formData.description.trim(),
+                  status:
+                  formData.status,
+                }
+            );
 
         setGoals(
-          (previous) =>
-            previous.map((goal) =>
-              goal.id ===
-              editingGoal.id
-                ? updatedGoal
-                : goal
-            )
+            (previous) =>
+                previous.map((goal) =>
+                    goal.id ===
+                    editingGoal.id
+                        ? updatedGoal
+                        : goal
+                )
         );
 
         toast.success(
-          "Goal updated successfully."
+            "Goal updated successfully."
         );
 
       } else {
         const newGoal =
-          await addGoal({
-            title:
-              formData.title.trim(),
-            description:
-              formData.description.trim(),
-            status:
+            await addGoal({
+              title:
+                  formData.title.trim(),
+              description:
+                  formData.description.trim(),
+              status:
               formData.status,
-          });
+            });
 
         setGoals(
-          (previous) => [
-            newGoal,
-            ...previous,
-          ]
+            (previous) => [
+              newGoal,
+              ...previous,
+            ]
         );
 
         toast.success(
-          "Goal added successfully."
+            "Goal added successfully."
         );
       }
 
@@ -231,12 +235,12 @@ const Goals = () => {
 
     } catch (error) {
       console.error(
-        "Goal save error:",
-        error
+          "Goal save error:",
+          error
       );
 
       toast.error(
-        error?.response?.data?.message ||
+          error?.response?.data?.message ||
           "Unable to save goal."
       );
 
@@ -251,9 +255,9 @@ const Goals = () => {
 
   const handleDelete = async (id) => {
     const confirmed =
-      window.confirm(
-        "Are you sure you want to delete this goal?"
-      );
+        window.confirm(
+            "Are you sure you want to delete this goal?"
+        );
 
     if (!confirmed) {
       return;
@@ -265,25 +269,25 @@ const Goals = () => {
       await deleteGoal(id);
 
       setGoals(
-        (previous) =>
-          previous.filter(
-            (goal) =>
-              goal.id !== id
-          )
+          (previous) =>
+              previous.filter(
+                  (goal) =>
+                      goal.id !== id
+              )
       );
 
       toast.success(
-        "Goal deleted successfully."
+          "Goal deleted successfully."
       );
 
     } catch (error) {
       console.error(
-        "Goal delete error:",
-        error
+          "Goal delete error:",
+          error
       );
 
       toast.error(
-        error?.response?.data?.message ||
+          error?.response?.data?.message ||
           "Unable to delete goal."
       );
 
@@ -297,7 +301,7 @@ const Goals = () => {
   // ==========================================
 
   const getStatusConfig = (
-    status
+      status
   ) => {
 
     switch (status) {
@@ -307,7 +311,7 @@ const Goals = () => {
           label: "Completed",
           icon: CheckCircle2,
           container:
-            "bg-emerald-50 text-emerald-700 border-emerald-100",
+              "bg-emerald-50 text-emerald-700 border-emerald-100",
         };
 
       case "IN_PROGRESS":
@@ -315,7 +319,7 @@ const Goals = () => {
           label: "In Progress",
           icon: Clock3,
           container:
-            "bg-blue-50 text-blue-700 border-blue-100",
+              "bg-blue-50 text-blue-700 border-blue-100",
         };
 
       case "NOT_STARTED":
@@ -324,7 +328,7 @@ const Goals = () => {
           label: "Not Started",
           icon: Circle,
           container:
-            "bg-slate-50 text-slate-600 border-slate-200",
+              "bg-slate-50 text-slate-600 border-slate-200",
         };
     }
   };
@@ -335,43 +339,43 @@ const Goals = () => {
 
   if (loading) {
     return (
-      <DashboardLayout>
+        <DashboardLayout>
 
-        <div
-          className="
+          <div
+              className="
             min-h-[70vh]
             flex
             items-center
             justify-center
           "
-        >
+          >
 
-          <div className="text-center">
+            <div className="text-center">
 
-            <RefreshCw
-              size={32}
-              className="
+              <RefreshCw
+                  size={32}
+                  className="
                 mx-auto
                 text-blue-600
                 animate-spin
               "
-            />
+              />
 
-            <p
-              className="
+              <p
+                  className="
                 mt-4
                 text-sm
                 text-slate-500
               "
-            >
-              Loading your goals...
-            </p>
+              >
+                Loading your goals...
+              </p>
+
+            </div>
 
           </div>
 
-        </div>
-
-      </DashboardLayout>
+        </DashboardLayout>
     );
   }
 
@@ -380,16 +384,32 @@ const Goals = () => {
   // ==========================================
 
   return (
-    <DashboardLayout>
+      <DashboardLayout>
 
-      <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto">
 
-        {/* ==========================================
+          <button
+              onClick={() => navigate("/profile")}
+              className="inline-flex items-center gap-2
+                     px-3 py-2
+                     rounded-xl
+                     border border-slate-200
+                     bg-white
+                     text-sm font-medium
+                     text-slate-600
+                     hover:bg-slate-50
+                     hover:text-slate-900
+                     transition mb-5">
+            <ArrowLeft size={17} />
+            Back to Profile
+          </button>
+
+          {/* ==========================================
             PAGE HEADER
         ========================================== */}
 
-        <section
-          className="
+          <section
+              className="
             flex
             flex-col
             sm:flex-row
@@ -398,18 +418,18 @@ const Goals = () => {
             gap-4
             mb-8
           "
-        >
+          >
 
-          <div
-            className="
+            <div
+                className="
               flex
               items-center
               gap-3
             "
-          >
+            >
 
-            <div
-              className="
+              <div
+                  className="
                 w-11
                 h-11
                 rounded-xl
@@ -419,44 +439,44 @@ const Goals = () => {
                 items-center
                 justify-center
               "
-            >
-              <Target size={23} />
-            </div>
+              >
+                <Target size={23} />
+              </div>
 
-            <div>
+              <div>
 
-              <h1
-                className="
+                <h1
+                    className="
                   text-2xl
                   font-bold
                   text-slate-900
                 "
-              >
-                My Goals
-              </h1>
+                >
+                  My Goals
+                </h1>
 
-              <p
-                className="
+                <p
+                    className="
                   text-sm
                   text-slate-500
                   mt-1
                 "
-              >
-                Set and track your academic
-                and career goals.
-              </p>
+                >
+                  Set and track your academic
+                  and career goals.
+                </p>
+
+              </div>
 
             </div>
 
-          </div>
 
+            {/* ADD GOAL */}
 
-          {/* ADD GOAL */}
-
-          <button
-            type="button"
-            onClick={handleAddGoal}
-            className="
+            <button
+                type="button"
+                onClick={handleAddGoal}
+                className="
               inline-flex
               items-center
               justify-center
@@ -471,35 +491,35 @@ const Goals = () => {
               hover:bg-blue-700
               transition
             "
-          >
+            >
 
-            <Plus size={17} />
+              <Plus size={17} />
 
-            Add Goal
+              Add Goal
 
-          </button>
+            </button>
 
-        </section>
+          </section>
 
 
-        {/* ==========================================
+          {/* ==========================================
             SUMMARY
         ========================================== */}
 
-        <div
-          className="
+          <div
+              className="
             grid
             grid-cols-1
             sm:grid-cols-3
             gap-4
             mb-6
           "
-        >
+          >
 
-          {/* TOTAL */}
+            {/* TOTAL */}
 
-          <div
-            className="
+            <div
+                className="
               bg-white
               border
               border-slate-200
@@ -507,38 +527,38 @@ const Goals = () => {
               p-5
               shadow-sm
             "
-          >
+            >
 
-            <p
-              className="
+              <p
+                  className="
                 text-xs
                 font-semibold
                 uppercase
                 tracking-wide
                 text-slate-500
               "
-            >
-              Total Goals
-            </p>
+              >
+                Total Goals
+              </p>
 
-            <p
-              className="
+              <p
+                  className="
                 mt-2
                 text-2xl
                 font-bold
                 text-slate-900
               "
-            >
-              {goals.length}
-            </p>
+              >
+                {goals.length}
+              </p>
 
-          </div>
+            </div>
 
 
-          {/* IN PROGRESS */}
+            {/* IN PROGRESS */}
 
-          <div
-            className="
+            <div
+                className="
               bg-white
               border
               border-slate-200
@@ -546,44 +566,44 @@ const Goals = () => {
               p-5
               shadow-sm
             "
-          >
+            >
 
-            <p
-              className="
+              <p
+                  className="
                 text-xs
                 font-semibold
                 uppercase
                 tracking-wide
                 text-slate-500
               "
-            >
-              In Progress
-            </p>
+              >
+                In Progress
+              </p>
 
-            <p
-              className="
+              <p
+                  className="
                 mt-2
                 text-2xl
                 font-bold
                 text-blue-600
               "
-            >
-              {
-                goals.filter(
-                  (goal) =>
-                    goal.status ===
-                    "IN_PROGRESS"
-                ).length
-              }
-            </p>
+              >
+                {
+                  goals.filter(
+                      (goal) =>
+                          goal.status ===
+                          "IN_PROGRESS"
+                  ).length
+                }
+              </p>
 
-          </div>
+            </div>
 
 
-          {/* COMPLETED */}
+            {/* COMPLETED */}
 
-          <div
-            className="
+            <div
+                className="
               bg-white
               border
               border-slate-200
@@ -591,50 +611,50 @@ const Goals = () => {
               p-5
               shadow-sm
             "
-          >
+            >
 
-            <p
-              className="
+              <p
+                  className="
                 text-xs
                 font-semibold
                 uppercase
                 tracking-wide
                 text-slate-500
               "
-            >
-              Completed
-            </p>
+              >
+                Completed
+              </p>
 
-            <p
-              className="
+              <p
+                  className="
                 mt-2
                 text-2xl
                 font-bold
                 text-emerald-600
               "
-            >
-              {
-                goals.filter(
-                  (goal) =>
-                    goal.status ===
-                    "COMPLETED"
-                ).length
-              }
-            </p>
+              >
+                {
+                  goals.filter(
+                      (goal) =>
+                          goal.status ===
+                          "COMPLETED"
+                  ).length
+                }
+              </p>
+
+            </div>
 
           </div>
 
-        </div>
 
-
-        {/* ==========================================
+          {/* ==========================================
             GOAL LIST
         ========================================== */}
 
-        {goals.length === 0 ? (
+          {goals.length === 0 ? (
 
-          <div
-            className="
+              <div
+                  className="
               bg-white
               border
               border-slate-200
@@ -644,10 +664,10 @@ const Goals = () => {
               text-center
               shadow-sm
             "
-          >
+              >
 
-            <div
-              className="
+                <div
+                    className="
                 w-16
                 h-16
                 mx-auto
@@ -658,23 +678,23 @@ const Goals = () => {
                 items-center
                 justify-center
               "
-            >
-              <Target size={30} />
-            </div>
+                >
+                  <Target size={30} />
+                </div>
 
-            <h2
-              className="
+                <h2
+                    className="
                 mt-6
                 text-xl
                 font-bold
                 text-slate-900
               "
-            >
-              No Goals Yet
-            </h2>
+                >
+                  No Goals Yet
+                </h2>
 
-            <p
-              className="
+                <p
+                    className="
                 max-w-md
                 mx-auto
                 mt-3
@@ -682,16 +702,16 @@ const Goals = () => {
                 leading-6
                 text-slate-500
               "
-            >
-              Create your first goal to
-              start tracking your academic
-              and career progress.
-            </p>
+                >
+                  Create your first goal to
+                  start tracking your academic
+                  and career progress.
+                </p>
 
-            <button
-              type="button"
-              onClick={handleAddGoal}
-              className="
+                <button
+                    type="button"
+                    onClick={handleAddGoal}
+                    className="
                 mt-6
                 inline-flex
                 items-center
@@ -706,35 +726,35 @@ const Goals = () => {
                 hover:bg-blue-700
                 transition
               "
-            >
+                >
 
-              <Plus size={17} />
+                  <Plus size={17} />
 
-              Create Your First Goal
+                  Create Your First Goal
 
-            </button>
+                </button>
 
-          </div>
+              </div>
 
-        ) : (
+          ) : (
 
-          <div className="space-y-4">
+              <div className="space-y-4">
 
-            {goals.map((goal) => {
+                {goals.map((goal) => {
 
-              const statusConfig =
-                getStatusConfig(
-                  goal.status
-                );
+                  const statusConfig =
+                      getStatusConfig(
+                          goal.status
+                      );
 
-              const StatusIcon =
-                statusConfig.icon;
+                  const StatusIcon =
+                      statusConfig.icon;
 
-              return (
+                  return (
 
-                <div
-                  key={goal.id}
-                  className="
+                      <div
+                          key={goal.id}
+                          className="
                     bg-white
                     border
                     border-slate-200
@@ -743,10 +763,10 @@ const Goals = () => {
                     sm:p-6
                     shadow-sm
                   "
-                >
+                      >
 
-                  <div
-                    className="
+                        <div
+                            className="
                       flex
                       flex-col
                       sm:flex-row
@@ -754,33 +774,33 @@ const Goals = () => {
                       sm:justify-between
                       gap-4
                     "
-                  >
+                        >
 
-                    {/* GOAL CONTENT */}
+                          {/* GOAL CONTENT */}
 
-                    <div className="min-w-0">
+                          <div className="min-w-0">
 
-                      <div
-                        className="
+                            <div
+                                className="
                           flex
                           flex-wrap
                           items-center
                           gap-2
                         "
-                      >
+                            >
 
-                        <h2
-                          className="
+                              <h2
+                                  className="
                             text-lg
                             font-bold
                             text-slate-900
                           "
-                        >
-                          {goal.title}
-                        </h2>
+                              >
+                                {goal.title}
+                              </h2>
 
-                        <span
-                          className={`
+                              <span
+                                  className={`
                             inline-flex
                             items-center
                             gap-1.5
@@ -792,56 +812,56 @@ const Goals = () => {
                             font-semibold
                             ${statusConfig.container}
                           `}
-                        >
+                              >
 
                           <StatusIcon
-                            size={13}
+                              size={13}
                           />
 
-                          {statusConfig.label}
+                                {statusConfig.label}
 
                         </span>
 
-                      </div>
+                            </div>
 
 
-                      {goal.description && (
+                            {goal.description && (
 
-                        <p
-                          className="
+                                <p
+                                    className="
                             mt-3
                             text-sm
                             leading-6
                             text-slate-600
                           "
-                        >
-                          {goal.description}
-                        </p>
+                                >
+                                  {goal.description}
+                                </p>
 
-                      )}
+                            )}
 
-                    </div>
+                          </div>
 
 
-                    {/* ACTIONS */}
+                          {/* ACTIONS */}
 
-                    <div
-                      className="
+                          <div
+                              className="
                         flex
                         items-center
                         gap-2
                         shrink-0
                       "
-                    >
+                          >
 
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleEditGoal(
-                            goal
-                          )
-                        }
-                        className="
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    handleEditGoal(
+                                        goal
+                                    )
+                                }
+                                className="
                           inline-flex
                           items-center
                           justify-center
@@ -857,29 +877,29 @@ const Goals = () => {
                           hover:bg-slate-50
                           transition
                         "
-                      >
+                            >
 
-                        <Pencil
-                          size={14}
-                        />
+                              <Pencil
+                                  size={14}
+                              />
 
-                        Edit
+                              Edit
 
-                      </button>
+                            </button>
 
 
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleDelete(
-                            goal.id
-                          )
-                        }
-                        disabled={
-                          deletingId ===
-                          goal.id
-                        }
-                        className="
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    handleDelete(
+                                        goal.id
+                                    )
+                                }
+                                disabled={
+                                    deletingId ===
+                                    goal.id
+                                }
+                                className="
                           inline-flex
                           items-center
                           justify-center
@@ -893,48 +913,48 @@ const Goals = () => {
                           disabled:opacity-50
                           disabled:cursor-not-allowed
                         "
-                      >
+                            >
 
-                        {deletingId ===
-                        goal.id ? (
+                              {deletingId ===
+                              goal.id ? (
 
-                          <RefreshCw
-                            size={15}
-                            className="animate-spin"
-                          />
+                                  <RefreshCw
+                                      size={15}
+                                      className="animate-spin"
+                                  />
 
-                        ) : (
+                              ) : (
 
-                          <Trash2
-                            size={15}
-                          />
+                                  <Trash2
+                                      size={15}
+                                  />
 
-                        )}
+                              )}
 
-                      </button>
+                            </button>
 
-                    </div>
+                          </div>
 
-                  </div>
+                        </div>
 
-                </div>
+                      </div>
 
-              );
-            })}
+                  );
+                })}
 
-          </div>
+              </div>
 
-        )}
+          )}
 
 
-        {/* ==========================================
+          {/* ==========================================
             ADD / EDIT MODAL
         ========================================== */}
 
-        {showForm && (
+          {showForm && (
 
-          <div
-            className="
+              <div
+                  className="
               fixed
               inset-0
               z-[100]
@@ -944,10 +964,10 @@ const Goals = () => {
               p-4
               bg-black/40
             "
-          >
+              >
 
-            <div
-              className="
+                <div
+                    className="
                 w-full
                 max-w-lg
                 bg-white
@@ -957,12 +977,12 @@ const Goals = () => {
                 border-slate-200
                 overflow-hidden
               "
-            >
+                >
 
-              {/* MODAL HEADER */}
+                  {/* MODAL HEADER */}
 
-              <div
-                className="
+                  <div
+                      className="
                   flex
                   items-center
                   justify-between
@@ -971,44 +991,44 @@ const Goals = () => {
                   border-b
                   border-slate-200
                 "
-              >
+                  >
 
-                <div>
+                    <div>
 
-                  <h2
-                    className="
+                      <h2
+                          className="
                       text-lg
                       font-bold
                       text-slate-900
                     "
-                  >
-                    {editingGoal
-                      ? "Edit Goal"
-                      : "Add New Goal"}
-                  </h2>
+                      >
+                        {editingGoal
+                            ? "Edit Goal"
+                            : "Add New Goal"}
+                      </h2>
 
-                  <p
-                    className="
+                      <p
+                          className="
                       text-xs
                       text-slate-500
                       mt-1
                     "
-                  >
-                    {editingGoal
-                      ? "Update your goal details."
-                      : "Create a goal you want to achieve."}
-                  </p>
+                      >
+                        {editingGoal
+                            ? "Update your goal details."
+                            : "Create a goal you want to achieve."}
+                      </p>
 
-                </div>
+                    </div>
 
 
-                <button
-                  type="button"
-                  onClick={
-                    handleCloseForm
-                  }
-                  disabled={saving}
-                  className="
+                    <button
+                        type="button"
+                        onClick={
+                          handleCloseForm
+                        }
+                        disabled={saving}
+                        className="
                     p-2
                     rounded-lg
                     text-slate-500
@@ -1016,53 +1036,53 @@ const Goals = () => {
                     transition
                     disabled:opacity-50
                   "
-                >
+                    >
 
-                  <X size={19} />
+                      <X size={19} />
 
-                </button>
+                    </button>
 
-              </div>
+                  </div>
 
 
-              {/* FORM */}
+                  {/* FORM */}
 
-              <form
-                onSubmit={handleSubmit}
-                className="p-6"
-              >
+                  <form
+                      onSubmit={handleSubmit}
+                      className="p-6"
+                  >
 
-                {/* TITLE */}
+                    {/* TITLE */}
 
-                <div className="mb-5">
+                    <div className="mb-5">
 
-                  <label
-                    htmlFor="goal-title"
-                    className="
+                      <label
+                          htmlFor="goal-title"
+                          className="
                       block
                       text-sm
                       font-semibold
                       text-slate-700
                       mb-2
                     "
-                  >
-                    Goal Title
-                  </label>
+                      >
+                        Goal Title
+                      </label>
 
-                  <input
-                    id="goal-title"
-                    name="title"
-                    type="text"
-                    value={
-                      formData.title
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    placeholder="e.g. Complete AWS certification"
-                    maxLength={200}
-                    required
-                    className="
+                      <input
+                          id="goal-title"
+                          name="title"
+                          type="text"
+                          value={
+                            formData.title
+                          }
+                          onChange={
+                            handleChange
+                          }
+                          placeholder="e.g. Complete AWS certification"
+                          maxLength={200}
+                          required
+                          className="
                       w-full
                       px-4
                       py-3
@@ -1078,40 +1098,40 @@ const Goals = () => {
                       focus:ring-blue-100
                       transition
                     "
-                  />
+                      />
 
-                </div>
+                    </div>
 
 
-                {/* DESCRIPTION */}
+                    {/* DESCRIPTION */}
 
-                <div className="mb-5">
+                    <div className="mb-5">
 
-                  <label
-                    htmlFor="goal-description"
-                    className="
+                      <label
+                          htmlFor="goal-description"
+                          className="
                       block
                       text-sm
                       font-semibold
                       text-slate-700
                       mb-2
                     "
-                  >
-                    Description
-                  </label>
+                      >
+                        Description
+                      </label>
 
-                  <textarea
-                    id="goal-description"
-                    name="description"
-                    value={
-                      formData.description
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    placeholder="Describe what you want to achieve..."
-                    rows={4}
-                    className="
+                      <textarea
+                          id="goal-description"
+                          name="description"
+                          value={
+                            formData.description
+                          }
+                          onChange={
+                            handleChange
+                          }
+                          placeholder="Describe what you want to achieve..."
+                          rows={4}
+                          className="
                       w-full
                       px-4
                       py-3
@@ -1128,38 +1148,38 @@ const Goals = () => {
                       focus:ring-blue-100
                       transition
                     "
-                  />
+                      />
 
-                </div>
+                    </div>
 
 
-                {/* STATUS */}
+                    {/* STATUS */}
 
-                <div className="mb-6">
+                    <div className="mb-6">
 
-                  <label
-                    htmlFor="goal-status"
-                    className="
+                      <label
+                          htmlFor="goal-status"
+                          className="
                       block
                       text-sm
                       font-semibold
                       text-slate-700
                       mb-2
                     "
-                  >
-                    Status
-                  </label>
+                      >
+                        Status
+                      </label>
 
-                  <select
-                    id="goal-status"
-                    name="status"
-                    value={
-                      formData.status
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    className="
+                      <select
+                          id="goal-status"
+                          name="status"
+                          value={
+                            formData.status
+                          }
+                          onChange={
+                            handleChange
+                          }
+                          className="
                       w-full
                       px-4
                       py-3
@@ -1175,43 +1195,43 @@ const Goals = () => {
                       focus:ring-blue-100
                       transition
                     "
-                  >
+                      >
 
-                    <option value="NOT_STARTED">
-                      Not Started
-                    </option>
+                        <option value="NOT_STARTED">
+                          Not Started
+                        </option>
 
-                    <option value="IN_PROGRESS">
-                      In Progress
-                    </option>
+                        <option value="IN_PROGRESS">
+                          In Progress
+                        </option>
 
-                    <option value="COMPLETED">
-                      Completed
-                    </option>
+                        <option value="COMPLETED">
+                          Completed
+                        </option>
 
-                  </select>
+                      </select>
 
-                </div>
+                    </div>
 
 
-                {/* FORM ACTIONS */}
+                    {/* FORM ACTIONS */}
 
-                <div
-                  className="
+                    <div
+                        className="
                     flex
                     items-center
                     justify-end
                     gap-3
                   "
-                >
+                    >
 
-                  <button
-                    type="button"
-                    onClick={
-                      handleCloseForm
-                    }
-                    disabled={saving}
-                    className="
+                      <button
+                          type="button"
+                          onClick={
+                            handleCloseForm
+                          }
+                          disabled={saving}
+                          className="
                       px-4
                       py-2.5
                       rounded-xl
@@ -1224,15 +1244,15 @@ const Goals = () => {
                       transition
                       disabled:opacity-50
                     "
-                  >
-                    Cancel
-                  </button>
+                      >
+                        Cancel
+                      </button>
 
 
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="
+                      <button
+                          type="submit"
+                          disabled={saving}
+                          className="
                       inline-flex
                       items-center
                       justify-center
@@ -1249,42 +1269,42 @@ const Goals = () => {
                       disabled:opacity-60
                       disabled:cursor-not-allowed
                     "
-                  >
+                      >
 
-                    {saving ? (
+                        {saving ? (
 
-                      <>
-                        <RefreshCw
-                          size={15}
-                          className="animate-spin"
-                        />
+                            <>
+                              <RefreshCw
+                                  size={15}
+                                  className="animate-spin"
+                              />
 
-                        Saving...
-                      </>
+                              Saving...
+                            </>
 
-                    ) : (
+                        ) : (
 
-                      editingGoal
-                        ? "Update Goal"
-                        : "Add Goal"
+                            editingGoal
+                                ? "Update Goal"
+                                : "Add Goal"
 
-                    )}
+                        )}
 
-                  </button>
+                      </button>
+
+                    </div>
+
+                  </form>
 
                 </div>
 
-              </form>
+              </div>
 
-            </div>
+          )}
 
-          </div>
+        </div>
 
-        )}
-
-      </div>
-
-    </DashboardLayout>
+      </DashboardLayout>
   );
 };
 

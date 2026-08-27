@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Plus,
   X,
@@ -8,6 +9,7 @@ import {
   Pencil,
   Trash2,
   AlertTriangle,
+  ArrowLeft,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -21,6 +23,8 @@ import {
 } from "../../services/skillService";
 
 const Skills = () => {
+  const navigate = useNavigate();
+
   const [skills, setSkills] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -367,6 +371,22 @@ const Skills = () => {
 
   return (
       <DashboardLayout>
+
+        <button
+            onClick={() => navigate("/profile")}
+            className="inline-flex items-center gap-2
+                     px-3 py-2
+                     rounded-xl
+                     border border-slate-200
+                     bg-white
+                     text-sm font-medium
+                     text-slate-600
+                     hover:bg-slate-50
+                     hover:text-slate-900
+                     transition mb-5">
+          <ArrowLeft size={17} />
+          Back to Profile
+        </button>
 
         {/* ==========================================
           PAGE HEADER

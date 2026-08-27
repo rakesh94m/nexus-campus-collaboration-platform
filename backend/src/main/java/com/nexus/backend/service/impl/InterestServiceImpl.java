@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -40,47 +41,112 @@ public class InterestServiceImpl implements InterestService {
 
         return studentRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Student not found."));
+                        new ResourceNotFoundException(
+                                "Student not found."
+                        ));
     }
 
     // =========================================
     // Mapper
     // =========================================
 
-    private InterestResponse mapToResponse(StudentInterest studentInterest) {
+    private InterestResponse mapToResponse(
+            StudentInterest studentInterest) {
 
         return InterestResponse.builder()
                 .id(studentInterest.getId())
-                .interestName(studentInterest.getInterest().getInterestName())
+                .interestName(
+                        studentInterest
+                                .getInterest()
+                                .getInterestName()
+                )
                 .build();
     }
 
     // =========================================
     // Add Interest
+    //
+    // If interest exists:
+    //     use existing interest
+    //
+    // If interest does not exist:
+    //     create new interest
+    //
+    // Then associate it with logged-in student.
     // =========================================
 
     @Override
-    public InterestResponse addInterest(AddInterestRequest request) {
+    @Transactional
+    public InterestResponse addInterest(
+            AddInterestRequest request) {
 
         Student student = getCurrentStudent();
 
-        Interest interest = interestRepository
-                .findByInterestName(request.getInterestName())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Interest not found."));
+        String interestName =
+                request.getInterestName()
+                        .trim();
 
-        if (studentInterestRepository.existsByStudentAndInterest(student, interest)) {
-            throw new DuplicateResourceException("Interest already added.");
+        // =========================================
+        // Find existing interest
+        // =========================================
+
+        Interest interest =
+                interestRepository
+                        .findByInterestName(
+                                interestName
+                        )
+                        .orElse(null);
+
+        // =========================================
+        // Create interest if it doesn't exist
+        // =========================================
+
+        if (interest == null) {
+
+            interest =
+                    Interest.builder()
+                            .interestName(interestName)
+                            .build();
+
+            interest =
+                    interestRepository.save(
+                            interest
+                    );
         }
 
-        StudentInterest studentInterest = StudentInterest.builder()
-                .student(student)
-                .interest(interest)
-                .build();
+        // =========================================
+        // Prevent duplicate student interest
+        // =========================================
 
-        studentInterestRepository.save(studentInterest);
+        if (studentInterestRepository
+                .existsByStudentAndInterest(
+                        student,
+                        interest
+                )) {
 
-        return mapToResponse(studentInterest);
+            throw new DuplicateResourceException(
+                    "Interest already added."
+            );
+        }
+
+        // =========================================
+        // Create student-interest relationship
+        // =========================================
+
+        StudentInterest studentInterest =
+                StudentInterest.builder()
+                        .student(student)
+                        .interest(interest)
+                        .build();
+
+        studentInterest =
+                studentInterestRepository.save(
+                        studentInterest
+                );
+
+        return mapToResponse(
+                studentInterest
+        );
     }
 
     // =========================================
@@ -92,7 +158,8 @@ public class InterestServiceImpl implements InterestService {
 
         Student student = getCurrentStudent();
 
-        return studentInterestRepository.findByStudent(student)
+        return studentInterestRepository
+                .findByStudent(student)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
@@ -103,17 +170,26 @@ public class InterestServiceImpl implements InterestService {
     // =========================================
 
     @Override
-    public InterestResponse updateInterest(Long id,
-                                           UpdateInterestRequest request) {
+    public InterestResponse updateInterest(
+            Long id,
+            UpdateInterestRequest request) {
 
         Student student = getCurrentStudent();
 
-        StudentInterest studentInterest = studentInterestRepository
-                .findByIdAndStudent(id, student)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Interest not found."));
+        StudentInterest studentInterest =
+                studentInterestRepository
+                        .findByIdAndStudent(
+                                id,
+                                student
+                        )
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Interest not found."
+                                ));
 
-        return mapToResponse(studentInterest);
+        return mapToResponse(
+                studentInterest
+        );
     }
 
     // =========================================
@@ -125,12 +201,19 @@ public class InterestServiceImpl implements InterestService {
 
         Student student = getCurrentStudent();
 
-        StudentInterest studentInterest = studentInterestRepository
-                .findByIdAndStudent(id, student)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Interest not found."));
+        StudentInterest studentInterest =
+                studentInterestRepository
+                        .findByIdAndStudent(
+                                id,
+                                student
+                        )
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Interest not found."
+                                ));
 
-        studentInterestRepository.delete(studentInterest);
+        studentInterestRepository.delete(
+                studentInterest
+        );
     }
-
 }

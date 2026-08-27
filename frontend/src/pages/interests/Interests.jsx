@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import {
   Plus,
   X,
@@ -7,10 +9,13 @@ import {
   Sparkles,
   Trash2,
   AlertTriangle,
+  ArrowLeft,
 } from "lucide-react";
+
 import toast from "react-hot-toast";
 
 import DashboardLayout from "../../components/layout/DashboardLayout";
+
 import {
   getMyInterests,
   addInterest,
@@ -18,6 +23,9 @@ import {
 } from "../../services/interestService";
 
 const Interests = () => {
+
+  const navigate = useNavigate();
+
   const [interests, setInterests] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -33,28 +41,35 @@ const Interests = () => {
     interestName: "",
   });
 
-  useEffect(() => {
-    loadInterests();
-  }, []);
-
   // ==========================================
   // LOAD INTERESTS
   // ==========================================
 
+  useEffect(() => {
+    loadInterests();
+  }, []);
+
   const loadInterests = async () => {
     try {
+
       const data = await getMyInterests();
+
       setInterests(data);
+
     } catch (error) {
+
       console.error("Interests error:", error);
 
       const message =
-        error.response?.data?.message ||
-        "Unable to load interests.";
+          error.response?.data?.message ||
+          "Unable to load interests.";
 
       toast.error(message);
+
     } finally {
+
       setLoading(false);
+
     }
   };
 
@@ -63,12 +78,14 @@ const Interests = () => {
   // ==========================================
 
   const handleChange = (event) => {
+
     const { name, value } = event.target;
 
     setFormData((previous) => ({
       ...previous,
       [name]: value,
     }));
+
   };
 
   // ==========================================
@@ -76,16 +93,20 @@ const Interests = () => {
   // ==========================================
 
   const handleAddInterest = async (event) => {
+
     event.preventDefault();
 
     if (!formData.interestName.trim()) {
+
       toast.error("Please enter an interest.");
+
       return;
     }
 
     setSaving(true);
 
     try {
+
       const newInterest = await addInterest({
         interestName: formData.interestName.trim(),
       });
@@ -102,16 +123,21 @@ const Interests = () => {
       setAddOpen(false);
 
       toast.success("Interest added successfully!");
+
     } catch (error) {
+
       console.error("Add interest error:", error);
 
       const message =
-        error.response?.data?.message ||
-        "Unable to add interest.";
+          error.response?.data?.message ||
+          "Unable to add interest.";
 
       toast.error(message);
+
     } finally {
+
       setSaving(false);
+
     }
   };
 
@@ -120,8 +146,11 @@ const Interests = () => {
   // ==========================================
 
   const openDeleteInterest = (interest) => {
+
     setSelectedInterest(interest);
+
     setDeleteOpen(true);
+
   };
 
   // ==========================================
@@ -129,34 +158,47 @@ const Interests = () => {
   // ==========================================
 
   const handleDeleteInterest = async () => {
+
     if (!selectedInterest) return;
 
     setDeleting(true);
 
     try {
+
       await deleteInterest(selectedInterest.id);
 
       setInterests((previous) =>
-        previous.filter(
-          (interest) =>
-            interest.id !== selectedInterest.id
-        )
+          previous.filter(
+              (interest) =>
+                  interest.id !== selectedInterest.id
+          )
       );
 
       setDeleteOpen(false);
+
       setSelectedInterest(null);
 
-      toast.success("Interest deleted successfully!");
+      toast.success(
+          "Interest deleted successfully!"
+      );
+
     } catch (error) {
-      console.error("Delete interest error:", error);
+
+      console.error(
+          "Delete interest error:",
+          error
+      );
 
       const message =
-        error.response?.data?.message ||
-        "Unable to delete interest.";
+          error.response?.data?.message ||
+          "Unable to delete interest.";
 
       toast.error(message);
+
     } finally {
+
       setDeleting(false);
+
     }
   };
 
@@ -165,6 +207,7 @@ const Interests = () => {
   // ==========================================
 
   const closeAddModal = () => {
+
     if (saving) return;
 
     setAddOpen(false);
@@ -172,6 +215,7 @@ const Interests = () => {
     setFormData({
       interestName: "",
     });
+
   };
 
   // ==========================================
@@ -179,10 +223,13 @@ const Interests = () => {
   // ==========================================
 
   const closeDeleteModal = () => {
+
     if (deleting) return;
 
     setDeleteOpen(false);
+
     setSelectedInterest(null);
+
   };
 
   // ==========================================
@@ -190,398 +237,494 @@ const Interests = () => {
   // ==========================================
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
 
-          <div
-            className="w-10 h-10 border-4
+    return (
+
+        <div
+            className="min-h-screen
+                   bg-slate-50
+                   flex
+                   items-center
+                   justify-center"
+        >
+
+          <div className="text-center">
+
+            <div
+                className="w-10 h-10
+                       border-4
                        border-blue-600
                        border-t-transparent
                        rounded-full
                        animate-spin
-                       mx-auto mb-4"
-          />
+                       mx-auto
+                       mb-4"
+            />
 
-          <p className="text-slate-600 font-medium">
-            Loading your interests...
-          </p>
+            <p
+                className="text-slate-600
+                       font-medium"
+            >
+              Loading your interests...
+            </p>
+
+          </div>
 
         </div>
-      </div>
     );
   }
 
   return (
-    <DashboardLayout>
 
-      {/* ==========================================
+      <DashboardLayout>
+
+        {/* ==========================================
           PAGE HEADER
       ========================================== */}
 
-      <section
-        className="flex flex-col sm:flex-row
-                   sm:items-center
-                   justify-between
-                   gap-4 mb-8"
-      >
+        <div className="mb-8">
 
-        <div>
+          {/* ==========================================
+            BACK TO PROFILE
+        ========================================== */}
 
-          <p
-            className="text-sm font-medium
-                       text-blue-600 mb-1"
+          <button
+              onClick={() => navigate("/profile")}
+              className="inline-flex
+                     items-center
+                     gap-2
+                     px-3
+                     py-2
+                     rounded-xl
+                     border
+                     border-slate-200
+                     bg-white
+                     text-sm
+                     font-medium
+                     text-slate-600
+                     hover:bg-slate-50
+                     hover:text-slate-900
+                     transition
+                     mb-5"
           >
-            Student Profile
-          </p>
 
-          <h1
-            className="text-3xl font-bold
-                       text-slate-900"
-          >
-            My Interests
-          </h1>
+            <ArrowLeft size={17} />
 
-          <p
-            className="mt-2
-                       text-slate-500"
+            Back to Profile
+
+          </button>
+
+          {/* ==========================================
+            HEADER CONTENT
+        ========================================== */}
+
+          <section
+              className="flex
+                     flex-col
+                     sm:flex-row
+                     sm:items-center
+                     justify-between
+                     gap-4"
           >
-            Manage the areas and topics
-            you are interested in.
-          </p>
+
+            <div>
+
+              <p
+                  className="text-sm
+                         font-medium
+                         text-blue-600
+                         mb-1"
+              >
+                Student Profile
+              </p>
+
+              <h1
+                  className="text-3xl
+                         font-bold
+                         text-slate-900"
+              >
+                My Interests
+              </h1>
+
+              <p
+                  className="mt-2
+                         text-slate-500"
+              >
+                Manage the areas and topics
+                you are interested in.
+              </p>
+
+            </div>
+
+            <button
+                onClick={() => setAddOpen(true)}
+                className="flex
+                       items-center
+                       justify-center
+                       gap-2
+                       px-5
+                       py-3
+                       bg-blue-600
+                       text-white
+                       rounded-xl
+                       font-semibold
+                       hover:bg-blue-700
+                       transition"
+            >
+
+              <Plus size={19} />
+
+              Add Interest
+
+            </button>
+
+          </section>
 
         </div>
 
-        <button
-          onClick={() => setAddOpen(true)}
-          className="flex items-center
-                     justify-center gap-2
-                     px-5 py-3
-                     bg-blue-600
-                     text-white
-                     rounded-xl
-                     font-semibold
-                     hover:bg-blue-700
-                     transition"
-        >
-          <Plus size={19} />
-          Add Interest
-        </button>
-
-      </section>
-
-      {/* ==========================================
+        {/* ==========================================
           SUMMARY
       ========================================== */}
 
-      <section
-        className="grid grid-cols-1
+        <section
+            className="grid
+                   grid-cols-1
                    sm:grid-cols-2
-                   gap-4 mb-6"
-      >
+                   gap-4
+                   mb-6"
+        >
 
-        <SummaryCard
-          title="Total Interests"
-          value={interests.length}
-          icon={<Heart size={21} />}
-        />
+          <SummaryCard
+              title="Total Interests"
+              value={interests.length}
+              icon={<Heart size={21} />}
+          />
 
-        <SummaryCard
-          title="Profile Matching"
-          value={
-            interests.length > 0
-              ? "Active"
-              : "Add Interests"
-          }
-          icon={<Sparkles size={21} />}
-        />
+          <SummaryCard
+              title="Profile Matching"
+              value={
+                interests.length > 0
+                    ? "Active"
+                    : "Add Interests"
+              }
+              icon={<Sparkles size={21} />}
+          />
 
-      </section>
+        </section>
 
-      {/* ==========================================
+        {/* ==========================================
           INTERESTS LIST
       ========================================== */}
 
-      <section
-        className="bg-white
+        <section
+            className="bg-white
                    rounded-2xl
-                   border border-slate-200
+                   border
+                   border-slate-200
                    p-6"
-      >
+        >
 
-        <div className="mb-6">
+          <div className="mb-6">
 
-          <h2
-            className="text-lg font-bold
+            <h2
+                className="text-lg
+                       font-bold
                        text-slate-900"
-          >
-            Your Interests
-          </h2>
+            >
+              Your Interests
+            </h2>
 
-          <p
-            className="text-sm
-                       text-slate-500 mt-1"
-          >
-            Your interests help NEXUS understand
-            which projects are relevant to you.
-          </p>
+            <p
+                className="text-sm
+                       text-slate-500
+                       mt-1"
+            >
+              Your interests help NEXUS understand
+              which projects are relevant to you.
+            </p>
 
-        </div>
+          </div>
 
-        {interests.length === 0 ? (
+          {interests.length === 0 ? (
 
-          <div
-            className="py-16
+              <div
+                  className="py-16
                        text-center"
-          >
+              >
 
-            <div
-              className="w-16 h-16
+                <div
+                    className="w-16
+                         h-16
                          rounded-2xl
                          bg-blue-50
                          text-blue-600
-                         flex items-center
+                         flex
+                         items-center
                          justify-center
-                         mx-auto mb-4"
-            >
-              <Heart size={30} />
-            </div>
+                         mx-auto
+                         mb-4"
+                >
 
-            <h3
-              className="text-lg font-bold
+                  <Heart size={30} />
+
+                </div>
+
+                <h3
+                    className="text-lg
+                         font-bold
                          text-slate-900"
-            >
-              No interests added yet
-            </h3>
+                >
+                  No interests added yet
+                </h3>
 
-            <p
-              className="text-sm
+                <p
+                    className="text-sm
                          text-slate-500
-                         mt-2 max-w-md
+                         mt-2
+                         max-w-md
                          mx-auto"
-            >
-              Add your areas of interest to
-              improve project matching and
-              AI-powered recommendations.
-            </p>
+                >
+                  Add your areas of interest to
+                  improve project matching and
+                  AI-powered recommendations.
+                </p>
 
-            <button
-              onClick={() => setAddOpen(true)}
-              className="mt-5
+                <button
+                    onClick={() => setAddOpen(true)}
+                    className="mt-5
                          inline-flex
                          items-center
                          gap-2
-                         px-4 py-2.5
+                         px-4
+                         py-2.5
                          bg-blue-600
                          text-white
                          rounded-xl
                          text-sm
                          font-semibold
                          hover:bg-blue-700"
-            >
-              <Plus size={17} />
-              Add Your First Interest
-            </button>
+                >
 
-          </div>
+                  <Plus size={17} />
 
-        ) : (
+                  Add Your First Interest
 
-          <div
-            className="grid grid-cols-1
+                </button>
+
+              </div>
+
+          ) : (
+
+              <div
+                  className="grid
+                       grid-cols-1
                        sm:grid-cols-2
                        lg:grid-cols-3
                        gap-4"
-          >
+              >
 
-            {interests.map((interest) => (
+                {interests.map((interest) => (
 
-              <div
-                key={interest.id}
-                className="border
+                    <div
+                        key={interest.id}
+                        className="border
                            border-slate-200
                            rounded-2xl
                            p-5
                            hover:shadow-md
                            transition"
-              >
+                    >
 
-                <div
-                  className="flex items-center
+                      <div
+                          className="flex
+                             items-center
                              justify-between
                              gap-4"
-                >
+                      >
 
-                  <div
-                    className="flex items-center
+                        <div
+                            className="flex
+                               items-center
                                gap-4
                                min-w-0"
-                  >
+                        >
 
-                    <div
-                      className="w-12 h-12
+                          <div
+                              className="w-12
+                                 h-12
                                  rounded-xl
                                  bg-blue-50
                                  text-blue-600
-                                 flex items-center
+                                 flex
+                                 items-center
                                  justify-center
                                  shrink-0"
-                    >
-                      <Heart size={22} />
-                    </div>
+                          >
 
-                    <div className="min-w-0">
+                            <Heart size={22} />
 
-                      <h3
-                        className="font-bold
+                          </div>
+
+                          <div className="min-w-0">
+
+                            <h3
+                                className="font-bold
                                    text-slate-900
                                    truncate"
-                      >
-                        {interest.interestName}
-                      </h3>
+                            >
+                              {interest.interestName}
+                            </h3>
 
-                      
+                          </div>
 
-                    </div>
+                        </div>
 
-                  </div>
+                        {/* Delete Button */}
 
-                  {/* Delete Button */}
-
-                  <button
-                    onClick={() =>
-                      openDeleteInterest(interest)
-                    }
-                    className="p-2
+                        <button
+                            onClick={() =>
+                                openDeleteInterest(interest)
+                            }
+                            className="p-2
                                rounded-lg
                                text-slate-400
                                hover:bg-red-50
                                hover:text-red-600
                                transition
                                shrink-0"
-                    title="Delete interest"
-                  >
-                    <Trash2 size={18} />
-                  </button>
+                            title="Delete interest"
+                        >
 
-                </div>
+                          <Trash2 size={18} />
+
+                        </button>
+
+                      </div>
+
+                    </div>
+
+                ))}
 
               </div>
 
-            ))}
+          )}
 
-          </div>
+        </section>
 
-        )}
-
-      </section>
-
-      {/* ==========================================
+        {/* ==========================================
           ADD INTEREST MODAL
       ========================================== */}
 
-      {addOpen && (
+        {addOpen && (
 
-        <div
-          className="fixed inset-0
+            <div
+                className="fixed
+                     inset-0
                      z-[100]
                      bg-black/50
-                     flex items-center
+                     flex
+                     items-center
                      justify-center
                      p-4"
-          onMouseDown={(event) => {
+                onMouseDown={(event) => {
 
-            if (
-              event.target ===
-              event.currentTarget
-            ) {
-              closeAddModal();
-            }
+                  if (
+                      event.target ===
+                      event.currentTarget
+                  ) {
+                    closeAddModal();
+                  }
 
-          }}
-        >
+                }}
+            >
 
-          <div
-            className="w-full max-w-lg
+              <div
+                  className="w-full
+                       max-w-lg
                        bg-white
                        rounded-2xl
                        shadow-2xl"
-          >
+              >
 
-            {/* Modal Header */}
+                {/* Modal Header */}
 
-            <div
-              className="flex
+                <div
+                    className="flex
                          items-center
                          justify-between
-                         px-6 py-5
+                         px-6
+                         py-5
                          border-b
                          border-slate-200"
-            >
+                >
 
-              <div>
+                  <div>
 
-                <h2
-                  className="text-xl
+                    <h2
+                        className="text-xl
                              font-bold
                              text-slate-900"
-                >
-                  Add Interest
-                </h2>
+                    >
+                      Add Interest
+                    </h2>
 
-                <p
-                  className="text-sm
+                    <p
+                        className="text-sm
                              text-slate-500
                              mt-1"
-                >
-                  Add an area that interests you.
-                </p>
+                    >
+                      Add an area that interests you.
+                    </p>
 
-              </div>
+                  </div>
 
-              <button
-                onClick={closeAddModal}
-                disabled={saving}
-                className="p-2
+                  <button
+                      onClick={closeAddModal}
+                      disabled={saving}
+                      className="p-2
                            rounded-lg
                            hover:bg-slate-100
                            text-slate-500
                            disabled:opacity-50"
-              >
-                <X size={20} />
-              </button>
+                  >
 
-            </div>
+                    <X size={20} />
 
-            {/* Form */}
+                  </button>
 
-            <form
-              onSubmit={handleAddInterest}
-              className="p-6 space-y-5"
-            >
+                </div>
 
-              <div>
+                {/* Form */}
 
-                <label
-                  htmlFor="interestName"
-                  className="block
+                <form
+                    onSubmit={handleAddInterest}
+                    className="p-6
+                         space-y-5"
+                >
+
+                  <div>
+
+                    <label
+                        htmlFor="interestName"
+                        className="block
                              text-sm
                              font-semibold
                              text-slate-700
                              mb-2"
-                >
-                  Interest Name
-                </label>
+                    >
+                      Interest Name
+                    </label>
 
-                <input
-                  id="interestName"
-                  name="interestName"
-                  type="text"
-                  value={formData.interestName}
-                  onChange={handleChange}
-                  placeholder="e.g. Artificial Intelligence"
-                  className="w-full
-                             px-4 py-3
+                    <input
+                        id="interestName"
+                        name="interestName"
+                        type="text"
+                        value={formData.interestName}
+                        onChange={handleChange}
+                        placeholder="e.g. Artificial Intelligence"
+                        className="w-full
+                             px-4
+                             py-3
                              rounded-xl
                              border
                              border-slate-300
@@ -589,50 +732,52 @@ const Interests = () => {
                              focus:ring-2
                              focus:ring-blue-500
                              focus:border-transparent"
-                />
+                    />
 
-              </div>
+                  </div>
 
-              {/* Examples */}
+                  {/* Examples */}
 
-              <div
-                className="rounded-xl
+                  <div
+                      className="rounded-xl
                            bg-slate-50
                            p-4"
-              >
+                  >
 
-                <p
-                  className="text-xs
+                    <p
+                        className="text-xs
                              font-semibold
                              text-slate-600
                              mb-2"
-                >
-                  Examples
-                </p>
+                    >
+                      Examples
+                    </p>
 
-                <div
-                  className="flex flex-wrap
+                    <div
+                        className="flex
+                             flex-wrap
                              gap-2"
-                >
+                    >
 
-                  {[
-                    "Artificial Intelligence",
-                    "Machine Learning",
-                    "Web Development",
-                    "Cloud Computing",
-                    "Cybersecurity",
-                    "Data Science",
-                  ].map((example) => (
+                      {[
+                        "Artificial Intelligence",
+                        "Machine Learning",
+                        "Web Development",
+                        "Cloud Computing",
+                        "Cybersecurity",
+                        "Data Science",
+                      ].map((example) => (
 
-                    <button
-                      key={example}
-                      type="button"
-                      onClick={() =>
-                        setFormData({
-                          interestName: example,
-                        })
-                      }
-                      className="px-3 py-1.5
+                          <button
+                              key={example}
+                              type="button"
+                              onClick={() =>
+                                  setFormData({
+                                    interestName: example,
+                                  })
+                              }
+                              className="px-3
+                                 py-1.5
                                  rounded-lg
                                  bg-white
                                  border
@@ -642,32 +787,35 @@ const Interests = () => {
                                  hover:border-blue-300
                                  hover:text-blue-600
                                  transition"
-                    >
-                      {example}
-                    </button>
+                          >
 
-                  ))}
+                            {example}
 
-                </div>
+                          </button>
 
-              </div>
+                      ))}
 
-              {/* Buttons */}
+                    </div>
 
-              <div
-                className="flex
+                  </div>
+
+                  {/* Buttons */}
+
+                  <div
+                      className="flex
                            justify-end
                            gap-3
                            pt-4
                            border-t
                            border-slate-200"
-              >
+                  >
 
-                <button
-                  type="button"
-                  onClick={closeAddModal}
-                  disabled={saving}
-                  className="px-5 py-2.5
+                    <button
+                        type="button"
+                        onClick={closeAddModal}
+                        disabled={saving}
+                        className="px-5
+                             py-2.5
                              rounded-xl
                              border
                              border-slate-300
@@ -675,17 +823,18 @@ const Interests = () => {
                              font-semibold
                              hover:bg-slate-50
                              disabled:opacity-50"
-                >
-                  Cancel
-                </button>
+                    >
+                      Cancel
+                    </button>
 
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="flex
+                    <button
+                        type="submit"
+                        disabled={saving}
+                        className="flex
                              items-center
                              gap-2
-                             px-5 py-2.5
+                             px-5
+                             py-2.5
                              rounded-xl
                              bg-blue-600
                              text-white
@@ -693,130 +842,152 @@ const Interests = () => {
                              hover:bg-blue-700
                              disabled:opacity-60
                              disabled:cursor-not-allowed"
-                >
+                    >
 
-                  {saving ? (
-                    <>
-                      <div
-                        className="w-4 h-4
+                      {saving ? (
+
+                          <>
+
+                            <div
+                                className="w-4
+                                   h-4
                                    border-2
                                    border-white
                                    border-t-transparent
                                    rounded-full
                                    animate-spin"
-                      />
+                            />
 
-                      Adding...
-                    </>
-                  ) : (
-                    <>
-                      <Save size={17} />
-                      Add Interest
-                    </>
-                  )}
+                            Adding...
 
-                </button>
+                          </>
 
-              </div>
+                      ) : (
 
-            </form>
+                          <>
 
-          </div>
+                            <Save size={17} />
 
-        </div>
+                            Add Interest
 
-      )}
+                          </>
 
-      {/* ==========================================
-          DELETE CONFIRMATION MODAL
-      ========================================== */}
+                      )}
 
-      {deleteOpen && selectedInterest && (
+                    </button>
 
-        <div
-          className="fixed inset-0
-                     z-[110]
-                     bg-black/50
-                     flex items-center
-                     justify-center
-                     p-4"
-        >
+                  </div>
 
-          <div
-            className="w-full max-w-md
-                       bg-white
-                       rounded-2xl
-                       shadow-2xl
-                       p-6"
-          >
-
-            <div
-              className="flex
-                         items-start
-                         gap-4"
-            >
-
-              <div
-                className="w-12 h-12
-                           rounded-xl
-                           bg-red-50
-                           text-red-600
-                           flex items-center
-                           justify-center
-                           shrink-0"
-              >
-                <AlertTriangle size={23} />
-              </div>
-
-              <div>
-
-                <h2
-                  className="text-lg
-                             font-bold
-                             text-slate-900"
-                >
-                  Delete Interest?
-                </h2>
-
-                <p
-                  className="text-sm
-                             text-slate-500
-                             mt-2
-                             leading-relaxed"
-                >
-                  Are you sure you want to remove{" "}
-                  <span
-                    className="font-semibold
-                               text-slate-700"
-                  >
-                    {selectedInterest.interestName}
-                  </span>{" "}
-                  from your profile?
-                </p>
-
-                <p
-                  className="text-xs
-                             text-slate-400
-                             mt-2"
-                >
-                  This action cannot be undone.
-                </p>
+                </form>
 
               </div>
 
             </div>
 
+        )}
+
+        {/* ==========================================
+          DELETE CONFIRMATION MODAL
+      ========================================== */}
+
+        {deleteOpen && selectedInterest && (
+
             <div
-              className="flex
+                className="fixed
+                     inset-0
+                     z-[110]
+                     bg-black/50
+                     flex
+                     items-center
+                     justify-center
+                     p-4"
+            >
+
+              <div
+                  className="w-full
+                       max-w-md
+                       bg-white
+                       rounded-2xl
+                       shadow-2xl
+                       p-6"
+              >
+
+                <div
+                    className="flex
+                         items-start
+                         gap-4"
+                >
+
+                  <div
+                      className="w-12
+                           h-12
+                           rounded-xl
+                           bg-red-50
+                           text-red-600
+                           flex
+                           items-center
+                           justify-center
+                           shrink-0"
+                  >
+
+                    <AlertTriangle size={23} />
+
+                  </div>
+
+                  <div>
+
+                    <h2
+                        className="text-lg
+                             font-bold
+                             text-slate-900"
+                    >
+                      Delete Interest?
+                    </h2>
+
+                    <p
+                        className="text-sm
+                             text-slate-500
+                             mt-2
+                             leading-relaxed"
+                    >
+
+                      Are you sure you want to remove{" "}
+
+                      <span
+                          className="font-semibold
+                               text-slate-700"
+                      >
+                    {selectedInterest.interestName}
+                  </span>
+
+                      {" "}from your profile?
+
+                    </p>
+
+                    <p
+                        className="text-xs
+                             text-slate-400
+                             mt-2"
+                    >
+                      This action cannot be undone.
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <div
+                    className="flex
                          justify-end
                          gap-3
                          mt-6"
-            >
+                >
 
-              <button
-                onClick={closeDeleteModal}
-                disabled={deleting}
-                className="px-5 py-2.5
+                  <button
+                      onClick={closeDeleteModal}
+                      disabled={deleting}
+                      className="px-5
+                           py-2.5
                            rounded-xl
                            border
                            border-slate-300
@@ -824,56 +995,67 @@ const Interests = () => {
                            font-semibold
                            hover:bg-slate-50
                            disabled:opacity-50"
-              >
-                Cancel
-              </button>
+                  >
+                    Cancel
+                  </button>
 
-              <button
-                onClick={handleDeleteInterest}
-                disabled={deleting}
-                className="flex
+                  <button
+                      onClick={handleDeleteInterest}
+                      disabled={deleting}
+                      className="flex
                            items-center
                            gap-2
-                           px-5 py-2.5
+                           px-5
+                           py-2.5
                            rounded-xl
                            bg-red-600
                            text-white
                            font-semibold
                            hover:bg-red-700
                            disabled:opacity-60"
-              >
+                  >
 
-                {deleting ? (
-                  <>
-                    <div
-                      className="w-4 h-4
+                    {deleting ? (
+
+                        <>
+
+                          <div
+                              className="w-4
+                                 h-4
                                  border-2
                                  border-white
                                  border-t-transparent
                                  rounded-full
                                  animate-spin"
-                    />
+                          />
 
-                    Deleting...
-                  </>
-                ) : (
-                  <>
-                    <Trash2 size={17} />
-                    Delete
-                  </>
-                )}
+                          Deleting...
 
-              </button>
+                        </>
+
+                    ) : (
+
+                        <>
+
+                          <Trash2 size={17} />
+
+                          Delete
+
+                        </>
+
+                    )}
+
+                  </button>
+
+                </div>
+
+              </div>
 
             </div>
 
-          </div>
+        )}
 
-        </div>
-
-      )}
-
-    </DashboardLayout>
+      </DashboardLayout>
   );
 };
 
@@ -882,57 +1064,61 @@ const Interests = () => {
 ========================================== */
 
 const SummaryCard = ({
-  title,
-  value,
-  icon,
-}) => {
+                       title,
+                       value,
+                       icon,
+                     }) => {
+
   return (
-    <div
-      className="bg-white
+
+      <div
+          className="bg-white
                  rounded-2xl
                  border
                  border-slate-200
                  p-5"
-    >
-
-      <div
-        className="flex
-                   items-center
-                   justify-between"
       >
 
-        <div>
+        <div
+            className="flex
+                   items-center
+                   justify-between"
+        >
 
-          <p
-            className="text-sm
+          <div>
+
+            <p
+                className="text-sm
                        text-slate-500"
-          >
-            {title}
-          </p>
+            >
+              {title}
+            </p>
 
-          <p
-            className="text-2xl
+            <p
+                className="text-2xl
                        font-bold
                        text-slate-900
                        mt-2"
-          >
-            {value}
-          </p>
+            >
+              {value}
+            </p>
 
-        </div>
+          </div>
 
-        <div
-          className="p-3
+          <div
+              className="p-3
                      rounded-xl
                      bg-blue-50
                      text-blue-600"
-        >
-          {icon}
+          >
+
+            {icon}
+
+          </div>
+
         </div>
 
       </div>
-
-    </div>
   );
 };
 
