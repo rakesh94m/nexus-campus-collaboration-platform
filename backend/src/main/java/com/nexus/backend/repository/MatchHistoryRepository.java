@@ -18,5 +18,12 @@ public interface MatchHistoryRepository
             Project project
     );
 
-    List<MatchHistory> findByProject(Project project);
+    List<MatchHistory> findByProject(
+            Project project
+    );
+
+
+    List<MatchHistory> findByStudent(
+            Student student
+    );
 }

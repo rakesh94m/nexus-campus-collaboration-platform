@@ -12,111 +12,279 @@ import com.nexus.backend.repository.ProjectRepository;
 import com.nexus.backend.repository.StudentRepository;
 import com.nexus.backend.service.MatchHistoryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class MatchHistoryServiceImpl implements MatchHistoryService {
+public class MatchHistoryServiceImpl
+        implements MatchHistoryService {
 
     private final MatchHistoryRepository matchHistoryRepository;
     private final StudentRepository studentRepository;
     private final ProjectRepository projectRepository;
 
-    @Override
-    public MatchHistoryResponse createMatchHistory(AddMatchHistoryRequest request) {
+    // =========================================
+    // Get Logged-in Student
+    // =========================================
 
-        Student student = studentRepository.findById(request.getStudentId())
+    private Student getCurrentStudent() {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        String email =
+                authentication.getName();
+
+        return studentRepository
+                .findByEmail(email)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Student not found."));
+                        new ResourceNotFoundException(
+                                "Student not found."
+                        ));
+    }
+
+    // =========================================
+    // Create Match History
+    // =========================================
+
+    @Override
+    public MatchHistoryResponse createMatchHistory(
+            AddMatchHistoryRequest request) {
+
+        Student student =
+                studentRepository
+                        .findById(
+                                request.getStudentId()
+                        )
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Student not found."
+                                ));
 
         Project project = null;
 
         if (request.getProjectId() != null) {
-            project = projectRepository.findById(request.getProjectId())
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException("Project not found."));
+
+            project =
+                    projectRepository
+                            .findById(
+                                    request.getProjectId()
+                            )
+                            .orElseThrow(() ->
+                                    new ResourceNotFoundException(
+                                            "Project not found."
+                                    ));
         }
 
-        MatchHistory matchHistory = MatchHistory.builder()
-                .student(student)
-                .project(project)
-                .matchType(request.getMatchType())
-                .matchScore(request.getMatchScore())
-                .build();
+        MatchHistory matchHistory =
+                MatchHistory.builder()
+                        .student(student)
+                        .project(project)
+                        .matchType(
+                                request.getMatchType()
+                        )
+                        .matchScore(
+                                request.getMatchScore()
+                        )
+                        .build();
 
-        matchHistory = matchHistoryRepository.save(matchHistory);
+        matchHistory =
+                matchHistoryRepository.save(
+                        matchHistory
+                );
 
-        return mapToResponse(matchHistory);
+        return mapToResponse(
+                matchHistory
+        );
     }
 
-    @Override
-    public List<MatchHistoryResponse> getAllMatchHistory() {
+    // =========================================
+    // Get Match History
+    // ONLY FOR LOGGED-IN STUDENT
+    // =========================================
 
-        return matchHistoryRepository.findAll()
+    @Override
+    public List<MatchHistoryResponse>
+    getAllMatchHistory() {
+
+        Student currentStudent =
+                getCurrentStudent();
+
+        return matchHistoryRepository
+                .findByStudent(currentStudent)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
     }
 
+    // =========================================
+    // Get Match History By ID
+    // =========================================
+
     @Override
-    public MatchHistoryResponse getMatchHistoryById(Long id) {
+    public MatchHistoryResponse
+    getMatchHistoryById(Long id) {
 
-        MatchHistory matchHistory = matchHistoryRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Match history not found."));
+        MatchHistory matchHistory =
+                matchHistoryRepository
+                        .findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Match history not found."
+                                ));
 
-        return mapToResponse(matchHistory);
+        return mapToResponse(
+                matchHistory
+        );
     }
 
-    @Override
-    public MatchHistoryResponse updateMatchHistory(Long id,
-                                                   UpdateMatchHistoryRequest request) {
+    // =========================================
+    // Update Match History
+    // =========================================
 
-        MatchHistory matchHistory = matchHistoryRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Match history not found."));
+    @Override
+    public MatchHistoryResponse updateMatchHistory(
+            Long id,
+            UpdateMatchHistoryRequest request) {
+
+        MatchHistory matchHistory =
+                matchHistoryRepository
+                        .findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Match history not found."
+                                ));
 
         Project project = null;
 
         if (request.getProjectId() != null) {
-            project = projectRepository.findById(request.getProjectId())
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException("Project not found."));
+
+            project =
+                    projectRepository
+                            .findById(
+                                    request.getProjectId()
+                            )
+                            .orElseThrow(() ->
+                                    new ResourceNotFoundException(
+                                            "Project not found."
+                                    ));
         }
 
         matchHistory.setProject(project);
-        matchHistory.setMatchType(request.getMatchType());
-        matchHistory.setMatchScore(request.getMatchScore());
 
-        matchHistory = matchHistoryRepository.save(matchHistory);
+        matchHistory.setMatchType(
+                request.getMatchType()
+        );
 
-        return mapToResponse(matchHistory);
+        matchHistory.setMatchScore(
+                request.getMatchScore()
+        );
+
+        matchHistory =
+                matchHistoryRepository.save(
+                        matchHistory
+                );
+
+        return mapToResponse(
+                matchHistory
+        );
     }
+
+    // =========================================
+    // Delete Match History
+    // =========================================
 
     @Override
     public void deleteMatchHistory(Long id) {
 
-        MatchHistory matchHistory = matchHistoryRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Match history not found."));
+        MatchHistory matchHistory =
+                matchHistoryRepository
+                        .findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Match history not found."
+                                ));
 
-        matchHistoryRepository.delete(matchHistory);
+        matchHistoryRepository.delete(
+                matchHistory
+        );
     }
 
-    private MatchHistoryResponse mapToResponse(MatchHistory matchHistory) {
+    // =========================================
+    // Mapper
+    // =========================================
+
+    private MatchHistoryResponse mapToResponse(
+            MatchHistory matchHistory) {
+
+        Student student =
+                matchHistory.getStudent();
+
+        Project project =
+                matchHistory.getProject();
 
         return MatchHistoryResponse.builder()
-                .id(matchHistory.getId())
-                .studentId(matchHistory.getStudent().getId())
-                .projectId(matchHistory.getProject() != null
-                        ? matchHistory.getProject().getId()
-                        : null)
-                .matchType(matchHistory.getMatchType())
-                .matchScore(matchHistory.getMatchScore())
-                .matchedAt(matchHistory.getMatchedAt())
+
+                .id(
+                        matchHistory.getId()
+                )
+
+                // =================================
+                // Student
+                // =================================
+
+                .studentId(
+                        student != null
+                                ? student.getId()
+                                : null
+                )
+
+                .studentName(
+                        student != null
+                                ? student.getFirstName()
+                                + " "
+                                + student.getLastName()
+                                : null
+                )
+
+                // =================================
+                // Project
+                // =================================
+
+                .projectId(
+                        project != null
+                                ? project.getId()
+                                : null
+                )
+
+                .projectTitle(
+                        project != null
+                                ? project.getProjectTitle()
+                                : null
+                )
+
+                // =================================
+                // Match Information
+                // =================================
+
+                .matchType(
+                        matchHistory.getMatchType()
+                )
+
+                .matchScore(
+                        matchHistory.getMatchScore()
+                )
+
+                .matchedAt(
+                        matchHistory.getMatchedAt()
+                )
+
                 .build();
     }
-
 }

@@ -70,6 +70,11 @@ public class CollaborationRequestServiceImpl
         return CollaborationRequestResponse.builder()
                 .id(request.getId())
 
+                // ADDED PROJECT ID HERE
+                .projectId(
+                        request.getProject().getId()
+                )
+
                 .senderName(
                         request.getSender().getFirstName()
                                 + " "
@@ -118,37 +123,100 @@ public class CollaborationRequestServiceImpl
                                         "Project not found."
                                 ));
 
-        Student receiver = project.getStudent();
+        Student projectOwner = project.getStudent();
 
-        // -----------------------------------------
-        // Cannot join own project
-        // -----------------------------------------
+        // =========================================
+        // Determine Receiver
+        // =========================================
 
-        if (receiver.getId().equals(sender.getId())) {
+        Student receiver;
 
-            throw new DuplicateResourceException(
-                    "You are the owner of this project."
-            );
+        /*
+         * receiverId = 0
+         *
+         * This is the JOIN PROJECT flow:
+         *
+         * Student -> Project Owner
+         *
+         * The project owner becomes the receiver.
+         */
+
+        if (request.getReceiverId() == null
+                || request.getReceiverId() == 0) {
+
+            receiver = projectOwner;
+
+            // Student cannot join own project
+            if (projectOwner.getId()
+                    .equals(sender.getId())) {
+
+                throw new DuplicateResourceException(
+                        "You are the owner of this project."
+                );
+            }
+
         }
 
-        // -----------------------------------------
+        /*
+         * receiverId is provided
+         *
+         * This is the FIND STUDENTS flow:
+         *
+         * Project Owner -> Student
+         *
+         * The selected student becomes the receiver.
+         */
+
+        else {
+
+            receiver =
+                    studentRepository
+                            .findById(
+                                    request.getReceiverId()
+                            )
+                            .orElseThrow(() ->
+                                    new ResourceNotFoundException(
+                                            "Receiver student not found."
+                                    ));
+
+            // Only project owner can invite
+            // another student to the project.
+            if (!projectOwner.getId()
+                    .equals(sender.getId())) {
+
+                throw new DuplicateResourceException(
+                        "Only the project owner can invite students to this project."
+                );
+            }
+
+            // Owner cannot invite themselves
+            if (receiver.getId()
+                    .equals(sender.getId())) {
+
+                throw new DuplicateResourceException(
+                        "You cannot send a collaboration request to yourself."
+                );
+            }
+        }
+
+        // =========================================
         // Already a member
-        // -----------------------------------------
+        // =========================================
 
         if (projectMemberRepository
                 .existsByProjectAndStudent(
                         project,
-                        sender
+                        receiver
                 )) {
 
             throw new DuplicateResourceException(
-                    "You are already a member of this project."
+                    "This student is already a member of this project."
             );
         }
 
-        // -----------------------------------------
-        // Validate requested role
-        // -----------------------------------------
+        // =========================================
+        // Validate Requested Role
+        // =========================================
 
         MemberRole requestedRole =
                 request.getRequestedRole();
@@ -160,7 +228,7 @@ public class CollaborationRequestServiceImpl
             );
         }
 
-        // Student cannot request owner-level role
+        // Student cannot request/invite Leader role
         if (requestedRole == MemberRole.LEADER) {
 
             throw new IllegalArgumentException(
@@ -168,9 +236,9 @@ public class CollaborationRequestServiceImpl
             );
         }
 
-        // -----------------------------------------
-        // Duplicate pending request
-        // -----------------------------------------
+        // =========================================
+        // Duplicate Pending Request
+        // =========================================
 
         if (collaborationRequestRepository
                 .findBySenderAndReceiverAndProjectAndStatus(
@@ -182,13 +250,13 @@ public class CollaborationRequestServiceImpl
                 .isPresent()) {
 
             throw new DuplicateResourceException(
-                    "You already have a pending request for this project."
+                    "A collaboration request is already pending."
             );
         }
 
-        // -----------------------------------------
-        // Create collaboration request
-        // -----------------------------------------
+        // =========================================
+        // Create Collaboration Request
+        // =========================================
 
         CollaborationRequest collaborationRequest =
                 CollaborationRequest.builder()
@@ -204,9 +272,9 @@ public class CollaborationRequestServiceImpl
                 collaborationRequest
         );
 
-        // -----------------------------------------
-        // Notify project owner
-        // -----------------------------------------
+        // =========================================
+        // Notification
+        // =========================================
 
         Notification notification =
                 Notification.builder()
@@ -216,7 +284,7 @@ public class CollaborationRequestServiceImpl
                                 sender.getFirstName()
                                         + " "
                                         + sender.getLastName()
-                                        + " requested to join your project \""
+                                        + " requested to collaborate on project \""
                                         + project.getProjectTitle()
                                         + "\" as "
                                         + formatRole(requestedRole)

@@ -12,7 +12,6 @@ import {
   X,
   Send,
   FolderKanban,
-  CheckCircle,
 } from "lucide-react";
 
 import toast from "react-hot-toast";
@@ -66,6 +65,9 @@ const Students = () => {
   const [selectedProjectId, setSelectedProjectId] =
       useState("");
 
+  const [requestedRole, setRequestedRole] =
+      useState("MEMBER");
+
   const [requestMessage, setRequestMessage] =
       useState("");
 
@@ -105,6 +107,10 @@ const Students = () => {
       setLoading(false);
     }
   };
+
+  // ==========================================
+  // INITIAL LOAD
+  // ==========================================
 
   useEffect(() => {
     loadStudents();
@@ -208,6 +214,8 @@ const Students = () => {
 
       setSelectedProjectId("");
 
+      setRequestedRole("MEMBER");
+
       setRequestMessage("");
 
       setRequestOpen(true);
@@ -246,6 +254,8 @@ const Students = () => {
 
     setSelectedProjectId("");
 
+    setRequestedRole("MEMBER");
+
     setRequestMessage("");
 
   };
@@ -274,6 +284,14 @@ const Students = () => {
       return;
     }
 
+    if (!requestedRole) {
+      toast.error(
+          "Please select a role."
+      );
+
+      return;
+    }
+
     if (!requestMessage.trim()) {
       toast.error(
           "Please enter a message."
@@ -297,6 +315,7 @@ const Students = () => {
       await sendCollaborationRequest(
           selectedStudent.id,
           selectedProjectId,
+          requestedRole,
           requestMessage
       );
 
@@ -307,6 +326,8 @@ const Students = () => {
       setRequestOpen(false);
 
       setSelectedProjectId("");
+
+      setRequestedRole("MEMBER");
 
       setRequestMessage("");
 
@@ -794,6 +815,8 @@ const Students = () => {
                 setSelectedProjectId={
                   setSelectedProjectId
                 }
+                requestedRole={requestedRole}
+                setRequestedRole={setRequestedRole}
                 message={requestMessage}
                 setMessage={setRequestMessage}
                 sending={sendingRequest}
@@ -1525,6 +1548,8 @@ const CollaborationRequestModal = ({
                                      projectsLoading,
                                      selectedProjectId,
                                      setSelectedProjectId,
+                                     requestedRole,
+                                     setRequestedRole,
                                      message,
                                      setMessage,
                                      sending,
@@ -1788,6 +1813,56 @@ const CollaborationRequestModal = ({
 
               )}
 
+            </div>
+
+            {/* SELECT ROLE */}
+
+            <div>
+              <label
+                  htmlFor="requestedRole"
+                  className="
+                    block
+                    text-sm
+                    font-semibold
+                    text-slate-700
+                    mb-2
+                  "
+              >
+                Select Role
+              </label>
+
+              <select
+                  id="requestedRole"
+                  value={requestedRole}
+                  onChange={(event) =>
+                      setRequestedRole(
+                          event.target.value
+                      )
+                  }
+                  disabled={sending}
+                  className="
+                    w-full
+                    px-4
+                    py-3
+                    rounded-xl
+                    border
+                    border-slate-300
+                    bg-white
+                    text-sm
+                    text-slate-700
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-blue-500
+                    disabled:opacity-60
+                  "
+              >
+                <option value="MEMBER">Member</option>
+                <option value="BACKEND_DEVELOPER">Backend Developer</option>
+                <option value="FRONTEND_DEVELOPER">Frontend Developer</option>
+                <option value="AI_ENGINEER">AI Engineer</option>
+                <option value="DATABASE_ENGINEER">Database Engineer</option>
+                <option value="TESTER">Tester</option>
+              </select>
             </div>
 
             {/* MESSAGE */}

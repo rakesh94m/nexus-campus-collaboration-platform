@@ -903,7 +903,7 @@ const Recommendations = () => {
                         </span>
                               </div>
                               <h3 className="text-lg font-bold text-slate-900">
-                                Project ID #{match.projectId}
+                                {match.projectTitle || `Project #${match.projectId}`}
                               </h3>
                               <p className="text-sm text-slate-500 mt-1">
                                 {match.matchType.replaceAll("_", " ")}
@@ -927,9 +927,10 @@ const Recommendations = () => {
                             />
                           </div>
 
-                          <div className="mt-4 flex justify-between text-sm text-slate-500">
-                            <span>Student #{match.studentId}</span>
-                            <span>{new Date(match.matchedAt).toLocaleDateString()}</span>
+                          <div className="mt-4 flex justify-end text-sm text-slate-500">
+                                <span>
+                                  {new Date(match.matchedAt).toLocaleDateString()}
+                                </span>
                           </div>
                         </div>
                     ))

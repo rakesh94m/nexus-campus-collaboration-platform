@@ -15,6 +15,8 @@ public class CollaborationRequestResponse {
 
     private Long id;
 
+    private Long projectId;
+
     private String senderName;
 
     private String receiverName;

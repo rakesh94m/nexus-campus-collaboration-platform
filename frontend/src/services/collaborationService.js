@@ -5,11 +5,11 @@ import api from "./api";
 // ==========================================
 
 export const getReceivedRequests = async () => {
-  const response = await api.get(
-    "/collaboration-requests/received"
-  );
+    const response = await api.get(
+        "/collaboration-requests/received"
+    );
 
-  return response.data;
+    return response.data;
 };
 
 // ==========================================
@@ -17,11 +17,11 @@ export const getReceivedRequests = async () => {
 // ==========================================
 
 export const getSentRequests = async () => {
-  const response = await api.get(
-    "/collaboration-requests/sent"
-  );
+    const response = await api.get(
+        "/collaboration-requests/sent"
+    );
 
-  return response.data;
+    return response.data;
 };
 
 // ==========================================
@@ -29,20 +29,22 @@ export const getSentRequests = async () => {
 // ==========================================
 
 export const sendCollaborationRequest = async (
-  receiverId,
-  projectId,
-  message
+    receiverId,
+    projectId,
+    requestedRole,
+    message
 ) => {
-  const response = await api.post(
-    "/collaboration-requests",
-    {
-      receiverId: Number(receiverId),
-      projectId: Number(projectId),
-      message: message.trim(),
-    }
-  );
+    const response = await api.post(
+        "/collaboration-requests",
+        {
+            receiverId: Number(receiverId),
+            projectId: Number(projectId),
+            requestedRole,
+            message: message.trim(),
+        }
+    );
 
-  return response.data;
+    return response.data;
 };
 
 // ==========================================
@@ -50,17 +52,17 @@ export const sendCollaborationRequest = async (
 // ==========================================
 
 export const updateCollaborationRequest = async (
-  id,
-  status
+    id,
+    status
 ) => {
-  const response = await api.put(
-    `/collaboration-requests/${id}`,
-    {
-      status,
-    }
-  );
+    const response = await api.put(
+        `/collaboration-requests/${id}`,
+        {
+            status,
+        }
+    );
 
-  return response.data;
+    return response.data;
 };
 
 // ==========================================
@@ -68,7 +70,7 @@ export const updateCollaborationRequest = async (
 // ==========================================
 
 export const deleteCollaborationRequest = async (id) => {
-  await api.delete(
-    `/collaboration-requests/${id}`
-  );
+    await api.delete(
+        `/collaboration-requests/${id}`
+    );
 };

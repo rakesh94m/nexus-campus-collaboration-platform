@@ -37,6 +37,10 @@ import {
 } from "../../services/projectMemberService";
 
 import {
+  getSentRequests,
+} from "../../services/collaborationService";
+
+import {
   getAllSkills,
   createSkill,
 } from "../../services/skillService";
@@ -190,6 +194,9 @@ const Projects = () => {
   const [joining, setJoining] =
       useState(false);
 
+  const [pendingRequests, setPendingRequests] =
+      useState([]);
+
   const [leavingMemberId, setLeavingMemberId] =
       useState(null);
 
@@ -202,17 +209,6 @@ const Projects = () => {
 
   const [projectMembersLoading, setProjectMembersLoading] =
       useState({});
-
-  // ==========================================
-  // LOAD DATA
-  // ==========================================
-
-  useEffect(() => {
-    loadProjects();
-    loadMemberships();
-    loadAllSkills();
-    loadProjectMatches();
-  }, []);
 
   // ==========================================
   // LOAD ALL MASTER SKILLS (for the required-skill
@@ -349,6 +345,31 @@ const Projects = () => {
   };
 
   // ==========================================
+  // LOAD MY PENDING COLLABORATION REQUESTS
+  // ==========================================
+
+  const loadPendingRequests = async () => {
+    try {
+      const data = await getSentRequests();
+
+      const pending =
+          Array.isArray(data)
+              ? data.filter(
+                  (request) =>
+                      request.status === "PENDING"
+              )
+              : [];
+
+      setPendingRequests(pending);
+    } catch (error) {
+      console.error(
+          "Pending requests error:",
+          error
+      );
+    }
+  };
+
+  // ==========================================
   // LOAD ALL MEMBERS OF A PROJECT
   // ==========================================
 
@@ -394,6 +415,18 @@ const Projects = () => {
       );
     }
   };
+
+  // ==========================================
+  // LOAD DATA (useEffect moved down to fix ESLint)
+  // ==========================================
+
+  useEffect(() => {
+    loadProjects();
+    loadMemberships();
+    loadAllSkills();
+    loadProjectMatches();
+    loadPendingRequests();
+  }, []);
 
   // ==========================================
   // FORM CHANGE
@@ -776,10 +809,39 @@ const Projects = () => {
   // ==========================================
 
   const handleJoinProject = async (projectId) => {
+
+    // Prevent duplicate click if already pending
+    const alreadyPending =
+        pendingRequests.some(
+            (request) =>
+                Number(request.projectId) ===
+                Number(projectId) &&
+                request.status === "PENDING"
+        );
+
+    if (alreadyPending) {
+      toast("Join request already pending ⏳");
+      return;
+    }
+
     setJoining(true);
 
     try {
-      await joinProject(projectId, joinRole);
+
+      const response =
+          await joinProject(
+              projectId,
+              joinRole
+          );
+
+      // Immediately add the new request
+      // to local pending state
+      setPendingRequests(
+          (previous) => [
+            ...previous,
+            response,
+          ]
+      );
 
       setJoinProjectId(null);
       setJoinRole("MEMBER");
@@ -789,16 +851,41 @@ const Projects = () => {
       );
 
       await loadProjects();
+
     } catch (error) {
-      console.error("Join request error:", error);
+
+      console.error(
+          "Join request error:",
+          error
+      );
+
+      // =========================================
+      // HANDLE 409 DUPLICATE REQUEST
+      // =========================================
+
+      if (error.response?.status === 409) {
+
+        toast("Join request already pending ⏳");
+
+        // Get latest request state from backend
+        await loadPendingRequests();
+
+        setJoinProjectId(null);
+        setJoinRole("MEMBER");
+
+        return;
+      }
 
       const message =
           error.response?.data?.message ||
           "Unable to send request.";
 
       toast.error(message);
+
     } finally {
+
       setJoining(false);
+
     }
   };
 
@@ -2510,174 +2597,40 @@ const Projects = () => {
 
                             </div>
 
-                            {/* ROLE */}
+                            {/* ROLE + LEAVE */}
 
-                            {editingMemberId ===
-                            membership.id ? (
-
-                                <div
-                                    className="flex
-                                   flex-col
-                                   sm:flex-row
-                                   gap-2"
-                                >
-
-                                  <select
-                                      value={
-                                        editingRole
-                                      }
-                                      onChange={(
-                                          event
-                                      ) =>
-                                          setEditingRole(
-                                              event.target.value
-                                          )
-                                      }
-                                      disabled={
-                                        updatingMember
-                                      }
-                                      className="px-3
-                                     py-2
-                                     rounded-lg
-                                     border
-                                     border-slate-300
-                                     text-sm
-                                     focus:outline-none
-                                     focus:ring-2
-                                     focus:ring-blue-500"
-                                  >
-
-                                    {MEMBER_ROLES.map(
-                                        (role) => (
-                                            <option
-                                                key={
-                                                  role.value
-                                                }
-                                                value={
-                                                  role.value
-                                                }
-                                            >
-                                              {
-                                                role.label
-                                              }
-                                            </option>
-                                        )
-                                    )}
-
-                                  </select>
-
-                                  <button
-                                      onClick={() =>
-                                          handleUpdateMember(
-                                              membership
-                                          )
-                                      }
-                                      disabled={
-                                        updatingMember
-                                      }
-                                      className="inline-flex
-                                     items-center
-                                     justify-center
-                                     gap-2
-                                     px-3
-                                     py-2
-                                     rounded-lg
-                                     bg-blue-600
-                                     text-white
-                                     text-sm
-                                     font-semibold
-                                     hover:bg-blue-700
-                                     disabled:opacity-50"
-                                  >
-                                    <Save
-                                        size={15}
-                                    />
-                                    Save
-                                  </button>
-
-                                  <button
-                                      onClick={
-                                        cancelEditMember
-                                      }
-                                      disabled={
-                                        updatingMember
-                                      }
-                                      className="px-3
-                                     py-2
-                                     rounded-lg
-                                     border
-                                     border-slate-300
-                                     text-slate-600
-                                     text-sm
-                                     font-semibold
-                                     hover:bg-slate-50"
-                                  >
-                                    Cancel
-                                  </button>
-
-                                </div>
-
-                            ) : (
-
-                                <div
-                                    className="flex
+                            <div
+                                className="flex
                                    flex-wrap
                                    items-center
                                    gap-2"
-                                >
+                            >
 
-                        <span
-                            className="px-3
+                              <span
+                                  className="px-3
                                      py-1.5
                                      rounded-lg
                                      bg-blue-50
                                      text-blue-700
                                      text-xs
                                      font-semibold"
-                        >
-                          {getRoleLabel(
-                              membership.role
-                          )}
-                        </span>
+                              >
+                                {getRoleLabel(
+                                    membership.role
+                                )}
+                              </span>
 
-                                  {membership.role !== "LEADER" && (
-                                      <button
-                                          onClick={() =>
-                                              startEditMember(
-                                                  membership
-                                              )
-                                          }
-                                          className="inline-flex
-                                       items-center
-                                       gap-1.5
-                                       px-3
-                                       py-1.5
-                                       rounded-lg
-                                       border
-                                       border-slate-300
-                                       text-slate-600
-                                       text-xs
-                                       font-semibold
-                                       hover:bg-slate-50"
-                                      >
-                                        <Pencil
-                                            size={13}
-                                        />
-                                        Edit Role
-                                      </button>
-                                  )}
-
-                                  <button
-                                      onClick={() =>
-                                          handleLeaveProject(
-                                              membership
-                                          )
-                                      }
-                                      disabled={
-                                          leavingMemberId ===
-                                          membership.id
-                                      }
-                                      className="inline-flex
+                              <button
+                                  onClick={() =>
+                                      handleLeaveProject(
+                                          membership
+                                      )
+                                  }
+                                  disabled={
+                                      leavingMemberId ===
+                                      membership.id
+                                  }
+                                  className="inline-flex
                                      items-center
                                      gap-1.5
                                      px-3
@@ -2690,21 +2643,19 @@ const Projects = () => {
                                      font-semibold
                                      hover:bg-red-50
                                      disabled:opacity-50"
-                                  >
-                                    <LogOut
-                                        size={13}
-                                    />
+                              >
+                                <LogOut
+                                    size={13}
+                                />
 
-                                    {leavingMemberId ===
-                                    membership.id
-                                        ? "Leaving..."
-                                        : "Leave"}
+                                {leavingMemberId ===
+                                membership.id
+                                    ? "Leaving..."
+                                    : "Leave"}
 
-                                  </button>
+                              </button>
 
-                                </div>
-
-                            )}
+                            </div>
 
                           </div>
 
@@ -2800,8 +2751,16 @@ const Projects = () => {
                       const alreadyJoined =
                           memberships.some(
                               (membership) =>
-                                  membership.projectTitle ===
-                                  project.projectTitle
+                                  Number(membership.projectId) ===
+                                  Number(project.id)
+                          );
+
+                      const requestPending =
+                          pendingRequests.some(
+                              (request) =>
+                                  Number(request.projectId) ===
+                                  Number(project.id) &&
+                                  request.status === "PENDING"
                           );
 
                       return (
@@ -3145,6 +3104,31 @@ const Projects = () => {
                                 >
                                   Already a member
                                 </div>
+
+                            ) : requestPending ? (
+
+                                <button
+                                    type="button"
+                                    disabled
+                                    className="mt-4
+                                   w-full
+                                   inline-flex
+                                   items-center
+                                   justify-center
+                                   gap-2
+                                   px-4
+                                   py-2.5
+                                   rounded-lg
+                                   bg-amber-50
+                                   text-amber-700
+                                   border
+                                   border-amber-200
+                                   text-sm
+                                   font-semibold
+                                   cursor-not-allowed"
+                                >
+                                  Request Pending ⏳
+                                </button>
 
                             ) : (
 

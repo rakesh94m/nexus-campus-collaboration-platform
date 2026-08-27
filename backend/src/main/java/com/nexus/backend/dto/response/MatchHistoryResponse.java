@@ -16,7 +16,11 @@ public class MatchHistoryResponse {
 
     private Long studentId;
 
+    private String studentName;
+
     private Long projectId;
+
+    private String projectTitle;
 
     private MatchType matchType;
 
