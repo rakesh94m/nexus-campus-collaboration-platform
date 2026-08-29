@@ -19,6 +19,14 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.username}")
     private String sender;
 
+    @Value("${support.email}")
+    private String supportEmail;
+
+
+    // ==========================================
+    // SEND OTP EMAIL
+    // ==========================================
+
     @Override
     public void sendOtpEmail(
             String email,
@@ -76,6 +84,100 @@ public class EmailServiceImpl implements EmailService {
 
             throw new RuntimeException(
                     "Failed to send OTP email. Please try again later."
+            );
+        }
+    }
+
+
+    // ==========================================
+    // SEND SUPPORT TICKET EMAIL
+    // ==========================================
+
+    @Override
+    public void sendSupportTicketEmail(
+            String studentName,
+            String studentEmail,
+            String category,
+            String subject,
+            String ticketMessage
+    ) {
+
+        log.info(
+                "Preparing support ticket email from student {} to support {}",
+                studentEmail,
+                supportEmail
+        );
+
+        SimpleMailMessage message =
+                new SimpleMailMessage();
+
+        message.setFrom(sender);
+
+        message.setTo(supportEmail);
+
+        message.setSubject(
+                "[NEXUS SUPPORT] " + subject
+        );
+
+        message.setText(
+                "New Support Ticket Received\n\n"
+
+                        + "Student Name: "
+                        + studentName
+                        + "\n"
+
+                        + "Student Email: "
+                        + studentEmail
+                        + "\n"
+
+                        + "Category: "
+                        + category
+                        + "\n\n"
+
+                        + "Subject:\n"
+                        + subject
+                        + "\n\n"
+
+                        + "Message:\n"
+                        + ticketMessage
+                        + "\n\n"
+
+                        + "----------------------------------\n"
+                        + "NEXUS Support System"
+        );
+
+        try {
+
+            log.info(
+                    "Sending support ticket email to {}",
+                    supportEmail
+            );
+
+            mailSender.send(message);
+
+            log.info(
+                    "Support ticket email successfully sent to {}",
+                    supportEmail
+            );
+
+        } catch (MailException exception) {
+
+            log.error(
+                    "Failed to send support ticket email to {}",
+                    supportEmail,
+                    exception
+            );
+
+            /*
+             * Important:
+             * The support ticket is still saved in the database.
+             *
+             * Email notification failure should not prevent
+             * the student from creating a support ticket.
+             */
+
+            log.warn(
+                    "Support ticket was saved, but email notification failed."
             );
         }
     }

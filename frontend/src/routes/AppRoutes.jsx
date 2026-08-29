@@ -18,6 +18,8 @@ import CareerRoadmap from "../pages/career/CareerRoadmap";
 import ProtectedRoute from "./ProtectedRoute";
 import Goals from "../pages/goals/Goals";
 
+import Support from "../pages/support/Support";
+
 const AppRoutes = () => {
   return (
     <Routes>
@@ -122,7 +124,14 @@ const AppRoutes = () => {
           element={<Notifications />}
         />
 
+          {/* ==========================================
+                HELP & SUPPORT
+            ========================================== */}
 
+              <Route
+                  path="/support"
+                  element={<Support />}
+              />
         {/* ==========================================
             AI RECOMMENDATIONS
         ========================================== */}
