@@ -14,6 +14,11 @@ public interface AuthService {
     // OTP Registration
     String sendRegistrationOtp(String email);
 
+    String verifyRegistrationOtpCode(
+            String email,
+            String otp
+    );
+
     AuthResponse verifyRegistrationOtp(RegisterRequest request);
 
     // Forgot Password

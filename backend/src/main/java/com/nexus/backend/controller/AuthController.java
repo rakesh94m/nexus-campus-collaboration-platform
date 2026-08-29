@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.nexus.backend.dto.request.VerifyOtpRequest;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -45,6 +46,22 @@ public class AuthController {
                 authService.sendRegistrationOtp(request.getEmail())
         );
     }
+
+    // ==========================================
+    // VERIFY REGISTRATION OTP
+    // ==========================================
+
+        @PostMapping("/verify-registration-otp")
+        public ResponseEntity<String> verifyRegistrationOtp(
+                @Valid @RequestBody VerifyOtpRequest request) {
+
+            return ResponseEntity.ok(
+                    authService.verifyRegistrationOtpCode(
+                            request.getEmail(),
+                            request.getOtp()
+                    )
+            );
+        }
 
     // ==========================================
     // LOGIN

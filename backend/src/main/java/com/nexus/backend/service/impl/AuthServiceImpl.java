@@ -92,15 +92,68 @@ public class AuthServiceImpl implements AuthService {
     }
 
     // ==========================================
+    // VERIFY REGISTRATION OTP CODE
+    // ==========================================
+
+    @Override
+    @Transactional
+    public String verifyRegistrationOtpCode(
+            String email,
+            String otp
+    ) {
+
+        EmailOtp emailOtp = emailOtpRepository
+                .findTopByEmailAndPurposeOrderByIdDesc(
+                        email,
+                        OtpPurpose.REGISTER
+                )
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "OTP not found."
+                        )
+                );
+
+        // Check expiry
+        if (LocalDateTime.now()
+                .isAfter(emailOtp.getExpiresAt())) {
+
+            throw new IllegalArgumentException(
+                    "OTP expired. Please request a new OTP."
+            );
+        }
+
+        // Check OTP
+        if (!emailOtp.getOtp().equals(otp)) {
+
+            throw new IllegalArgumentException(
+                    "Invalid OTP."
+            );
+        }
+
+        // Mark OTP as verified
+        emailOtp.setVerified(true);
+
+        emailOtpRepository.save(emailOtp);
+
+        return "Email verified successfully.";
+    }
+
+    // ==========================================
     // VERIFY OTP + REGISTER
     // ==========================================
 
     @Override
     @Transactional
-    public AuthResponse verifyRegistrationOtp(RegisterRequest request) {
+    public AuthResponse verifyRegistrationOtp(
+            RegisterRequest request
+    ) {
 
-        if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new IllegalArgumentException("Passwords do not match.");
+        if (!request.getPassword()
+                .equals(request.getConfirmPassword())) {
+
+            throw new IllegalArgumentException(
+                    "Passwords do not match."
+            );
         }
 
         EmailOtp emailOtp = emailOtpRepository
@@ -109,26 +162,61 @@ public class AuthServiceImpl implements AuthService {
                         OtpPurpose.REGISTER
                 )
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("OTP not found.")
+                        new ResourceNotFoundException(
+                                "Email verification not found."
+                        )
                 );
 
-        if (LocalDateTime.now().isAfter(emailOtp.getExpiresAt())) {
-            throw new IllegalArgumentException("OTP expired.");
+        // ==========================================
+        // Email must already be verified
+        // ==========================================
+
+        if (!Boolean.TRUE.equals(emailOtp.getVerified())) {
+
+            throw new IllegalArgumentException(
+                    "Please verify your email before creating an account."
+            );
         }
 
-        if (!emailOtp.getOtp().equals(request.getOtp())) {
-            throw new IllegalArgumentException("Invalid OTP.");
+        // ==========================================
+        // Prevent duplicate email
+        // ==========================================
+
+        if (studentRepository
+                .existsByEmail(request.getEmail())) {
+
+            throw new DuplicateResourceException(
+                    "Email already registered."
+            );
         }
 
-        if (studentRepository.existsByRollNumber(request.getRollNumber())) {
-            throw new DuplicateResourceException("Roll number already exists.");
+        // ==========================================
+        // Prevent duplicate roll number
+        // ==========================================
+
+        if (studentRepository
+                .existsByRollNumber(
+                        request.getRollNumber()
+                )) {
+
+            throw new DuplicateResourceException(
+                    "Roll number already exists."
+            );
         }
+
+        // ==========================================
+        // Create Student
+        // ==========================================
 
         Student student = Student.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .password(
+                        passwordEncoder.encode(
+                                request.getPassword()
+                        )
+                )
                 .rollNumber(request.getRollNumber())
                 .department(request.getDepartment())
                 .year(request.getYear())
@@ -138,21 +226,30 @@ public class AuthServiceImpl implements AuthService {
                 .emailVerified(true)
                 .build();
 
-        Student saved = studentRepository.save(student);
+        Student saved =
+                studentRepository.save(student);
 
+        // Remove OTP after successful registration
         emailOtpRepository.delete(emailOtp);
 
-        String token = jwtService.generateToken(
-                new CustomUserDetails(saved)
-        );
+        String token =
+                jwtService.generateToken(
+                        new CustomUserDetails(saved)
+                );
 
         return AuthResponse.builder()
                 .studentId(saved.getId())
-                .fullName(saved.getFirstName() + " " + saved.getLastName())
+                .fullName(
+                        saved.getFirstName()
+                                + " "
+                                + saved.getLastName()
+                )
                 .email(saved.getEmail())
                 .role(saved.getRole().name())
                 .token(token)
-                .message("Registration successful.")
+                .message(
+                        "Registration successful."
+                )
                 .build();
     }
 

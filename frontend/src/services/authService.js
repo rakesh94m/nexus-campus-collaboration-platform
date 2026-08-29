@@ -17,6 +17,7 @@ export const loginUser = async (email, password) => {
 // ==========================================
 export const registerUser = async (userData) => {
   const response = await api.post("/auth/register", userData);
+
   return response.data;
 };
 
@@ -26,6 +27,18 @@ export const registerUser = async (userData) => {
 export const sendRegistrationOtp = async (data) => {
   const response = await api.post(
       "/auth/send-registration-otp",
+      data
+  );
+
+  return response.data;
+};
+
+// ==========================================
+// VERIFY REGISTRATION OTP
+// ==========================================
+export const verifyRegistrationOtp = async (data) => {
+  const response = await api.post(
+      "/auth/verify-registration-otp",
       data
   );
 

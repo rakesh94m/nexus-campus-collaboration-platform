@@ -2,13 +2,16 @@ package com.nexus.backend.service.impl;
 
 import com.nexus.backend.service.EmailService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
@@ -21,6 +24,12 @@ public class EmailServiceImpl implements EmailService {
             String email,
             String otp
     ) {
+
+        log.info(
+                "Preparing OTP email from {} to {}",
+                sender,
+                email
+        );
 
         SimpleMailMessage message =
                 new SimpleMailMessage();
@@ -43,6 +52,31 @@ public class EmailServiceImpl implements EmailService {
                         + "Do not share this code with anyone."
         );
 
-        mailSender.send(message);
+        try {
+
+            log.info(
+                    "Sending OTP email to {}",
+                    email
+            );
+
+            mailSender.send(message);
+
+            log.info(
+                    "OTP email successfully sent to {}",
+                    email
+            );
+
+        } catch (MailException exception) {
+
+            log.error(
+                    "Failed to send OTP email to {}",
+                    email,
+                    exception
+            );
+
+            throw new RuntimeException(
+                    "Failed to send OTP email. Please try again later."
+            );
+        }
     }
 }
