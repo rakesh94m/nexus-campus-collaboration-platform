@@ -2,22 +2,33 @@
 
 > **AI-Powered Campus Capability & Collaboration Network**
 
-NEXUS is a full-stack campus collaboration platform designed to help students discover peers, showcase their skills and interests, form project teams, manage collaboration requests, and receive AI-powered recommendations and career roadmaps.
+NEXUS is a full-stack campus collaboration platform designed to help students discover peers, showcase their skills and interests, form project teams, manage collaboration requests, track support requests, and receive AI-powered recommendations and personalized career roadmaps.
+
+---
 
 ## 🚀 Features
 
+### 🔐 Authentication
+- Secure student registration and login
+- JWT-based authentication
+- Protected authenticated API requests
+- Password management
+- Account and availability status support
+
 ### 👤 Student Profile
 - Manage personal and academic information
-- Add professional bio and career links
-- GitHub, LinkedIn, and resume links
+- Add a professional bio
+- Add GitHub, LinkedIn, and resume links
 - Profile completion tracking
 - Availability status management
+- View student information and capabilities
 
 ### 🛠️ Skills
 - Add and manage skills
 - Set proficiency levels
 - Skill suggestions and autocomplete
-- Skill summaries and diversity insights
+- View skill summaries
+- Track skill diversity and proficiency
 
 ### ❤️ Interests
 - Add and manage personal and professional interests
@@ -26,7 +37,8 @@ NEXUS is a full-stack campus collaboration platform designed to help students di
 
 ### 🎯 Goals
 - Create personal and professional goals
-- Track progress through Not Started, In Progress, and Completed states
+- Track goal progress
+- Manage Not Started, In Progress, and Completed states
 
 ### 📂 Project Management
 - Create and manage projects
@@ -34,15 +46,20 @@ NEXUS is a full-stack campus collaboration platform designed to help students di
 - Discover available projects
 - Join projects with selected roles
 - Manage project members
+- View project skill requirements
 
 ### 🤝 Collaboration
+- Discover students across campus
 - Send collaboration requests
 - Include project and role information
-- Accept or reject requests
+- Accept or reject collaboration requests
 - Track sent and received requests
+- View collaboration request status
 
 ### 🔍 Find Students
-Search students by:
+
+Search and discover students by:
+
 - Name
 - Roll number
 - Department
@@ -52,17 +69,20 @@ View student profiles, skills, availability, and send collaboration requests.
 
 ### 🧠 AI Recommendations
 - Discover suitable project opportunities
-- View project matching scores
-- Generate AI recommendation analysis
+- View student-project matching scores
+- Generate AI-based recommendation analysis
+- Understand project suitability and collaboration potential
 - Track recommendation history
 
 ### 🗺️ AI Career Roadmap
+
 Generate personalized career guidance including:
+
 - Missing skills
 - Recommended learning steps
 - Career advice
 - Certification suggestions
-- Roadmap history
+- Personalized career roadmap history
 
 ### 🔔 Notifications
 - View campus and collaboration updates
@@ -72,16 +92,26 @@ Generate personalized career guidance including:
 - Delete notifications
 - Display latest notifications first
 
-### 🆘 Support
+### 🆘 Support Tickets
 - Create support tickets
 - Select support categories
-- Track submitted tickets and their status
+- Describe technical or account-related issues
+- Track submitted tickets
+- View ticket status
+- Refresh support ticket history
+
+### 🏆 Achievement Management
+
+The backend includes Achievement management functionality with CRUD support for student achievements.
+
+Achievement functionality is currently supported through the backend architecture and database design.
 
 ---
 
 ## 🏗️ Technology Stack
 
 ### Frontend
+
 - React
 - Vite
 - Tailwind CSS
@@ -89,19 +119,28 @@ Generate personalized career guidance including:
 - JavaScript
 
 ### Backend
+
 - Spring Boot
-- Spring Data JPA / Hibernate
+- Spring Data JPA
+- Hibernate
 - Spring Security
 - JWT Authentication
 - Maven
 
 ### Database
+
 - PostgreSQL
 
+### AI
+
+- Google Gemini API
+
 ### Development Tools
+
 - VS Code
 - pgAdmin 4
 - Postman
+- Git
 - GitHub
 
 ---
@@ -113,39 +152,50 @@ NEXUS
 │
 ├── Authentication
 │   ├── Login
-│   └── Registration
+│   ├── Registration
+│   └── JWT Authentication
 │
 ├── Student Profile
 │   ├── Personal Information
+│   ├── Academic Information
 │   ├── Skills
 │   ├── Interests
-│   └── Goals
-│
-├── Collaboration
-│   ├── Find Students
-│   ├── Collaboration Requests
-│   └── Project Matching
+│   ├── Goals
+│   └── Availability Management
 │
 ├── Projects
 │   ├── Create Projects
+│   ├── Edit Projects
 │   ├── Join Projects
 │   ├── Required Skills
-│   └── Team Management
+│   ├── Team Management
+│   └── Project Matching
+│
+├── Collaboration
+│   ├── Find Students
+│   ├── Student Discovery
+│   ├── Collaboration Requests
+│   └── Request Management
 │
 ├── AI Intelligence
-│   ├── Recommendations
+│   ├── Project Recommendations
+│   ├── AI Recommendation Analysis
+│   ├── Match History
 │   └── Career Roadmap
 │
 └── Updates & Support
     ├── Notifications
-    └── Support Tickets
+    ├── Support Tickets
+    └── Achievement Management
 ```
 
 ---
 
 ## 🗄️ Database Design
 
-The system is designed around these core entities:
+NEXUS uses a normalized PostgreSQL database with **17 interconnected entities** designed to support student capability discovery, collaboration, project management, AI recommendations, notifications, support functionality, and career development.
+
+Core entities include:
 
 - Student
 - Skill
@@ -162,8 +212,61 @@ The system is designed around these core entities:
 - Notification
 - Achievement
 - Certification
+- SupportTicket
 
-PostgreSQL is used as the database, with relationships managed through Spring Data JPA and Hibernate.
+The database also contains additional supporting entities required by the current backend architecture.
+
+Relationships are managed through:
+
+- Spring Data JPA
+- Hibernate
+- JPA entity mappings
+- Foreign key relationships
+
+The Student entity acts as a central entity and connects student capabilities, interests, goals, projects, collaboration requests, achievements, notifications, and other platform functionality.
+
+> PostgreSQL is used as the primary relational database for the NEXUS platform.
+
+---
+
+## 🏛️ System Architecture
+
+```text
+┌───────────────────────────────┐
+│       React Frontend          │
+│                               │
+│  React + Vite + Tailwind CSS  │
+└───────────────┬───────────────┘
+                │
+                │ REST API / HTTP
+                │ JWT Authentication
+                ▼
+┌───────────────────────────────┐
+│      Spring Boot Backend      │
+│                               │
+│ Controllers                  │
+│ Services                     │
+│ Repositories                 │
+│ Security / JWT               │
+└───────────────┬───────────────┘
+                │
+                │ Spring Data JPA
+                │ Hibernate
+                ▼
+┌───────────────────────────────┐
+│       PostgreSQL Database     │
+│                               │
+│       17 Entities             │
+└───────────────────────────────┘
+                │
+                │
+                ▼
+┌───────────────────────────────┐
+│         AI Services           │
+│                               │
+│       Google Gemini API       │
+└───────────────────────────────┘
+```
 
 ---
 
@@ -173,27 +276,90 @@ PostgreSQL is used as the database, with relationships managed through Spring Da
 NEXUS/
 │
 ├── frontend/
+│   │
 │   ├── src/
-│   │   ├── components/
+│   │   ├── context/
 │   │   ├── pages/
 │   │   ├── services/
+│   │   ├── utils/
 │   │   ├── App.jsx
-│   │   └── main.jsx
+│   │   ├── main.jsx
+│   │   └── index.css
+│   │
+│   ├── public/
 │   ├── package.json
-│   └── vite.config.js
+│   ├── package-lock.json
+│   ├── vite.config.js
+│   └── index.html
 │
 ├── backend/
+│   │
 │   ├── src/
-│   │   └── main/
-│   │       ├── java/
-│   │       └── resources/
+│   │   ├── main/
+│   │   │   ├── java/
+│   │   │   │   └── com/nexus/backend/
+│   │   │   │       ├── controller/
+│   │   │   │       ├── dto/
+│   │   │   │       ├── entity/
+│   │   │   │       ├── repository/
+│   │   │   │       ├── service/
+│   │   │   │       └── service/impl/
+│   │   │   │
+│   │   │   └── resources/
+│   │   │       └── application.properties
+│   │
+│   ├── src/test/
 │   ├── pom.xml
-│   └── ...
+│   ├── mvnw
+│   ├── mvnw.cmd
+│   └── .mvn/
 │
-└── README.md
+├── README.md
+└── .gitignore
 ```
 
-> The exact folder structure may vary depending on the repository configuration.
+> The exact internal package structure may evolve as the project continues to develop.
+
+---
+
+## 🔄 Application Flow
+
+```text
+Student
+   │
+   ▼
+Login / Registration
+   │
+   ▼
+JWT Authentication
+   │
+   ▼
+React Frontend
+   │
+   ├── Profile
+   ├── Skills
+   ├── Interests
+   ├── Goals
+   ├── Projects
+   ├── Find Students
+   ├── Collaboration
+   ├── AI Recommendations
+   ├── Career Roadmap
+   ├── Notifications
+   └── Support
+   │
+   ▼
+Spring Boot REST APIs
+   │
+   ▼
+Service Layer
+   │
+   ▼
+Repository Layer
+   │
+   ▼
+PostgreSQL Database
+```
 
 ---
 
@@ -210,28 +376,63 @@ Install:
 - PostgreSQL
 - Git
 
-### Frontend Setup
+---
+
+## 💻 Frontend Setup
+
+Navigate to the frontend directory:
 
 ```bash
 cd frontend
+```
+
+Install dependencies:
+
+```bash
 npm install
+```
+
+Start the development server:
+
+```bash
 npm run dev
 ```
 
-Production build:
+Create a production build:
 
 ```bash
 npm run build
 ```
 
-### Backend Setup
+---
+
+## ☕ Backend Setup
+
+Navigate to the backend directory:
 
 ```bash
 cd backend
+```
+
+Run the Spring Boot application:
+
+```bash
 mvn spring-boot:run
 ```
 
-Configure the PostgreSQL connection in the backend application configuration before starting the server.
+Alternatively, if using the Maven Wrapper:
+
+```bash
+./mvnw spring-boot:run
+```
+
+Windows:
+
+```bash
+mvnw.cmd spring-boot:run
+```
+
+Configure the PostgreSQL connection and required environment values before starting the backend.
 
 ---
 
@@ -239,11 +440,11 @@ Configure the PostgreSQL connection in the backend application configuration bef
 
 1. Install PostgreSQL.
 2. Create a database for NEXUS.
-3. Configure the database credentials in the backend configuration.
+3. Configure the database connection in the backend configuration.
 4. Start the Spring Boot backend.
 5. Verify the required tables using pgAdmin.
 
-Example:
+Example configuration:
 
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/nexus
@@ -251,7 +452,7 @@ spring.datasource.username=YOUR_USERNAME
 spring.datasource.password=YOUR_PASSWORD
 ```
 
-> Never commit passwords, JWT secrets, API keys, or other sensitive credentials.
+> Never commit real passwords, JWT secrets, API keys, database credentials, or other sensitive values to GitHub.
 
 ---
 
@@ -264,31 +465,48 @@ Student
    ↓
 Login / Register
    ↓
-Backend Authentication
+Spring Boot Authentication
    ↓
-JWT Token
+JWT Token Generated
+   ↓
+Token Stored by Frontend
    ↓
 Authenticated API Requests
+   ↓
+Protected Backend Endpoints
 ```
 
 ---
 
 ## 🧠 AI Capabilities
 
-### Project Matching
-Students receive recommendations based on their capabilities and project requirements.
+### 🎯 Project Matching
 
-### AI Recommendation Analysis
-The system can generate additional AI-based insights for project matches.
+Students can discover projects based on their capabilities and project requirements.
 
-### Career Roadmap Generation
-Personalized roadmaps can include career goals, missing skills, learning steps, career advice, and certification suggestions.
+Matching considers relevant student skills and project skill requirements to estimate suitability.
+
+### ✨ AI Recommendation Analysis
+
+The platform can generate additional AI-powered insights to help students understand project recommendations and potential collaboration opportunities.
+
+### 🗺️ Career Roadmap Generation
+
+Personalized career roadmaps can include:
+
+- Career direction
+- Missing skills
+- Recommended learning steps
+- Career advice
+- Certification suggestions
+
+Generated roadmaps can be stored and reviewed through roadmap history.
 
 ---
 
 ## 🎨 UI/UX Redesign
 
-The NEXUS frontend completed a full 9-phase UI/UX improvement process.
+The NEXUS frontend completed a full **9-phase UI/UX improvement process**.
 
 | Phase | Scope |
 |---|---|
@@ -303,6 +521,7 @@ The NEXUS frontend completed a full 9-phase UI/UX improvement process.
 | 9 | Notifications and support |
 
 The redesign focuses on:
+
 - Responsive layouts
 - Consistent design patterns
 - Accessible controls
@@ -311,6 +530,8 @@ The redesign focuses on:
 - Consistent modal design
 - Better loading states
 - Mobile responsiveness
+- Consistent typography and spacing
+- Improved form usability
 
 ---
 
@@ -328,7 +549,8 @@ OLDEST
 
 The latest notification appears at the top of the Notifications page.
 
-This ordering works with:
+This ordering applies to:
+
 - All notifications
 - Unread notifications
 - Read notifications
@@ -339,30 +561,110 @@ This ordering works with:
 
 Before deployment, verify:
 
-- Authentication flow
+### Authentication
+
+- Student registration
+- Login
+- JWT authentication
+- Protected routes
+
+### Student Profile
+
 - Profile updates
+- Availability updates
+- Social links
+- Password changes
+
+### Student Capabilities
+
 - Skill management
 - Interest management
 - Goal management
-- Project creation and joining
-- Collaboration requests
-- Student search
-- AI recommendations
-- Career roadmap generation
-- Notification actions and ordering
-- Support ticket creation
 
-Frontend build:
+### Projects & Collaboration
+
+- Project creation
+- Project updates
+- Project joining
+- Project member management
+- Student search
+- Collaboration requests
+- Accept/reject collaboration requests
+
+### AI Features
+
+- Project recommendations
+- Match history
+- AI recommendation analysis
+- Career roadmap generation
+- Career roadmap history
+
+### Updates & Support
+
+- Notification loading
+- Notification filtering
+- Mark notifications as read
+- Mark all notifications as read
+- Notification deletion
+- Notification ordering
+- Support ticket creation
+- Support ticket status tracking
+
+### Build Verification
+
+Frontend:
 
 ```bash
+cd frontend
 npm run build
+```
+
+Backend:
+
+```bash
+cd backend
+mvn clean package
 ```
 
 ---
 
-## 🚀 Future Improvements
+## 🚀 Deployment
 
-Potential future enhancements:
+NEXUS is currently under development and deployment preparation.
+
+The application architecture supports independent deployment of:
+
+```text
+Frontend
+   ↓
+React + Vite Production Build
+   ↓
+Static Hosting
+
+Backend
+   ↓
+Spring Boot Application
+   ↓
+Cloud Application Hosting
+
+Database
+   ↓
+Managed PostgreSQL
+```
+
+The frontend and backend can be deployed independently while communicating through REST APIs.
+
+Potential deployment platforms include:
+
+- Microsoft Azure
+- Vercel
+- AWS
+
+---
+
+## 🔮 Future Improvements
+
+Potential future enhancements include:
 
 - Advanced AI teammate matching
 - Real-time notifications using WebSockets
@@ -373,6 +675,7 @@ Potential future enhancements:
 - Student portfolio generation
 - Advanced analytics
 - Admin dashboard
+- Enhanced achievement management
 - Cloud deployment
 - Mobile application
 
