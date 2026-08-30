@@ -1,1 +1,37 @@
+# =========================
+# IDE
+# =========================
 .idea/
+.vscode/
+
+# =========================
+# Frontend
+# =========================
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.vite/
+frontend/.vite-temp/
+
+# Frontend environment files
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Frontend logs
+frontend/npm-debug.log*
+
+# =========================
+# Backend
+# =========================
+backend/target/
+
+# Backend environment files
+backend/.env
+backend/.env.local
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
