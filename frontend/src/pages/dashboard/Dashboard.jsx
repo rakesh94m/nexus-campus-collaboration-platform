@@ -12,12 +12,45 @@ import {
   Target,
   Trophy,
   Users,
+  Bell,
+  Send,
+  ArrowUpRight,
+  BrainCircuit,
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
 import { getDashboard } from "../../services/dashboardService";
 import { getMyProfile } from "../../services/studentService";
 import DashboardLayout from "../../components/layout/DashboardLayout";
+
+// ==========================================
+// TIME-BASED GREETING (UI only, no logic)
+// ==========================================
+
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+};
+
+// ==========================================
+// STAT CARD ACCENT CONFIG (visual only)
+// Defines per-card colour tokens — no data change
+// ==========================================
+
+const STAT_ACCENTS = {
+  Projects:       { bg: "bg-blue-50",   icon: "text-blue-600",   val: "text-blue-700"   },
+  Skills:         { bg: "bg-purple-50", icon: "text-purple-600", val: "text-purple-700" },
+  Interests:      { bg: "bg-pink-50",   icon: "text-pink-600",   val: "text-pink-700"   },
+  Achievements:   { bg: "bg-amber-50",  icon: "text-amber-600",  val: "text-amber-700"  },
+  Certifications: { bg: "bg-green-50",  icon: "text-green-600",  val: "text-green-700"  },
+  Goals:          { bg: "bg-indigo-50", icon: "text-indigo-600", val: "text-indigo-700" },
+};
+
+// ==========================================
+// DASHBOARD COMPONENT
+// ==========================================
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -58,38 +91,44 @@ const Dashboard = () => {
     loadDashboard();
   }, [student]);
 
+  // ==========================================
+  // LOADING STATE
+  // ==========================================
+
   if (loading) {
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center">
           <div className="text-center">
-
-            <div className="w-10 h-10 border-4 border-blue-600
-                          border-t-transparent rounded-full
-                          animate-spin mx-auto mb-4" />
-
+            <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <p className="text-slate-600 font-medium">
               Loading your dashboard...
             </p>
-
           </div>
         </div>
     );
   }
 
+  // ==========================================
+  // NOT AUTHENTICATED
+  // ==========================================
+
   if (!student) {
     return (
         <div className="min-h-screen flex items-center justify-center">
-
           <button
               onClick={() => navigate("/login")}
               className="px-5 py-3 bg-blue-600 text-white rounded-lg"
           >
             Go to Login
           </button>
-
         </div>
     );
   }
+
+  // ==========================================
+  // PROFILE COMPLETION CALCULATION
+  // (logic untouched — only display improved)
+  // ==========================================
 
   const profileCompletion = (() => {
     if (!profile) return 0;
@@ -110,6 +149,11 @@ const Dashboard = () => {
 
     return Math.round((completed / total) * 100);
   })();
+
+  // ==========================================
+  // STAT CARDS DATA
+  // (values, icons, descriptions untouched)
+  // ==========================================
 
   const stats = [
     {
@@ -150,68 +194,75 @@ const Dashboard = () => {
     },
   ];
 
+  // ==========================================
+  // RENDER
+  // ==========================================
+
   return (
       <DashboardLayout
           notificationCount={dashboard?.totalNotifications ?? 0}
       >
 
-        {/* Welcome */}
+        {/* ==========================================
+            WELCOME SECTION
+        ========================================== */}
+
         <section className="mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
 
-          <p className="text-sm font-medium text-blue-600 mb-1">
-            Welcome back 👋
-          </p>
+            <div>
+              <p className="text-sm font-medium text-blue-600 mb-1">
+                {getGreeting()} 👋
+              </p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 leading-tight">
+                {student.fullName}
+              </h1>
+              <p className="mt-2 text-slate-500 text-sm sm:text-base">
+                Here&apos;s an overview of your NEXUS activity and progress.
+              </p>
+            </div>
 
-          <h1 className="text-3xl font-bold text-slate-900">
-            {student.fullName}
-          </h1>
+            {/* Quick-action CTA */}
+            <button
+                onClick={() => navigate("/projects")}
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition shrink-0 self-start sm:self-auto"
+            >
+              <Briefcase size={16} />
+              View Projects
+            </button>
 
-          <p className="mt-2 text-slate-500">
-            Here's an overview of your NEXUS activity and progress.
-          </p>
-
+          </div>
         </section>
 
-        {/* Statistics */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+        {/* ==========================================
+            STAT CARDS
+        ========================================== */}
+
+        <section className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
 
           {stats.map((stat) => {
-
-            const Icon = stat.icon;
+            const Icon   = stat.icon;
+            const accent = STAT_ACCENTS[stat.title] ?? STAT_ACCENTS.Projects;
 
             return (
                 <div
                     key={stat.title}
-                    className="bg-white rounded-2xl border border-slate-200
-                         p-5 hover:shadow-md transition"
+                    className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default"
                 >
-
-                  <div className="flex items-start justify-between">
-
-                    <div>
-
-                      <p className="text-sm font-medium text-slate-500">
-                        {stat.title}
-                      </p>
-
-                      <p className="text-3xl font-bold text-slate-900 mt-2">
-                        {stat.value}
-                      </p>
-
-                      <p className="text-xs text-slate-400 mt-1">
-                        {stat.description}
-                      </p>
-
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-blue-50">
-                      <Icon
-                          size={22}
-                          className="text-blue-600"
-                      />
-                    </div>
-
+                  {/* Icon */}
+                  <div className={`w-10 h-10 rounded-xl ${accent.bg} flex items-center justify-center mb-3`}>
+                    <Icon size={20} className={accent.icon} />
                   </div>
+
+                  {/* Value */}
+                  <p className={`text-2xl font-bold ${accent.val}`}>
+                    {stat.value}
+                  </p>
+
+                  {/* Label */}
+                  <p className="text-xs font-medium text-slate-500 mt-1 leading-tight">
+                    {stat.title}
+                  </p>
 
                 </div>
             );
@@ -219,112 +270,117 @@ const Dashboard = () => {
 
         </section>
 
-        {/* Lower cards */}
-        <section className="grid grid-cols-1 xl:grid-cols-3 gap-5 mt-6">
+        {/* ==========================================
+            LOWER CARDS ROW
+        ========================================== */}
 
-          {/* Profile */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6">
+        <section className="grid grid-cols-1 xl:grid-cols-3 gap-5">
 
-            <h3 className="font-bold text-slate-900">
-              Profile Completion
-            </h3>
+          {/* ==========================================
+              PROFILE COMPLETION CARD
+          ========================================== */}
 
-            <p className="text-sm text-slate-500 mt-1">
-              Complete your profile to improve matching.
-            </p>
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col">
 
-            <div className="flex items-center gap-4 mt-6">
-
-              <div className="text-3xl font-bold text-blue-600">
+            {/* Header */}
+            <div className="flex items-start justify-between gap-4 mb-5">
+              <div>
+                <h3 className="text-base font-bold text-slate-900">
+                  Profile Completion
+                </h3>
+                <p className="text-sm text-slate-500 mt-0.5">
+                  Complete your profile to improve matching.
+                </p>
+              </div>
+              <span className="text-2xl font-bold text-blue-600 shrink-0">
                 {profileCompletion}%
-              </div>
-
-              <div className="flex-1">
-
-                <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
-
-                  <div
-                      className="h-full bg-blue-600 rounded-full"
-                      style={{
-                        width: `${profileCompletion}%`,
-                      }}
-                  />
-
-                </div>
-
-              </div>
-
+              </span>
             </div>
 
+            {/* Progress bar */}
+            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                  className="h-full bg-blue-600 rounded-full transition-all duration-500"
+                  style={{ width: `${profileCompletion}%` }}
+              />
+            </div>
+
+            {/* Status label */}
+            <p className="text-xs text-slate-400 mt-2">
+              {profileCompletion < 40
+                ? "Just getting started — add more details to improve visibility."
+                : profileCompletion < 80
+                  ? "Looking good — a few more details will help."
+                  : profileCompletion < 100
+                    ? "Almost complete — great job!"
+                    : "Profile complete!"}
+            </p>
+
+            {/* CTA */}
             <button
                 onClick={() => navigate("/profile")}
-                className="mt-5 flex items-center gap-2 text-sm
-                       font-semibold text-blue-600"
+                className="mt-auto pt-5 flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 transition"
             >
-              Complete profile
+              {profileCompletion < 100 ? "Complete profile" : "View profile"}
               <ChevronRight size={16} />
             </button>
 
           </div>
 
-          {/* Collaboration */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6">
+          {/* ==========================================
+              COLLABORATION CARD
+          ========================================== */}
 
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col">
+
+            {/* Header */}
             <div className="flex items-center gap-3 mb-5">
-
-              <div className="p-3 rounded-xl bg-purple-50">
-                <Users
-                    size={22}
-                    className="text-purple-600"
-                />
+              <div className="p-2.5 rounded-xl bg-purple-50 shrink-0">
+                <Users size={20} className="text-purple-600" />
               </div>
-
               <div>
-
-                <h3 className="font-bold text-slate-900">
+                <h3 className="text-base font-bold text-slate-900">
                   Collaboration
                 </h3>
-
                 <p className="text-sm text-slate-500">
                   Your collaboration activity
                 </p>
-
               </div>
-
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* Stats */}
+            <div className="grid grid-cols-2 gap-3">
 
               <div className="bg-slate-50 rounded-xl p-4">
-
-                <p className="text-xs text-slate-500">
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
                   Pending
                 </p>
-
-                <p className="text-2xl font-bold text-slate-900 mt-1">
+                <p className="text-2xl font-bold text-slate-900 mt-1.5">
                   {dashboard?.pendingRequests ?? 0}
                 </p>
-
+                <p className="text-[10px] text-slate-400 mt-0.5">
+                  awaiting response
+                </p>
               </div>
 
               <div className="bg-slate-50 rounded-xl p-4">
-
-                <p className="text-xs text-slate-500">
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
                   Accepted
                 </p>
-
-                <p className="text-2xl font-bold text-slate-900 mt-1">
+                <p className="text-2xl font-bold text-green-600 mt-1.5">
                   {dashboard?.acceptedRequests ?? 0}
                 </p>
-
+                <p className="text-[10px] text-slate-400 mt-0.5">
+                  active collaborations
+                </p>
               </div>
 
             </div>
 
+            {/* CTA */}
             <button
                 onClick={() => navigate("/collaboration")}
-                className="mt-5 flex items-center gap-2 text-sm
-                       font-semibold text-purple-600"
+                className="mt-auto pt-5 flex items-center gap-1.5 text-sm font-semibold text-purple-600 hover:text-purple-700 transition"
             >
               View collaboration
               <ChevronRight size={16} />
@@ -332,90 +388,114 @@ const Dashboard = () => {
 
           </div>
 
-          {/* AI */}
-          <div className="bg-slate-900 rounded-2xl p-6 text-white">
+          {/* ==========================================
+              AI RECOMMENDATIONS CARD
+          ========================================== */}
 
-            <div className="w-11 h-11 rounded-xl bg-white/10
-                          flex items-center justify-center mb-5">
+          <div className="bg-slate-900 rounded-2xl p-6 text-white flex flex-col">
 
-              <Sparkles size={23} />
-
+            {/* Icon */}
+            <div className="w-11 h-11 rounded-xl bg-blue-600 flex items-center justify-center mb-5 shrink-0">
+              <Sparkles size={22} className="text-white" />
             </div>
 
-            <h3 className="text-xl font-bold">
+            {/* Content */}
+            <h3 className="text-xl font-bold text-white">
               AI Recommendations
             </h3>
 
-            <p className="text-sm text-slate-300 mt-2 leading-relaxed">
-              Discover projects that match your skills,
-              interests, and career goals with AI-powered
-              recommendations.
+            <p className="text-sm text-slate-400 mt-2 leading-relaxed">
+              Discover projects that match your skills, interests, and career
+              goals with AI-powered smart matching.
             </p>
 
+            {/* Feature pills */}
+            <div className="flex flex-wrap gap-2 mt-4">
+              {["Project Matching", "Career Guidance", "Smart Discovery"].map((tag) => (
+                <span
+                    key={tag}
+                    className="px-2.5 py-1 bg-white/10 text-slate-300 text-[10px] font-semibold rounded-full"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            {/* CTA */}
             <button
                 onClick={() => navigate("/recommendations")}
-                className="mt-6 inline-flex items-center gap-2
-                       px-4 py-2.5 bg-white text-slate-900
-                       rounded-lg text-sm font-semibold"
+                className="mt-auto pt-6 inline-flex items-center gap-2 px-4 py-2.5 bg-white text-slate-900 rounded-xl text-sm font-semibold hover:bg-slate-100 transition self-start"
             >
               Explore Recommendations
-              <ChevronRight size={16} />
+              <ArrowUpRight size={15} />
             </button>
 
           </div>
 
         </section>
 
-        {/* Activity */}
-        <section className="mt-6 bg-white rounded-2xl
-                          border border-slate-200 p-6">
+        {/* ==========================================
+            ACTIVITY SUMMARY SECTION
+        ========================================== */}
 
-          <h3 className="font-bold text-slate-900">
-            Your Activity
-          </h3>
+        <section className="mt-5 bg-white rounded-2xl border border-slate-200 p-6">
 
-          <p className="text-sm text-slate-500 mt-1 mb-5">
-            A quick summary of your NEXUS activity.
-          </p>
+          <div className="flex items-start justify-between gap-4 mb-5">
+            <div>
+              <h3 className="text-base font-bold text-slate-900">
+                Activity Summary
+              </h3>
+              <p className="text-sm text-slate-500 mt-0.5">
+                A snapshot of your recent NEXUS activity.
+              </p>
+            </div>
+            <button
+                onClick={() => navigate("/notifications")}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-700 transition"
+            >
+              <Bell size={13} />
+              View all
+            </button>
+          </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
 
             <div className="p-4 bg-slate-50 rounded-xl">
-              <p className="text-xs text-slate-500">
-                Notifications
-              </p>
-
-              <p className="text-xl font-bold mt-1">
+              <div className="flex items-center gap-2 mb-2">
+                <Bell size={14} className="text-slate-400" />
+                <p className="text-xs font-medium text-slate-500">Notifications</p>
+              </div>
+              <p className="text-xl font-bold text-slate-900">
                 {dashboard?.totalNotifications ?? 0}
               </p>
             </div>
 
             <div className="p-4 bg-slate-50 rounded-xl">
-              <p className="text-xs text-slate-500">
-                Requests Sent
-              </p>
-
-              <p className="text-xl font-bold mt-1">
+              <div className="flex items-center gap-2 mb-2">
+                <Send size={14} className="text-slate-400" />
+                <p className="text-xs font-medium text-slate-500">Requests Sent</p>
+              </div>
+              <p className="text-xl font-bold text-slate-900">
                 {dashboard?.totalRequestsSent ?? 0}
               </p>
             </div>
 
             <div className="p-4 bg-slate-50 rounded-xl">
-              <p className="text-xs text-slate-500">
-                Accepted
-              </p>
-
-              <p className="text-xl font-bold mt-1">
+              <div className="flex items-center gap-2 mb-2">
+                <Users size={14} className="text-slate-400" />
+                <p className="text-xs font-medium text-slate-500">Collaborations</p>
+              </div>
+              <p className="text-xl font-bold text-green-600">
                 {dashboard?.acceptedRequests ?? 0}
               </p>
             </div>
 
             <div className="p-4 bg-slate-50 rounded-xl">
-              <p className="text-xs text-slate-500">
-                Profile
-              </p>
-
-              <p className="text-xl font-bold mt-1">
+              <div className="flex items-center gap-2 mb-2">
+                <BrainCircuit size={14} className="text-slate-400" />
+                <p className="text-xs font-medium text-slate-500">Profile</p>
+              </div>
+              <p className="text-xl font-bold text-blue-600">
                 {profileCompletion}%
               </p>
             </div>

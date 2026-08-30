@@ -15,6 +15,11 @@ import {
   Target,
   Sparkles,
   ArrowRight,
+  Lock,
+  CheckCircle2,
+  Clock,
+  Circle,
+  ExternalLink,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -31,6 +36,33 @@ import {
 import { getMySkills } from "../../services/skillService";
 import { getMyInterests } from "../../services/interestService";
 import { getMyGoals } from "../../services/goalService";
+
+// ==========================================
+// AVAILABILITY CONFIG (visual only)
+// ==========================================
+
+const AVAILABILITY_CONFIG = {
+  AVAILABLE: {
+    label: "Available",
+    dot: "bg-green-500",
+    badge: "bg-green-50 text-green-700 border-green-200",
+  },
+  BUSY: {
+    label: "Busy",
+    dot: "bg-amber-500",
+    badge: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  LOOKING_FOR_TEAM: {
+    label: "Looking for Team",
+    dot: "bg-blue-500",
+    badge: "bg-blue-50 text-blue-700 border-blue-200",
+  },
+  NOT_AVAILABLE: {
+    label: "Not Available",
+    dot: "bg-slate-400",
+    badge: "bg-slate-100 text-slate-600 border-slate-200",
+  },
+};
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -381,15 +413,38 @@ const Profile = () => {
   const getGoalStatusStyle = (status) => {
     switch (status) {
       case "COMPLETED":
-        return "bg-green-50 text-green-700";
+        return "bg-green-50 text-green-700 border border-green-200";
       case "IN_PROGRESS":
-        return "bg-blue-50 text-blue-700";
+        return "bg-blue-50 text-blue-700 border border-blue-200";
       case "NOT_STARTED":
-        return "bg-slate-100 text-slate-700";
+        return "bg-slate-100 text-slate-600 border border-slate-200";
       default:
-        return "bg-slate-100 text-slate-700";
+        return "bg-slate-100 text-slate-600 border border-slate-200";
     }
   };
+
+  const getGoalStatusIcon = (status) => {
+    switch (status) {
+      case "COMPLETED":
+        return <CheckCircle2 size={13} />;
+      case "IN_PROGRESS":
+        return <Clock size={13} />;
+      default:
+        return <Circle size={13} />;
+    }
+  };
+
+  // ==========================================
+  // SHARED UI CLASSES
+  // ==========================================
+
+  const inputCls =
+    "w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition";
+
+  const labelCls = "block text-sm font-semibold text-slate-700 mb-1.5";
+
+  const sectionCardCls =
+    "bg-white rounded-2xl border border-slate-200 p-6 mb-5";
 
   // ==========================================
   // LOADING
@@ -424,57 +479,81 @@ const Profile = () => {
     );
   }
 
+  // Availability badge config for the current status
+  const availConfig =
+    AVAILABILITY_CONFIG[profile.availabilityStatus] ?? null;
+
+  // ==========================================
+  // RENDER
+  // ==========================================
+
   return (
       <DashboardLayout>
-        {/* ==========================================
-          PAGE HEADER
-      ========================================== */}
-        <section className="mb-8">
-          <p className="text-sm font-medium text-blue-600 mb-1">Account</p>
-          <h1 className="text-3xl font-bold text-slate-900">My Profile</h1>
-          <p className="mt-2 text-slate-500">
-            View and manage your NEXUS student profile.
-          </p>
-        </section>
 
         {/* ==========================================
-          PROFILE HEADER
-      ========================================== */}
-        <section className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+            PROFILE HEADER CARD
+        ========================================== */}
+
+        <section className="bg-white rounded-2xl border border-slate-200 p-6 mb-5">
+          <div className="flex flex-col sm:flex-row items-start gap-5">
+
             {/* Avatar */}
-            <div className="w-24 h-24 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-4xl font-bold shrink-0">
-              {profile.firstName?.charAt(0)?.toUpperCase()}
+            <div className="relative shrink-0">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center text-3xl sm:text-4xl font-bold select-none shadow-sm ring-4 ring-blue-100">
+                {profile.firstName?.charAt(0)?.toUpperCase()}
+              </div>
+              {/* Availability dot */}
+              {availConfig && (
+                <span
+                  className={`absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full border-2 border-white ${availConfig.dot}`}
+                  title={availConfig.label}
+                />
+              )}
             </div>
 
-            {/* Student Information */}
-            <div className="flex-1 w-full">
-              <h2 className="text-2xl font-bold text-slate-900">
+            {/* Identity */}
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 leading-tight truncate">
                 {profile.firstName} {profile.lastName}
-              </h2>
-              <p className="text-slate-500 mt-1">{profile.email}</p>
+              </h1>
 
-              <div className="flex flex-wrap gap-2 mt-3">
-              <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">
-                {profile.role}
-              </span>
-                <span className="px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-semibold">
-                {profile.availabilityStatus}
-              </span>
-                <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
-                {profile.accountStatus}
-              </span>
+              <p className="text-sm text-slate-500 mt-0.5 truncate">{profile.email}</p>
+
+              {/* Department + Year */}
+              {(profile.department || profile.year) && (
+                <p className="text-sm text-slate-600 mt-1 font-medium">
+                  {[profile.department, profile.year ? `Year ${profile.year}` : null]
+                    .filter(Boolean)
+                    .join(" · ")}
+                  {profile.specialization ? ` · ${profile.specialization}` : ""}
+                </p>
+              )}
+
+              {/* Badges */}
+              <div className="flex flex-wrap items-center gap-2 mt-3">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100">
+                  {profile.role}
+                </span>
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold border border-slate-200">
+                  {profile.accountStatus}
+                </span>
+                {availConfig && (
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${availConfig.badge}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${availConfig.dot}`} />
+                    {availConfig.label}
+                  </span>
+                )}
               </div>
 
-              {/* Profile Completion Bar Added Here! */}
-              <div className="mt-5 max-w-sm">
-                <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Profile Completion
-                </span>
+              {/* Profile Completion bar */}
+              <div className="mt-4 max-w-xs">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Profile Completion
+                  </span>
                   <span className="text-sm font-bold text-blue-600">
-                  {profileCompletion}%
-                </span>
+                    {profileCompletion}%
+                  </span>
                 </div>
                 <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                   <div
@@ -485,42 +564,38 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Edit Profile */}
+            {/* Edit button */}
             <button
                 onClick={openEditProfile}
-                className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition"
+                className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition shrink-0"
             >
-              <Pencil size={17} />
+              <Pencil size={15} />
               Edit Profile
             </button>
+
           </div>
         </section>
 
         {/* ==========================================
-          PERSONAL INFORMATION
-      ========================================== */}
-        <section className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 rounded-xl bg-blue-50">
-              <User size={21} className="text-blue-600" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Personal Information
-              </h2>
-              <p className="text-sm text-slate-500">
-                Your basic student information.
-              </p>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            PERSONAL INFORMATION
+        ========================================== */}
+
+        <section className={sectionCardCls}>
+          <SectionHeader
+            icon={<User size={19} className="text-blue-600" />}
+            iconBg="bg-blue-50"
+            title="Personal Information"
+            subtitle="Your basic student information."
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             <InfoItem label="First Name" value={profile.firstName} />
             <InfoItem label="Last Name" value={profile.lastName} />
-            <InfoItem label="Email" value={profile.email} icon={<Mail size={16} />} />
-            <InfoItem label="Phone" value={profile.phone} icon={<Phone size={16} />} />
+            <InfoItem label="Email" value={profile.email} icon={<Mail size={14} />} />
+            <InfoItem label="Phone" value={profile.phone} icon={<Phone size={14} />} />
             <InfoItem label="Roll Number" value={profile.rollNumber} />
-            <InfoItem label="Department" value={profile.department} icon={<GraduationCap size={16} />} />
-            <InfoItem label="Year" value={profile.year} />
+            <InfoItem label="Department" value={profile.department} icon={<GraduationCap size={14} />} />
+            <InfoItem label="Year" value={profile.year ? `Year ${profile.year}` : null} />
             <InfoItem label="Section" value={profile.section} />
             <InfoItem label="Specialization" value={profile.specialization} />
             <InfoItem label="CGPA" value={profile.cgpa} />
@@ -528,75 +603,79 @@ const Profile = () => {
         </section>
 
         {/* ==========================================
-          ABOUT
-      ========================================== */}
-        <section className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="p-3 rounded-xl bg-purple-50">
-              <FileText size={21} className="text-purple-600" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-slate-900">About</h2>
-              <p className="text-sm text-slate-500">
-                Your professional introduction.
-              </p>
-            </div>
-          </div>
-          <p className="text-slate-600 leading-relaxed">
-            {profile.bio || "No bio has been added yet."}
-          </p>
-        </section>
+            ABOUT / BIO
+        ========================================== */}
 
-        {/* ==========================================
-          SKILLS
-      ========================================== */}
-        <section className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-xl bg-blue-50">
-                <Award size={21} className="text-blue-600" />
-              </div>
+        <section className={sectionCardCls}>
+          <SectionHeader
+            icon={<FileText size={19} className="text-purple-600" />}
+            iconBg="bg-purple-50"
+            title="About"
+            subtitle="Your professional introduction."
+          />
+
+          {profile.bio ? (
+            <p className="text-slate-600 leading-relaxed text-sm">
+              {profile.bio}
+            </p>
+          ) : (
+            <div className="rounded-xl bg-slate-50 px-5 py-6 flex items-center gap-4">
+              <FileText size={22} className="text-slate-300 shrink-0" />
               <div>
-                <h2 className="text-lg font-bold text-slate-900">Skills</h2>
-                <p className="text-sm text-slate-500">
-                  Your technical and professional skills.
+                <p className="text-sm font-semibold text-slate-700">No bio added yet</p>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Add a short introduction to help others learn about you.
                 </p>
               </div>
             </div>
+          )}
+        </section>
+
+        {/* ==========================================
+            SKILLS
+        ========================================== */}
+
+        <section className={sectionCardCls}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+            <SectionHeader
+              icon={<Award size={19} className="text-blue-600" />}
+              iconBg="bg-blue-50"
+              title="Skills"
+              subtitle="Your technical and professional skills."
+              noMargin
+            />
             <a
                 href="/skills"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-300 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 transition"
+                className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 transition shrink-0"
             >
               Manage Skills
-              <ArrowRight size={16} />
+              <ArrowRight size={15} />
             </a>
           </div>
 
           {skills.length === 0 ? (
               <div className="rounded-xl bg-slate-50 p-8 text-center">
-                <Award size={30} className="mx-auto text-slate-400 mb-3" />
-                <h3 className="font-semibold text-slate-800">
-                  No skills added yet
-                </h3>
-                <p className="text-sm text-slate-500 mt-1">
+                <Award size={28} className="mx-auto text-slate-300 mb-3" />
+                <h3 className="text-sm font-semibold text-slate-700">No skills added yet</h3>
+                <p className="text-xs text-slate-400 mt-1">
                   Add skills to improve your project matching and recommendations.
                 </p>
               </div>
           ) : (
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2.5">
                 {skills.map((skill) => (
                     <div
                         key={skill.id}
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-200 bg-slate-50"
+                        className="inline-flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:border-blue-200 hover:bg-blue-50 transition-colors"
                     >
-                      <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                      <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
                         {skill.skillName?.charAt(0)?.toUpperCase()}
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-slate-900">
+                        <p className="text-sm font-semibold text-slate-900 leading-none">
                           {skill.skillName}
                         </p>
-                        <p className="text-xs text-slate-500 mt-0.5">
+                        <p className="text-[10px] text-slate-500 mt-0.5 leading-none">
                           {formatGoalStatus(skill.proficiency)}
                         </p>
                       </div>
@@ -607,53 +686,44 @@ const Profile = () => {
         </section>
 
         {/* ==========================================
-          INTERESTS
-      ========================================== */}
-        <section className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-xl bg-pink-50">
-                <Heart size={21} className="text-pink-600" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-900">Interests</h2>
-                <p className="text-sm text-slate-500">
-                  Areas and topics you are interested in.
-                </p>
-              </div>
-            </div>
+            INTERESTS
+        ========================================== */}
+
+        <section className={sectionCardCls}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+            <SectionHeader
+              icon={<Heart size={19} className="text-pink-600" />}
+              iconBg="bg-pink-50"
+              title="Interests"
+              subtitle="Areas and topics you are interested in."
+              noMargin
+            />
             <a
                 href="/interests"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-300 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 transition"
+                className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 transition shrink-0"
             >
               Manage Interests
-              <ArrowRight size={16} />
+              <ArrowRight size={15} />
             </a>
           </div>
 
           {interests.length === 0 ? (
               <div className="rounded-xl bg-slate-50 p-8 text-center">
-                <Heart size={30} className="mx-auto text-slate-400 mb-3" />
-                <h3 className="font-semibold text-slate-800">
-                  No interests added yet
-                </h3>
-                <p className="text-sm text-slate-500 mt-1">
+                <Heart size={28} className="mx-auto text-slate-300 mb-3" />
+                <h3 className="text-sm font-semibold text-slate-700">No interests added yet</h3>
+                <p className="text-xs text-slate-400 mt-1">
                   Add your interests to improve recommendations and matching.
                 </p>
               </div>
           ) : (
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2.5">
                 {interests.map((interest) => (
                     <div
                         key={interest.id}
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-200 bg-slate-50"
+                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-pink-100 bg-pink-50 text-pink-700 hover:bg-pink-100 transition-colors"
                     >
-                      <div className="w-9 h-9 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center">
-                        <Heart size={17} />
-                      </div>
-                      <p className="text-sm font-bold text-slate-900">
-                        {interest.interestName}
-                      </p>
+                      <Heart size={13} className="shrink-0" />
+                      <span className="text-sm font-semibold">{interest.interestName}</span>
                     </div>
                 ))}
               </div>
@@ -661,36 +731,33 @@ const Profile = () => {
         </section>
 
         {/* ==========================================
-          GOALS
-      ========================================== */}
-        <section className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-xl bg-amber-50">
-                <Target size={21} className="text-amber-600" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-900">Goals</h2>
-                <p className="text-sm text-slate-500">
-                  Your current academic and career goals.
-                </p>
-              </div>
-            </div>
+            GOALS
+        ========================================== */}
+
+        <section className={sectionCardCls}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+            <SectionHeader
+              icon={<Target size={19} className="text-amber-600" />}
+              iconBg="bg-amber-50"
+              title="Goals"
+              subtitle="Your current academic and career goals."
+              noMargin
+            />
             <a
                 href="/goals"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-300 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 transition"
+                className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 transition shrink-0"
             >
               Manage Goals
-              <ArrowRight size={16} />
+              <ArrowRight size={15} />
             </a>
           </div>
 
           {goals.length === 0 ? (
               <div className="rounded-xl bg-slate-50 p-8 text-center">
-                <Target size={30} className="mx-auto text-slate-400 mb-3" />
-                <h3 className="font-semibold text-slate-800">No goals added yet</h3>
-                <p className="text-sm text-slate-500 mt-1">
-                  Add goals to make your profile more complete.
+                <Target size={28} className="mx-auto text-slate-300 mb-3" />
+                <h3 className="text-sm font-semibold text-slate-700">No goals added yet</h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  Add goals to track your progress and make your profile more complete.
                 </p>
               </div>
           ) : (
@@ -698,11 +765,11 @@ const Profile = () => {
                 {goals.map((goal) => (
                     <div
                         key={goal.id}
-                        className="border border-slate-200 rounded-xl p-4 hover:shadow-sm transition"
+                        className="border border-slate-200 rounded-xl p-4 hover:shadow-sm transition-shadow"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <h3 className="font-bold text-slate-900">{goal.title}</h3>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-bold text-slate-900">{goal.title}</h3>
                           {goal.description && (
                               <p className="text-sm text-slate-500 mt-1 leading-relaxed">
                                 {goal.description}
@@ -710,12 +777,11 @@ const Profile = () => {
                           )}
                         </div>
                         <span
-                            className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 ${getGoalStatusStyle(
-                                goal.status
-                            )}`}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 ${getGoalStatusStyle(goal.status)}`}
                         >
-                    {formatGoalStatus(goal.status)}
-                  </span>
+                          {getGoalStatusIcon(goal.status)}
+                          {formatGoalStatus(goal.status)}
+                        </span>
                       </div>
                     </div>
                 ))}
@@ -724,112 +790,122 @@ const Profile = () => {
         </section>
 
         {/* ==========================================
-          AVAILABILITY
-      ========================================== */}
-        <section className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-lg font-bold text-slate-900">Availability</h2>
-              <p className="text-sm text-slate-500 mt-1">
-                Let other students know when you are available for collaboration.
-              </p>
+            AVAILABILITY
+        ========================================== */}
+
+        <section className={sectionCardCls}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <SectionHeader
+              icon={<Sparkles size={19} className="text-indigo-600" />}
+              iconBg="bg-indigo-50"
+              title="Availability"
+              subtitle="Let other students know when you are available for collaboration."
+              noMargin
+            />
+            <div className="flex items-center gap-3 shrink-0">
+              {availabilitySaving && (
+                <span className="text-xs text-slate-400 font-medium">Saving...</span>
+              )}
+              <select
+                  value={profile.availabilityStatus || ""}
+                  onChange={handleAvailabilityChange}
+                  disabled={availabilitySaving}
+                  className="w-full sm:w-52 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-60 transition"
+              >
+                <option value="">Select availability</option>
+                <option value="AVAILABLE">Available</option>
+                <option value="BUSY">Busy</option>
+                <option value="LOOKING_FOR_TEAM">Looking for Team</option>
+                <option value="NOT_AVAILABLE">Not Available</option>
+              </select>
             </div>
-            <select
-                value={profile.availabilityStatus || ""}
-                onChange={handleAvailabilityChange}
-                disabled={availabilitySaving}
-                className="w-full sm:w-48 px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
-            >
-              <option value="">Select availability</option>
-              <option value="AVAILABLE">Available</option>
-              <option value="BUSY">Busy</option>
-              <option value="LOOKING_FOR_TEAM">Looking for Team</option>
-              <option value="NOT_AVAILABLE">Not Available</option>
-            </select>
           </div>
         </section>
 
         {/* ==========================================
-          CAREER LINKS
-      ========================================== */}
-        <section className="bg-white rounded-2xl border border-slate-200 p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-xl bg-slate-100">
-                <Briefcase size={21} className="text-slate-700" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-900">
-                  Career Links
-                </h2>
-                <p className="text-sm text-slate-500">
-                  Your professional and career resources.
-                </p>
-              </div>
-            </div>
+            CAREER LINKS
+        ========================================== */}
+
+        <section className={sectionCardCls}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+            <SectionHeader
+              icon={<Briefcase size={19} className="text-slate-700" />}
+              iconBg="bg-slate-100"
+              title="Career Links"
+              subtitle="Your professional and career resources."
+              noMargin
+            />
             <button
                 onClick={openSocialEdit}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-300 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 transition"
+                className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 transition shrink-0"
             >
-              <Pencil size={16} />
+              <Pencil size={14} />
               Edit Links
             </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <LinkCard label="GitHub" value={profile.githubUrl} />
-            <LinkCard label="LinkedIn" value={profile.linkedinUrl} />
-            <LinkCard label="Resume" value={profile.resumeUrl} />
+            <LinkCard label="GitHub" value={profile.githubUrl} icon={<Link size={17} />} accentCls="text-slate-900" />
+            <LinkCard label="LinkedIn" value={profile.linkedinUrl} icon={<Link size={17} />} accentCls="text-blue-700" />
+            <LinkCard label="Resume" value={profile.resumeUrl} icon={<FileText size={17} />} accentCls="text-slate-700" />
           </div>
 
-          <div className="mt-5 pt-5 border-t border-slate-200">
-            <button
-                onClick={openPasswordModal}
-                className="flex items-center gap-2 px-4 py-3 rounded-xl border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 transition"
-            >
-              <Sparkles size={18} />
-              Change Password
-            </button>
+          {/* Security — Change Password */}
+          <div className="mt-5 pt-5 border-t border-slate-100">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-bold text-slate-900">Account Security</p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Update your account password to keep your account secure.
+                </p>
+              </div>
+              <button
+                  onClick={openPasswordModal}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition shrink-0"
+              >
+                <Lock size={15} />
+                Change Password
+              </button>
+            </div>
           </div>
         </section>
 
         {/* ==========================================
-          EDIT PROFILE MODAL
-      ========================================== */}
+            EDIT PROFILE MODAL
+        ========================================== */}
+
         {editOpen && (
             <div
-                className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4"
+                className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4"
                 onMouseDown={(event) => {
                   if (event.target === event.currentTarget) {
                     setEditOpen(false);
                   }
                 }}
             >
-              <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
-                <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200">
+              <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+
+                {/* Modal header */}
+                <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
                   <div>
-                    <h2 className="text-xl font-bold text-slate-900">
-                      Edit Profile
-                    </h2>
-                    <p className="text-sm text-slate-500 mt-1">
-                      Update your profile information.
-                    </p>
+                    <h2 className="text-lg font-bold text-slate-900">Edit Profile</h2>
+                    <p className="text-sm text-slate-500 mt-0.5">Update your profile information.</p>
                   </div>
                   <button
                       onClick={() => setEditOpen(false)}
                       disabled={saving}
-                      className="p-2 rounded-lg hover:bg-slate-100 text-slate-500 disabled:opacity-50"
+                      className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 disabled:opacity-50 transition"
+                      aria-label="Close"
                   >
-                    <X size={20} />
+                    <X size={18} />
                   </button>
                 </div>
 
                 <form onSubmit={handleSaveProfile} className="p-6 space-y-5">
+
+                  {/* Bio */}
                   <div>
-                    <label
-                        htmlFor="bio"
-                        className="block text-sm font-semibold text-slate-700 mb-2"
-                    >
+                    <label htmlFor="bio" className={labelCls}>
                       Bio
                     </label>
                     <textarea
@@ -838,19 +914,14 @@ const Profile = () => {
                         value={formData.bio}
                         onChange={handleChange}
                         rows={4}
-                        placeholder="Tell others about yourself..."
-                        className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                        placeholder="Tell others a little about yourself"
+                        className={`${inputCls} resize-none`}
                     />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                      <label
-                          htmlFor="cgpa"
-                          className="block text-sm font-semibold text-slate-700 mb-2"
-                      >
-                        CGPA
-                      </label>
+                      <label htmlFor="cgpa" className={labelCls}>CGPA</label>
                       <input
                           id="cgpa"
                           name="cgpa"
@@ -861,16 +932,12 @@ const Profile = () => {
                           value={formData.cgpa}
                           onChange={handleChange}
                           placeholder="e.g. 8.91"
-                          className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className={inputCls}
                       />
                     </div>
+
                     <div>
-                      <label
-                          htmlFor="phone"
-                          className="block text-sm font-semibold text-slate-700 mb-2"
-                      >
-                        Phone
-                      </label>
+                      <label htmlFor="phone" className={labelCls}>Phone</label>
                       <input
                           id="phone"
                           name="phone"
@@ -879,125 +946,108 @@ const Profile = () => {
                           value={formData.phone}
                           onChange={handleChange}
                           placeholder="10 digit phone number"
-                          className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className={inputCls}
                       />
-                      <p className="text-xs text-slate-400 mt-1">
-                        Must contain exactly 10 digits.
-                      </p>
+                      <p className="text-xs text-slate-400 mt-1">Must contain exactly 10 digits.</p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                      <label
-                          htmlFor="section"
-                          className="block text-sm font-semibold text-slate-700 mb-2"
-                      >
-                        Section
-                      </label>
+                      <label htmlFor="section" className={labelCls}>Section</label>
                       <input
                           id="section"
                           name="section"
                           value={formData.section}
                           onChange={handleChange}
                           placeholder="e.g. A"
-                          className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className={inputCls}
                       />
                     </div>
+
                     <div>
-                      <label
-                          htmlFor="specialization"
-                          className="block text-sm font-semibold text-slate-700 mb-2"
-                      >
-                        Specialization
-                      </label>
+                      <label htmlFor="specialization" className={labelCls}>Specialization</label>
                       <input
                           id="specialization"
                           name="specialization"
                           value={formData.specialization}
                           onChange={handleChange}
                           placeholder="e.g. Artificial Intelligence"
-                          className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className={inputCls}
                       />
                     </div>
                   </div>
 
-                  <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+                  <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
                     <button
                         type="button"
                         onClick={() => setEditOpen(false)}
                         disabled={saving}
-                        className="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50"
+                        className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 disabled:opacity-50 transition"
                     >
                       Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={saving}
-                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-60"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-60 transition"
                     >
                       {saving ? (
                           <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                             Saving...
                           </>
                       ) : (
                           <>
-                            <Save size={17} />
+                            <Save size={15} />
                             Save Changes
                           </>
                       )}
                     </button>
                   </div>
+
                 </form>
               </div>
             </div>
         )}
 
         {/* ==========================================
-          EDIT SOCIAL LINKS MODAL
-      ========================================== */}
+            EDIT SOCIAL LINKS MODAL
+        ========================================== */}
+
         {socialEditOpen && (
             <div
-                className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4"
+                className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4"
                 onMouseDown={(event) => {
                   if (event.target === event.currentTarget) {
                     setSocialEditOpen(false);
                   }
                 }}
             >
-              <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl">
-                <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200">
+              <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-slate-100">
+
+                {/* Modal header */}
+                <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
                   <div>
-                    <h2 className="text-xl font-bold text-slate-900">
-                      Edit Career Links
-                    </h2>
-                    <p className="text-sm text-slate-500 mt-1">
-                      Add your professional links.
-                    </p>
+                    <h2 className="text-lg font-bold text-slate-900">Edit Career Links</h2>
+                    <p className="text-sm text-slate-500 mt-0.5">Add your professional links.</p>
                   </div>
                   <button
                       onClick={() => setSocialEditOpen(false)}
                       disabled={saving}
-                      className="p-2 rounded-lg hover:bg-slate-100 text-slate-500"
+                      className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition"
+                      aria-label="Close"
                   >
-                    <X size={20} />
+                    <X size={18} />
                   </button>
                 </div>
 
                 <form onSubmit={handleSaveSocialLinks} className="p-6 space-y-5">
+
                   <div>
-                    <label
-                        htmlFor="githubUrl"
-                        className="block text-sm font-semibold text-slate-700 mb-2"
-                    >
-                      GitHub URL
-                    </label>
+                    <label htmlFor="githubUrl" className={labelCls}>GitHub URL</label>
                     <div className="relative">
-                      <Link
-                          size={17}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                      />
+                      <Link size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                       <input
                           id="githubUrl"
                           name="githubUrl"
@@ -1005,23 +1055,15 @@ const Profile = () => {
                           value={socialData.githubUrl}
                           onChange={handleSocialChange}
                           placeholder="https://github.com/username"
-                          className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className={`${inputCls} pl-10`}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label
-                        htmlFor="linkedinUrl"
-                        className="block text-sm font-semibold text-slate-700 mb-2"
-                    >
-                      LinkedIn URL
-                    </label>
+                    <label htmlFor="linkedinUrl" className={labelCls}>LinkedIn URL</label>
                     <div className="relative">
-                      <Link
-                          size={17}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                      />
+                      <Link size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                       <input
                           id="linkedinUrl"
                           name="linkedinUrl"
@@ -1029,23 +1071,15 @@ const Profile = () => {
                           value={socialData.linkedinUrl}
                           onChange={handleSocialChange}
                           placeholder="https://linkedin.com/in/username"
-                          className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className={`${inputCls} pl-10`}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label
-                        htmlFor="resumeUrl"
-                        className="block text-sm font-semibold text-slate-700 mb-2"
-                    >
-                      Resume URL
-                    </label>
+                    <label htmlFor="resumeUrl" className={labelCls}>Resume URL</label>
                     <div className="relative">
-                      <FileText
-                          size={17}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                      />
+                      <FileText size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                       <input
                           id="resumeUrl"
                           name="resumeUrl"
@@ -1053,160 +1087,189 @@ const Profile = () => {
                           value={socialData.resumeUrl}
                           onChange={handleSocialChange}
                           placeholder="https://example.com/resume.pdf"
-                          className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className={`${inputCls} pl-10`}
                       />
                     </div>
                   </div>
 
-                  <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+                  <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
                     <button
                         type="button"
                         onClick={() => setSocialEditOpen(false)}
                         disabled={saving}
-                        className="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50"
+                        className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 disabled:opacity-50 transition"
                     >
                       Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={saving}
-                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-60"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-60 transition"
                     >
                       {saving ? (
                           <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                             Saving...
                           </>
                       ) : (
                           <>
-                            <Save size={17} />
+                            <Save size={15} />
                             Save Links
                           </>
                       )}
                     </button>
                   </div>
+
                 </form>
               </div>
             </div>
         )}
 
         {/* ==========================================
-          CHANGE PASSWORD MODAL
-      ========================================== */}
+            CHANGE PASSWORD MODAL
+        ========================================== */}
+
         {passwordOpen && (
             <div
-                className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4"
+                className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4"
                 onMouseDown={(event) => {
                   if (event.target === event.currentTarget) {
                     setPasswordOpen(false);
                   }
                 }}
             >
-              <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl">
-                <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200">
+              <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-100">
+
+                {/* Modal header */}
+                <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
                   <div>
-                    <h2 className="text-xl font-bold">Change Password</h2>
-                    <p className="text-sm text-slate-500 mt-1">
-                      Update your account password.
-                    </p>
+                    <h2 className="text-lg font-bold text-slate-900">Change Password</h2>
+                    <p className="text-sm text-slate-500 mt-0.5">Update your account password.</p>
                   </div>
-                  <button onClick={() => setPasswordOpen(false)}>
-                    <X size={20} />
+                  <button
+                      onClick={() => setPasswordOpen(false)}
+                      className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition"
+                      aria-label="Close"
+                  >
+                    <X size={18} />
                   </button>
                 </div>
 
                 <form onSubmit={handleSavePassword} className="p-6 space-y-4">
+
                   <div>
-                    <label className="text-sm font-semibold">
-                      Current Password
-                    </label>
+                    <label htmlFor="pw-current" className={labelCls}>Current Password</label>
                     <input
+                        id="pw-current"
                         type="password"
                         name="currentPassword"
                         value={passwordData.currentPassword}
                         onChange={handlePasswordChange}
                         required
-                        className="w-full mt-2 px-4 py-3 rounded-xl border border-slate-300"
+                        className={inputCls}
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-semibold">New Password</label>
+                    <label htmlFor="pw-new" className={labelCls}>New Password</label>
                     <input
+                        id="pw-new"
                         type="password"
                         name="newPassword"
                         value={passwordData.newPassword}
                         onChange={handlePasswordChange}
                         required
-                        className="w-full mt-2 px-4 py-3 rounded-xl border border-slate-300"
+                        className={inputCls}
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-semibold">
-                      Confirm Password
-                    </label>
+                    <label htmlFor="pw-confirm" className={labelCls}>Confirm New Password</label>
                     <input
+                        id="pw-confirm"
                         type="password"
                         name="confirmPassword"
                         value={passwordData.confirmPassword}
                         onChange={handlePasswordChange}
                         required
-                        className="w-full mt-2 px-4 py-3 rounded-xl border border-slate-300"
+                        className={inputCls}
                     />
                   </div>
 
-                  <div className="flex justify-end gap-3 pt-2">
+                  <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
                     <button
                         type="button"
                         onClick={() => setPasswordOpen(false)}
-                        className="px-4 py-2.5 border border-slate-300 rounded-xl"
+                        className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition"
                     >
                       Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={saving}
-                        className="px-4 py-2.5 bg-blue-600 text-white rounded-xl"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-60 transition"
                     >
-                      {saving ? "Saving..." : "Change Password"}
+                      {saving ? (
+                          <>
+                            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            Saving...
+                          </>
+                      ) : (
+                          "Change Password"
+                      )}
                     </button>
                   </div>
+
                 </form>
               </div>
             </div>
         )}
+
       </DashboardLayout>
   );
 };
 
 /* ==========================================
-   INFO ITEM
+   SECTION HEADER SUB-COMPONENT (file-local)
+========================================== */
+
+const SectionHeader = ({ icon, iconBg, title, subtitle, noMargin }) => (
+  <div className={`flex items-center gap-3 ${noMargin ? "" : "mb-5"}`}>
+    <div className={`p-2.5 rounded-xl ${iconBg} shrink-0`}>{icon}</div>
+    <div>
+      <h2 className="text-base font-bold text-slate-900">{title}</h2>
+      {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+    </div>
+  </div>
+);
+
+/* ==========================================
+   INFO ITEM SUB-COMPONENT
 ========================================== */
 
 const InfoItem = ({ label, value, icon }) => {
   return (
-      <div className="rounded-xl bg-slate-50 p-4">
-        <div className="flex items-center gap-2 text-xs font-medium text-slate-500 mb-2">
-          {icon}
+      <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
+        <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+          {icon && <span className="text-slate-400">{icon}</span>}
           <span>{label}</span>
         </div>
-        <p className="text-sm font-semibold text-slate-900">
-          {value || "Not provided"}
+        <p className="text-sm font-semibold text-slate-900 break-words">
+          {value || <span className="text-slate-400 font-normal">Not provided</span>}
         </p>
       </div>
   );
 };
 
 /* ==========================================
-   LINK CARD
+   LINK CARD SUB-COMPONENT
 ========================================== */
 
-const LinkCard = ({ label, value }) => {
+const LinkCard = ({ label, value, icon, accentCls }) => {
   return (
-      <div className="rounded-xl border border-slate-200 p-4">
-        <div className="flex items-center gap-2 text-slate-700 mb-2">
-          <Link size={19} />
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 hover:border-slate-300 transition-colors">
+        <div className={`flex items-center gap-2 mb-2 ${accentCls || "text-slate-700"}`}>
+          {icon}
           <span className="text-sm font-semibold">{label}</span>
         </div>
         {value ? (
@@ -1214,12 +1277,13 @@ const LinkCard = ({ label, value }) => {
                 href={value}
                 target="_blank"
                 rel="noreferrer"
-                className="text-sm text-blue-600 hover:underline break-all"
+                className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 hover:underline break-all"
             >
-              {value}
+              <span className="truncate max-w-[180px]">{value}</span>
+              <ExternalLink size={11} className="shrink-0" />
             </a>
         ) : (
-            <p className="text-sm text-slate-400">Not provided</p>
+            <p className="text-xs text-slate-400">Not provided</p>
         )}
       </div>
   );

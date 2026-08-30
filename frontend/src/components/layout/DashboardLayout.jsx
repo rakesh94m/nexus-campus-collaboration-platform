@@ -7,82 +7,91 @@ import { getNotifications } from "../../services/notificationService";
 
 const DashboardLayout = ({ children }) => {
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [notificationCount, setNotificationCount] = useState(0);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [notificationCount, setNotificationCount] = useState(0);
 
-  // ==========================================
-  // LOAD ONCE
-  // ==========================================
+    // ==========================================
+    // LOAD ONCE — fetch unread notification count
+    // ==========================================
 
-  useEffect(() => {
+    useEffect(() => {
 
-    const fetchNotifications = async () => {
+        const fetchNotifications = async () => {
 
-      try {
+            try {
 
-        const notifications = await getNotifications();
+                const notifications = await getNotifications();
 
-        const unreadCount = notifications.filter(
-            (notification) =>
-                notification.status === "UNREAD"
-        ).length;
+                const unreadCount = notifications.filter(
+                    (notification) =>
+                        notification.status === "UNREAD"
+                ).length;
 
-        setNotificationCount(unreadCount);
+                setNotificationCount(unreadCount);
 
-      } catch (error) {
+            } catch (error) {
 
-        console.error(
-            "Notification count error:",
-            error
-        );
+                console.error(
+                    "Notification count error:",
+                    error
+                );
 
-        setNotificationCount(0);
-      }
+                setNotificationCount(0);
 
+            }
+
+        };
+
+        fetchNotifications();
+
+    }, []);
+
+    // ==========================================
+    // SIDEBAR HANDLERS
+    // ==========================================
+
+    const handleCloseSidebar = () => {
+        setSidebarOpen(false);
     };
 
-    fetchNotifications();
+    const handleOpenSidebar = () => {
+        setSidebarOpen(true);
+    };
 
-  }, []);
+    // ==========================================
+    // RENDER
+    // ==========================================
 
-  // ==========================================
-  // SIDEBAR
-  // ==========================================
+    return (
 
-  const handleCloseSidebar = () => {
-    setSidebarOpen(false);
-  };
+        <div className="min-h-screen bg-slate-50">
 
-  const handleOpenSidebar = () => {
-    setSidebarOpen(true);
-  };
+            {/* Fixed sidebar */}
+            <Sidebar
+                isOpen={sidebarOpen}
+                onClose={handleCloseSidebar}
+                notificationCount={notificationCount}
+            />
 
-  return (
+            {/* Main content area (offset by sidebar width on lg+) */}
+            <div className="lg:ml-64 min-h-screen flex flex-col">
 
-      <div className="min-h-screen bg-slate-50">
+                {/* Sticky header */}
+                <Header
+                    onMenuClick={handleOpenSidebar}
+                    notificationCount={notificationCount}
+                />
 
-        <Sidebar
-            isOpen={sidebarOpen}
-            onClose={handleCloseSidebar}
-            notificationCount={notificationCount}
-        />
+                {/* Page content */}
+                <main className="flex-1 p-4 sm:p-6 lg:p-8">
+                    {children}
+                </main>
 
-        <div className="lg:ml-64 min-h-screen">
-
-          <Header
-              onMenuClick={handleOpenSidebar}
-              notificationCount={notificationCount}
-          />
-
-          <main className="p-4 sm:p-6 lg:p-8">
-            {children}
-          </main>
+            </div>
 
         </div>
 
-      </div>
-
-  );
+    );
 
 };
 

@@ -1189,19 +1189,17 @@ const Projects = () => {
           <SummaryCard
               title="My Projects"
               value={projects.length}
-              icon={
-                <FolderKanban
-                    size={21}
-                />
-              }
+              valueCls="text-blue-700"
+              iconBg="bg-blue-50 text-blue-600"
+              icon={<FolderKanban size={21} />}
           />
 
           <SummaryCard
               title="Joined Projects"
               value={memberships.length}
-              icon={
-                <Users size={21} />
-              }
+              valueCls="text-purple-700"
+              iconBg="bg-purple-50 text-purple-600"
+              icon={<Users size={21} />}
           />
 
           <SummaryCard
@@ -1211,9 +1209,9 @@ const Projects = () => {
                     ? "Active"
                     : "Add Project"
               }
-              icon={
-                <Sparkles size={21} />
-              }
+              valueCls="text-green-700"
+              iconBg="bg-green-50 text-green-600"
+              icon={<Sparkles size={21} />}
           />
 
         </section>
@@ -2540,35 +2538,16 @@ const Projects = () => {
 
           ) : memberships.length === 0 ? (
 
-              <div
-                  className="py-12
-                       text-center
-                       bg-slate-50
-                       rounded-xl"
-              >
-
-                <Users
-                    size={32}
-                    className="mx-auto
-                         text-slate-400
-                         mb-3"
-                />
-
-                <h3
-                    className="font-semibold
-                         text-slate-800"
-                >
+              <div className="py-12 text-center">
+                <div className="w-14 h-14 rounded-2xl bg-purple-50 text-purple-500 flex items-center justify-center mx-auto mb-4">
+                  <Users size={26} />
+                </div>
+                <h3 className="text-base font-bold text-slate-900">
                   No project memberships
                 </h3>
-
-                <p
-                    className="text-sm
-                         text-slate-500
-                         mt-1"
-                >
-                  Join a project above to see it here.
+                <p className="text-sm text-slate-500 mt-2 max-w-xs mx-auto">
+                  Join a project from the section below to see your memberships here.
                 </p>
-
               </div>
 
           ) : (
@@ -2774,15 +2753,14 @@ const Projects = () => {
 
           {availableProjects.length === 0 ? (
 
-              <div
-                  className="p-5
-                       rounded-xl
-                       bg-slate-50
-                       text-sm
-                       text-slate-500"
-              >
-                No projects are currently available to
-                join.
+              <div className="py-12 text-center">
+                <div className="w-14 h-14 rounded-2xl bg-green-50 text-green-500 flex items-center justify-center mx-auto mb-4">
+                  <UserPlus size={26} />
+                </div>
+                <h3 className="text-base font-bold text-slate-900">No available projects</h3>
+                <p className="text-sm text-slate-500 mt-2 max-w-xs mx-auto">
+                  There are no projects available to join at this time. Check back later or create your own.
+                </p>
               </div>
 
           ) : (
@@ -2816,10 +2794,7 @@ const Projects = () => {
                           <div
                               id={`join-project-${project.id}`}
                               key={`join-${project.id}`}
-                              className="border
-                               border-slate-200
-                               rounded-xl
-                               p-5"
+                              className="border border-slate-200 rounded-xl p-5 hover:shadow-md transition-shadow"
                           >
 
                             <div
@@ -2829,11 +2804,13 @@ const Projects = () => {
                                  gap-3"
                             >
 
-                              <div>
+                              <div className="min-w-0 flex-1">
 
                                 <h3
-                                    className="font-semibold
-                                     text-slate-900"
+                                    className="font-bold
+                                     text-slate-900
+                                     text-base
+                                     leading-snug"
                                 >
                                   {
                                     project.projectTitle
@@ -2844,8 +2821,9 @@ const Projects = () => {
                                     <p
                                         className="text-sm
                                        text-slate-500
-                                       mt-1
-                                       line-clamp-2"
+                                       mt-1.5
+                                       line-clamp-2
+                                       leading-relaxed"
                                     >
                                       {
                                         project.description
@@ -2853,20 +2831,17 @@ const Projects = () => {
                                     </p>
                                 )}
 
-                                <p
-                                    className="text-sm
-                                     text-gray-600
-                                     mt-2"
-                                >
-                                  👤 Owner: {project.ownerName}
-                                </p>
-
-                                <p
-                                    className="text-sm
-                                     text-gray-600"
-                                >
-                                  👥 Team: {project.teamMemberCount} member(s)
-                                </p>
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
+                                  <p className="text-xs text-slate-500 flex items-center gap-1">
+                                    <Users size={12} className="text-slate-400" />
+                                    <span className="font-medium text-slate-700">{project.ownerName}</span>
+                                    <span className="text-slate-400">· Owner</span>
+                                  </p>
+                                  <p className="text-xs text-slate-500 flex items-center gap-1">
+                                    <Users size={12} className="text-slate-400" />
+                                    <span>{project.teamMemberCount} member{project.teamMemberCount !== 1 ? 's' : ''}</span>
+                                  </p>
+                                </div>
 
                                 {project.technologiesUsed && (
                                     <div className="mt-3">
@@ -2929,47 +2904,30 @@ const Projects = () => {
                                    border-slate-200"
                                 >
 
-                                  <div
-                                      className="bg-gray-50
-                                     rounded-lg
-                                     p-3
-                                     mb-4"
-                                  >
-                                    <h4
-                                        className="font-semibold
-                                       text-gray-800
-                                       mb-2"
-                                    >
+                                  <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 mb-4">
+                                    <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                      <Users size={15} className="text-blue-600" />
                                       Project Owner
                                     </h4>
 
-                                    <p className="text-sm">
-                            <span className="font-medium">
-                              Name:
-                            </span>{" "}
-                                      {project.ownerName}
-                                    </p>
-
-                                    <p className="text-sm">
-                            <span className="font-medium">
-                              Department:
-                            </span>{" "}
-                                      {project.ownerDepartment}
-                                    </p>
-
-                                    <p className="text-sm">
-                            <span className="font-medium">
-                              Year:
-                            </span>{" "}
-                                      {project.ownerYear}
-                                    </p>
-
-                                    <p className="text-sm">
-                            <span className="font-medium">
-                              Current Team:
-                            </span>{" "}
-                                      {project.teamMemberCount} member(s)
-                                    </p>
+                                    <div className="space-y-1.5">
+                                      <p className="text-sm text-slate-700">
+                                        <span className="font-semibold text-slate-500 text-xs uppercase tracking-wide mr-1">Name</span>
+                                        {project.ownerName}
+                                      </p>
+                                      <p className="text-sm text-slate-700">
+                                        <span className="font-semibold text-slate-500 text-xs uppercase tracking-wide mr-1">Department</span>
+                                        {project.ownerDepartment}
+                                      </p>
+                                      <p className="text-sm text-slate-700">
+                                        <span className="font-semibold text-slate-500 text-xs uppercase tracking-wide mr-1">Year</span>
+                                        {project.ownerYear}
+                                      </p>
+                                      <p className="text-sm text-slate-700">
+                                        <span className="font-semibold text-slate-500 text-xs uppercase tracking-wide mr-1">Team</span>
+                                        {project.teamMemberCount} member{project.teamMemberCount !== 1 ? 's' : ''}
+                                      </p>
+                                    </div>
                                   </div>
 
                                   {/* Current Team */}
@@ -3005,15 +2963,15 @@ const Projects = () => {
                                                   className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2 border border-slate-100"
                                               >
                                                 <div>
-                                                  <p className="font-medium text-sm">{member.studentName}</p>
+                                                  <p className="font-medium text-sm text-slate-800">{member.studentName}</p>
                                                   <p className="text-xs text-slate-500">
                                                     {member.studentEmail}
                                                   </p>
                                                 </div>
 
-                                                <span className="text-xs font-semibold bg-gray-200 text-gray-700 px-2 py-1 rounded-full">
-                                              {getRoleLabel(member.role)}
-                                            </span>
+                                                <span className="text-xs font-semibold bg-slate-200 text-slate-700 px-2.5 py-1 rounded-full">
+                                                  {getRoleLabel(member.role)}
+                                                </span>
                                               </div>
                                           ))
                                       )}
@@ -3299,14 +3257,7 @@ const ProjectModal = ({
 
   return (
       <div
-          className="fixed
-                 inset-0
-                 z-[100]
-                 bg-black/50
-                 flex
-                 items-center
-                 justify-center
-                 p-4"
+          className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4"
           onMouseDown={(event) => {
             if (
                 event.target ===
@@ -3318,13 +3269,7 @@ const ProjectModal = ({
       >
 
         <div
-            className="w-full
-                   max-w-2xl
-                   max-h-[90vh]
-                   overflow-y-auto
-                   bg-white
-                   rounded-2xl
-                   shadow-2xl"
+            className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-xl border border-slate-100"
         >
 
           {/* HEADER */}
@@ -3473,16 +3418,16 @@ const ProjectModal = ({
 
               <input
                   type="text"
-                  placeholder="Search skill... (e.g. Py → Python)"
+                  placeholder="Search skills (e.g. Python, React)"
                   value={skillSearch}
                   onChange={(event) =>
                       setSkillSearch(event.target.value)
                   }
                   disabled={saving}
-                  className="w-full px-3 py-2 border rounded-lg mb-2"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition mb-2"
               />
 
-              <div className="max-h-40 overflow-y-auto border rounded-lg">
+              <div className="max-h-40 overflow-y-auto border border-slate-200 rounded-xl bg-white">
 
                 {filteredSkills
                     .filter(
@@ -3507,7 +3452,7 @@ const ProjectModal = ({
                               ]);
                               setSkillSearch("");
                             }}
-                            className="w-full text-left px-3 py-2 hover:bg-gray-100"
+                            className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition"
                         >
                           {skill.skillName}
                         </button>
@@ -3550,9 +3495,9 @@ const ProjectModal = ({
                                 toast.error(message);
                               }
                             }}
-                            className="w-full text-left px-3 py-2 text-blue-600 font-medium hover:bg-blue-50"
+                            className="w-full text-left px-4 py-2.5 text-sm text-blue-600 font-semibold hover:bg-blue-50 transition"
                         >
-                          + Create "{skillSearch}"
+                          + Create &ldquo;{skillSearch}&rdquo;
                         </button>
                     )}
 
@@ -3805,53 +3750,24 @@ const SummaryCard = ({
                        title,
                        value,
                        icon,
+                       iconBg = "bg-blue-50 text-blue-600",
+                       valueCls = "text-slate-900",
                      }) => {
   return (
-      <div
-          className="bg-white
-                 rounded-2xl
-                 border
-                 border-slate-200
-                 p-5"
-      >
-
-        <div
-            className="flex
-                   items-center
-                   justify-between"
-        >
-
+      <div className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-sm transition-shadow">
+        <div className="flex items-start justify-between gap-3">
           <div>
-
-            <p
-                className="text-sm
-                       text-slate-500"
-            >
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
               {title}
             </p>
-
-            <p
-                className="text-2xl
-                       font-bold
-                       text-slate-900
-                       mt-2"
-            >
+            <p className={`text-2xl font-bold mt-2 ${valueCls}`}>
               {value}
             </p>
-
           </div>
-
-          <div
-              className="p-3
-                     rounded-xl
-                     bg-blue-50
-                     text-blue-600"
-          >
+          <div className={`p-2.5 rounded-xl shrink-0 ${iconBg}`}>
             {icon}
           </div>
-
         </div>
-
       </div>
   );
 };
