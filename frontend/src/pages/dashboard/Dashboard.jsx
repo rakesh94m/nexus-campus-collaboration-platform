@@ -134,18 +134,21 @@ const Dashboard = () => {
     if (!profile) return 0;
 
     let completed = 0;
-    const total = 10;
+    const total = 12;
 
-    if (profile.bio) completed++;
+    if (profile.bio?.trim()) completed++;
     if (profile.cgpa) completed++;
-    if (profile.phone) completed++;
-    if (profile.section) completed++;
-    if (profile.specialization) completed++;
-    if (profile.githubUrl) completed++;
-    if (profile.linkedinUrl) completed++;
-    if (profile.resumeUrl) completed++;
+    if (profile.phone?.trim()) completed++;
+    if (profile.section?.trim()) completed++;
+    if (profile.specialization?.trim()) completed++;
+    if (profile.githubUrl?.trim()) completed++;
+    if (profile.linkedinUrl?.trim()) completed++;
+    if (profile.resumeUrl?.trim()) completed++;
+
     if ((dashboard?.totalSkills ?? 0) > 0) completed++;
     if ((dashboard?.totalGoals ?? 0) > 0) completed++;
+    if ((dashboard?.totalAchievements ?? 0) > 0) completed++;
+    if ((dashboard?.totalCertifications ?? 0) > 0) completed++;
 
     return Math.round((completed / total) * 100);
   })();

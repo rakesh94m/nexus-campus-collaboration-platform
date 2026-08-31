@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface AchievementRepository extends JpaRepository<Achievement, Long> {
 
-    List<Achievement> findByStudent(Student student);
+    List<Achievement> findByStudentOrderByAchievementDateDesc(Student student);
 
     Optional<Achievement> findByIdAndStudent(Long id, Student student);
     Long countByStudentId(Long studentId);

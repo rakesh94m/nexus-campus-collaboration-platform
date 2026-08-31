@@ -13,6 +13,8 @@ import {
     Award,
     Heart,
     Target,
+    Trophy,
+    GraduationCap,
     X,
     LogOut,
     Layers,
@@ -38,25 +40,71 @@ const NAV_GROUPS = [
     {
         label: "Profile",
         items: [
-            { to: "/profile",   label: "My Profile", icon: User   },
-            { to: "/skills",    label: "Skills",      icon: Award  },
-            { to: "/interests", label: "Interests",   icon: Heart  },
-            { to: "/goals",     label: "Goals",       icon: Target },
+            {
+                to: "/profile",
+                label: "My Profile",
+                icon: User,
+            },
+            {
+                to: "/skills",
+                label: "Skills",
+                icon: Award,
+            },
+            {
+                to: "/interests",
+                label: "Interests",
+                icon: Heart,
+            },
+            {
+                to: "/achievements",
+                label: "Achievements",
+                icon: Trophy,
+            },
+            {
+                to: "/certifications",
+                label: "Certifications",
+                icon: GraduationCap,
+            },
+            {
+                to: "/goals",
+                label: "Goals",
+                icon: Target,
+            },
         ],
     },
     {
         label: "Collaborate",
         items: [
-            { to: "/projects",      label: "Projects",       icon: FolderKanban },
-            { to: "/collaboration", label: "Collaboration",  icon: Users        },
-            { to: "/students",      label: "Find Students",  icon: UserSearch   },
+            {
+                to: "/projects",
+                label: "Projects",
+                icon: FolderKanban,
+            },
+            {
+                to: "/collaboration",
+                label: "Collaboration",
+                icon: Users,
+            },
+            {
+                to: "/students",
+                label: "Find Students",
+                icon: UserSearch,
+            },
         ],
     },
     {
         label: "Intelligence",
         items: [
-            { to: "/recommendations", label: "AI Recommendations", icon: Sparkles    },
-            { to: "/career-roadmap",  label: "Career Roadmap",     icon: BrainCircuit },
+            {
+                to: "/recommendations",
+                label: "AI Recommendations",
+                icon: Sparkles,
+            },
+            {
+                to: "/career-roadmap",
+                label: "Career Roadmap",
+                icon: BrainCircuit,
+            },
         ],
     },
 ];
@@ -78,12 +126,16 @@ const navLinkClass = ({ isActive }) =>
 // ==========================================
 
 const Sidebar = ({
-    isOpen,
-    onClose,
-    notificationCount = 0,
-}) => {
+                     isOpen,
+                     onClose,
+                     notificationCount = 0,
+                 }) => {
     const { student, logout } = useAuth();
     const navigate = useNavigate();
+
+    // ==========================================
+    // LOGOUT
+    // ==========================================
 
     const handleLogout = () => {
         onClose();
@@ -126,6 +178,7 @@ const Sidebar = ({
                 <div className="flex items-center justify-between h-16 px-5 border-b border-slate-100 shrink-0">
 
                     <div className="flex items-center gap-2.5">
+
                         {/* Brand Icon */}
                         <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
                             <Layers
@@ -140,10 +193,12 @@ const Sidebar = ({
                             <p className="text-sm font-bold text-slate-900 leading-none tracking-tight">
                                 NEXUS
                             </p>
+
                             <p className="text-[10px] text-slate-400 leading-none mt-0.5">
                                 Campus Intelligence
                             </p>
                         </div>
+
                     </div>
 
                     {/* Mobile Close Button */}
@@ -165,7 +220,10 @@ const Sidebar = ({
 
                     <div className="space-y-5">
 
-                        {/* NAV GROUPS */}
+                        {/* ==========================================
+                            NAVIGATION GROUPS
+                        ========================================== */}
+
                         {NAV_GROUPS.map((group, groupIndex) => (
                             <div key={groupIndex}>
 
@@ -176,10 +234,12 @@ const Sidebar = ({
                                     </p>
                                 )}
 
-                                {/* Nav Items */}
+                                {/* Navigation Items */}
                                 <div className="space-y-0.5">
+
                                     {group.items.map((item) => {
                                         const Icon = item.icon;
+
                                         return (
                                             <NavLink
                                                 key={item.to}
@@ -191,31 +251,45 @@ const Sidebar = ({
                                                     size={17}
                                                     className="shrink-0"
                                                 />
-                                                <span>{item.label}</span>
+
+                                                <span>
+                                                    {item.label}
+                                                </span>
                                             </NavLink>
                                         );
                                     })}
+
                                 </div>
 
                             </div>
                         ))}
 
                         {/* ==========================================
-                            NOTIFICATIONS (separate with badge)
+                            NOTIFICATIONS
                         ========================================== */}
 
                         <div>
+
                             <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
                                 Updates
                             </p>
+
                             <div className="space-y-0.5">
+
                                 <NavLink
                                     to="/notifications"
                                     onClick={onClose}
                                     className={navLinkClass}
                                 >
-                                    <Bell size={17} className="shrink-0" />
-                                    <span className="flex-1">Notifications</span>
+                                    <Bell
+                                        size={17}
+                                        className="shrink-0"
+                                    />
+
+                                    <span className="flex-1">
+                                        Notifications
+                                    </span>
+
                                     {notificationCount > 0 && (
                                         <span className="ml-auto min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
                                             {notificationCount > 99
@@ -223,8 +297,11 @@ const Sidebar = ({
                                                 : notificationCount}
                                         </span>
                                     )}
+
                                 </NavLink>
+
                             </div>
+
                         </div>
 
                     </div>
@@ -243,9 +320,16 @@ const Sidebar = ({
                         onClick={onClose}
                         className={navLinkClass}
                     >
-                        <CircleHelp size={17} className="shrink-0" />
-                        <span>Help &amp; Support</span>
+                        <CircleHelp
+                            size={17}
+                            className="shrink-0"
+                        />
+
+                        <span>
+                            Help &amp; Support
+                        </span>
                     </NavLink>
+
 
                     {/* ==========================================
                         USER CARD
@@ -253,6 +337,7 @@ const Sidebar = ({
 
                     {student && (
                         <div className="mt-2 p-3 rounded-xl bg-slate-50 border border-slate-100">
+
                             <div className="flex items-center gap-2.5">
 
                                 {/* Avatar */}
@@ -262,15 +347,20 @@ const Sidebar = ({
                                         ?.toUpperCase() || "S"}
                                 </div>
 
-                                {/* User info */}
+
+                                {/* User Information */}
                                 <div className="flex-1 min-w-0">
+
                                     <p className="text-xs font-semibold text-slate-900 truncate leading-tight">
                                         {student.fullName || "Student"}
                                     </p>
+
                                     <p className="text-[10px] text-slate-400 truncate leading-tight mt-0.5">
                                         {student.email || ""}
                                     </p>
+
                                 </div>
+
 
                                 {/* Logout */}
                                 <button
@@ -283,6 +373,7 @@ const Sidebar = ({
                                 </button>
 
                             </div>
+
                         </div>
                     )}
 

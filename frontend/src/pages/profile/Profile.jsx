@@ -36,6 +36,8 @@ import {
 import { getMySkills } from "../../services/skillService";
 import { getMyInterests } from "../../services/interestService";
 import { getMyGoals } from "../../services/goalService";
+import { getMyAchievements } from "../../services/achievementService";
+import { getMyCertifications } from "../../services/certificationService";
 
 // ==========================================
 // AVAILABILITY CONFIG (visual only)
@@ -69,6 +71,8 @@ const Profile = () => {
 
   const [skills, setSkills] = useState([]);
   const [interests, setInterests] = useState([]);
+  const [achievements, setAchievements] = useState([]);
+  const [certifications, setCertifications] = useState([]);
   const [goals, setGoals] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -101,7 +105,7 @@ const Profile = () => {
   });
 
   // ==========================================
-  // LOAD PROFILE + SKILLS + INTERESTS + GOALS
+  // LOAD PROFILE + SKILLS + INTERESTS + ACHIEVEMENTS + CERTIFICATIONS + GOALS
   // ==========================================
 
   // Wrapped in useCallback to fix ESLint red lines and prevent infinite loops
@@ -111,11 +115,15 @@ const Profile = () => {
         profileResult,
         skillsResult,
         interestsResult,
+        achievementsResult,
+        certificationsResult,
         goalsResult,
       ] = await Promise.allSettled([
         getMyProfile(),
         getMySkills(),
         getMyInterests(),
+        getMyAchievements(),
+        getMyCertifications(),
         getMyGoals(),
       ]);
 
@@ -159,6 +167,28 @@ const Profile = () => {
         setInterests([]);
       }
 
+      // ACHIEVEMENTS
+      if (achievementsResult.status === "fulfilled") {
+        setAchievements(achievementsResult.value || []);
+      } else {
+        console.error(
+            "Achievements error:",
+            achievementsResult.reason
+        );
+        setAchievements([]);
+      }
+
+      // CERTIFICATIONS
+      if (certificationsResult.status === "fulfilled") {
+        setCertifications(certificationsResult.value || []);
+      } else {
+        console.error(
+            "Certifications error:",
+            certificationsResult.reason
+        );
+        setCertifications([]);
+      }
+
       // GOALS
       if (goalsResult.status === "fulfilled") {
         setGoals(goalsResult.value || []);
@@ -166,6 +196,7 @@ const Profile = () => {
         console.error("Goals error:", goalsResult.reason);
         setGoals([]);
       }
+
     } catch (error) {
       console.error("Profile loading error:", error);
       toast.error(
@@ -192,7 +223,7 @@ const Profile = () => {
 
   const profileCompletion = useMemo(() => {
     let completed = 0;
-    const total = 10;
+    const total = 12;
 
     if (profile?.bio) completed++;
     if (profile?.cgpa) completed++;
@@ -204,9 +235,11 @@ const Profile = () => {
     if (profile?.resumeUrl) completed++;
     if (skills && skills.length > 0) completed++;
     if (goals && goals.length > 0) completed++;
+    if (achievements && achievements.length > 0) completed++;
+    if (certifications && certifications.length > 0) completed++;
 
     return Math.round((completed / total) * 100);
-  }, [profile, skills, goals]); // Only recalculates when these change
+  }, [profile, skills, goals, achievements, certifications]); // Only recalculates when these change
 
   // ==========================================
   // BASIC PROFILE
@@ -439,12 +472,12 @@ const Profile = () => {
   // ==========================================
 
   const inputCls =
-    "w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition";
+      "w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition";
 
   const labelCls = "block text-sm font-semibold text-slate-700 mb-1.5";
 
   const sectionCardCls =
-    "bg-white rounded-2xl border border-slate-200 p-6 mb-5";
+      "bg-white rounded-2xl border border-slate-200 p-6 mb-5";
 
   // ==========================================
   // LOADING
@@ -481,7 +514,7 @@ const Profile = () => {
 
   // Availability badge config for the current status
   const availConfig =
-    AVAILABILITY_CONFIG[profile.availabilityStatus] ?? null;
+      AVAILABILITY_CONFIG[profile.availabilityStatus] ?? null;
 
   // ==========================================
   // RENDER
@@ -504,10 +537,10 @@ const Profile = () => {
               </div>
               {/* Availability dot */}
               {availConfig && (
-                <span
-                  className={`absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full border-2 border-white ${availConfig.dot}`}
-                  title={availConfig.label}
-                />
+                  <span
+                      className={`absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full border-2 border-white ${availConfig.dot}`}
+                      title={availConfig.label}
+                  />
               )}
             </div>
 
@@ -521,12 +554,12 @@ const Profile = () => {
 
               {/* Department + Year */}
               {(profile.department || profile.year) && (
-                <p className="text-sm text-slate-600 mt-1 font-medium">
-                  {[profile.department, profile.year ? `Year ${profile.year}` : null]
-                    .filter(Boolean)
-                    .join(" · ")}
-                  {profile.specialization ? ` · ${profile.specialization}` : ""}
-                </p>
+                  <p className="text-sm text-slate-600 mt-1 font-medium">
+                    {[profile.department, profile.year ? `Year ${profile.year}` : null]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    {profile.specialization ? ` · ${profile.specialization}` : ""}
+                  </p>
               )}
 
               {/* Badges */}
@@ -538,9 +571,9 @@ const Profile = () => {
                   {profile.accountStatus}
                 </span>
                 {availConfig && (
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${availConfig.badge}`}>
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${availConfig.badge}`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${availConfig.dot}`} />
-                    {availConfig.label}
+                      {availConfig.label}
                   </span>
                 )}
               </div>
@@ -582,10 +615,10 @@ const Profile = () => {
 
         <section className={sectionCardCls}>
           <SectionHeader
-            icon={<User size={19} className="text-blue-600" />}
-            iconBg="bg-blue-50"
-            title="Personal Information"
-            subtitle="Your basic student information."
+              icon={<User size={19} className="text-blue-600" />}
+              iconBg="bg-blue-50"
+              title="Personal Information"
+              subtitle="Your basic student information."
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -608,26 +641,26 @@ const Profile = () => {
 
         <section className={sectionCardCls}>
           <SectionHeader
-            icon={<FileText size={19} className="text-purple-600" />}
-            iconBg="bg-purple-50"
-            title="About"
-            subtitle="Your professional introduction."
+              icon={<FileText size={19} className="text-purple-600" />}
+              iconBg="bg-purple-50"
+              title="About"
+              subtitle="Your professional introduction."
           />
 
           {profile.bio ? (
-            <p className="text-slate-600 leading-relaxed text-sm">
-              {profile.bio}
-            </p>
+              <p className="text-slate-600 leading-relaxed text-sm">
+                {profile.bio}
+              </p>
           ) : (
-            <div className="rounded-xl bg-slate-50 px-5 py-6 flex items-center gap-4">
-              <FileText size={22} className="text-slate-300 shrink-0" />
-              <div>
-                <p className="text-sm font-semibold text-slate-700">No bio added yet</p>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Add a short introduction to help others learn about you.
-                </p>
+              <div className="rounded-xl bg-slate-50 px-5 py-6 flex items-center gap-4">
+                <FileText size={22} className="text-slate-300 shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-slate-700">No bio added yet</p>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Add a short introduction to help others learn about you.
+                  </p>
+                </div>
               </div>
-            </div>
           )}
         </section>
 
@@ -638,11 +671,11 @@ const Profile = () => {
         <section className={sectionCardCls}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
             <SectionHeader
-              icon={<Award size={19} className="text-blue-600" />}
-              iconBg="bg-blue-50"
-              title="Skills"
-              subtitle="Your technical and professional skills."
-              noMargin
+                icon={<Award size={19} className="text-blue-600" />}
+                iconBg="bg-blue-50"
+                title="Skills"
+                subtitle="Your technical and professional skills."
+                noMargin
             />
             <a
                 href="/skills"
@@ -692,11 +725,11 @@ const Profile = () => {
         <section className={sectionCardCls}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
             <SectionHeader
-              icon={<Heart size={19} className="text-pink-600" />}
-              iconBg="bg-pink-50"
-              title="Interests"
-              subtitle="Areas and topics you are interested in."
-              noMargin
+                icon={<Heart size={19} className="text-pink-600" />}
+                iconBg="bg-pink-50"
+                title="Interests"
+                subtitle="Areas and topics you are interested in."
+                noMargin
             />
             <a
                 href="/interests"
@@ -731,17 +764,310 @@ const Profile = () => {
         </section>
 
         {/* ==========================================
+            ACHIEVEMENTS
+        ========================================== */}
+
+        <section className={sectionCardCls}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+
+            <SectionHeader
+                icon={<Award size={19} className="text-purple-600" />}
+                iconBg="bg-purple-50"
+                title="Achievements"
+                subtitle="Your certifications, accomplishments, and recognitions."
+                noMargin
+            />
+
+            <a
+                href="/achievements"
+                className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 transition shrink-0"
+            >
+              Manage Achievements
+              <ArrowRight size={15} />
+            </a>
+
+          </div>
+
+          {achievements.length === 0 ? (
+
+              <div className="rounded-xl bg-slate-50 p-8 text-center">
+                <Award
+                    size={28}
+                    className="mx-auto text-slate-300 mb-3"
+                />
+
+                <h3 className="text-sm font-semibold text-slate-700">
+                  No achievements added yet
+                </h3>
+
+                <p className="text-xs text-slate-400 mt-1">
+                  Add your certifications, awards, and accomplishments.
+                </p>
+              </div>
+
+          ) : (
+
+              <div className="space-y-3">
+
+                {achievements.map((achievement) => (
+
+                    <div
+                        key={achievement.id}
+                        className="border border-slate-200 rounded-xl p-4 hover:shadow-sm transition-shadow"
+                    >
+
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+
+                        {/* Achievement information */}
+                        <div className="flex items-start gap-3 flex-1 min-w-0">
+
+                          <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                            <Award size={18} />
+                          </div>
+
+                          <div className="min-w-0">
+
+                            <h3 className="text-sm font-bold text-slate-900">
+                              {achievement.title}
+                            </h3>
+
+                            <p className="text-xs font-medium text-slate-500 mt-1">
+                              {achievement.issuer}
+                            </p>
+
+                            {achievement.description && (
+                                <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+                                  {achievement.description}
+                                </p>
+                            )}
+
+                          </div>
+
+                        </div>
+
+                        {/* Date + Certificate */}
+                        <div className="flex sm:flex-col items-start sm:items-end gap-2 shrink-0">
+
+                          {achievement.achievementDate && (
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
+                          {new Date(
+                              achievement.achievementDate
+                          ).toLocaleDateString("en-IN", {
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </span>
+                          )}
+
+                          {achievement.certificateUrl && (
+                              <a
+                                  href={achievement.certificateUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700"
+                              >
+                                View Certificate
+                                <ExternalLink size={12} />
+                              </a>
+                          )}
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                ))}
+
+              </div>
+
+          )}
+
+        </section>
+
+        {/* ==========================================
+            CERTIFICATIONS
+        ========================================== */}
+
+        <section className={sectionCardCls}>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+
+            <SectionHeader
+                icon={<GraduationCap size={19} className="text-green-600" />}
+                iconBg="bg-green-50"
+                title="Certifications"
+                subtitle="Professional certifications and credentials."
+                noMargin
+            />
+
+            <a
+                href="/certifications"
+                className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 transition shrink-0"
+            >
+              Manage Certifications
+              <ArrowRight size={15} />
+            </a>
+
+          </div>
+
+          {certifications.length === 0 ? (
+
+              <div
+                  className="
+                        rounded-xl
+                        bg-slate-50
+                        border
+                        border-slate-100
+                        p-5
+                        text-center
+                    "
+              >
+
+                <GraduationCap
+                    size={24}
+                    className="
+                            mx-auto
+                            text-slate-400
+                            mb-3
+                        "
+                />
+
+                <p
+                    className="
+                            text-sm
+                            font-semibold
+                            text-slate-700
+                        "
+                >
+                  No certifications added yet
+                </p>
+
+                <p
+                    className="
+                            text-xs
+                            text-slate-500
+                            mt-1
+                        "
+                >
+                  Add certifications to strengthen your profile.
+                </p>
+
+              </div>
+
+          ) : (
+
+              <div
+                  className="
+                        grid
+                        grid-cols-1
+                        md:grid-cols-2
+                        gap-4
+                    "
+              >
+
+                {certifications.map((certification) => (
+
+                    <div
+                        key={certification.id}
+                        className="
+                                rounded-xl
+                                border
+                                border-slate-200
+                                bg-slate-50
+                                p-4
+                            "
+                    >
+
+                      <div
+                          className="
+                                    flex
+                                    items-start
+                                    gap-3
+                                "
+                      >
+
+                        <div
+                            className="
+                                        w-10
+                                        h-10
+                                        rounded-lg
+                                        bg-green-50
+                                        text-green-600
+                                        flex
+                                        items-center
+                                        justify-center
+                                        shrink-0
+                                    "
+                        >
+                          <GraduationCap size={18} />
+                        </div>
+
+
+                        <div className="min-w-0">
+
+                          <h3
+                              className="
+                                            text-sm
+                                            font-bold
+                                            text-slate-900
+                                        "
+                          >
+                            {certification.certificateName}
+                          </h3>
+
+
+                          <p
+                              className="
+                                            text-xs
+                                            text-slate-500
+                                            mt-1
+                                        "
+                          >
+                            {certification.issuingOrganization}
+                          </p>
+
+
+                          {certification.issueDate && (
+
+                              <p
+                                  className="
+                                                text-xs
+                                                text-slate-400
+                                                mt-2
+                                            "
+                              >
+                                Issued: {certification.issueDate}
+                              </p>
+
+                          )}
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                ))}
+
+              </div>
+
+          )}
+
+        </section>
+
+        {/* ==========================================
             GOALS
         ========================================== */}
 
         <section className={sectionCardCls}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
             <SectionHeader
-              icon={<Target size={19} className="text-amber-600" />}
-              iconBg="bg-amber-50"
-              title="Goals"
-              subtitle="Your current academic and career goals."
-              noMargin
+                icon={<Target size={19} className="text-amber-600" />}
+                iconBg="bg-amber-50"
+                title="Goals"
+                subtitle="Your current academic and career goals."
+                noMargin
             />
             <a
                 href="/goals"
@@ -796,15 +1122,15 @@ const Profile = () => {
         <section className={sectionCardCls}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
             <SectionHeader
-              icon={<Sparkles size={19} className="text-indigo-600" />}
-              iconBg="bg-indigo-50"
-              title="Availability"
-              subtitle="Let other students know when you are available for collaboration."
-              noMargin
+                icon={<Sparkles size={19} className="text-indigo-600" />}
+                iconBg="bg-indigo-50"
+                title="Availability"
+                subtitle="Let other students know when you are available for collaboration."
+                noMargin
             />
             <div className="flex items-center gap-3 shrink-0">
               {availabilitySaving && (
-                <span className="text-xs text-slate-400 font-medium">Saving...</span>
+                  <span className="text-xs text-slate-400 font-medium">Saving...</span>
               )}
               <select
                   value={profile.availabilityStatus || ""}
@@ -829,11 +1155,11 @@ const Profile = () => {
         <section className={sectionCardCls}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
             <SectionHeader
-              icon={<Briefcase size={19} className="text-slate-700" />}
-              iconBg="bg-slate-100"
-              title="Career Links"
-              subtitle="Your professional and career resources."
-              noMargin
+                icon={<Briefcase size={19} className="text-slate-700" />}
+                iconBg="bg-slate-100"
+                title="Career Links"
+                subtitle="Your professional and career resources."
+                noMargin
             />
             <button
                 onClick={openSocialEdit}
@@ -1234,13 +1560,13 @@ const Profile = () => {
 ========================================== */
 
 const SectionHeader = ({ icon, iconBg, title, subtitle, noMargin }) => (
-  <div className={`flex items-center gap-3 ${noMargin ? "" : "mb-5"}`}>
-    <div className={`p-2.5 rounded-xl ${iconBg} shrink-0`}>{icon}</div>
-    <div>
-      <h2 className="text-base font-bold text-slate-900">{title}</h2>
-      {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+    <div className={`flex items-center gap-3 ${noMargin ? "" : "mb-5"}`}>
+      <div className={`p-2.5 rounded-xl ${iconBg} shrink-0`}>{icon}</div>
+      <div>
+        <h2 className="text-base font-bold text-slate-900">{title}</h2>
+        {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+      </div>
     </div>
-  </div>
 );
 
 /* ==========================================

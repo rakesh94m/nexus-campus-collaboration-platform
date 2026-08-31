@@ -89,7 +89,8 @@ public class AchievementServiceImpl implements AchievementService {
 
         Student student = getCurrentStudent();
 
-        return achievementRepository.findByStudent(student)
+        return achievementRepository
+                .findByStudentOrderByAchievementDateDesc(student)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();

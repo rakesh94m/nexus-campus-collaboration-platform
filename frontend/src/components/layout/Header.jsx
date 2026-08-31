@@ -4,7 +4,6 @@ import {
     Bell,
     Menu,
     ChevronDown,
-    User,
     LogOut,
 } from "lucide-react";
 
@@ -18,18 +17,75 @@ import { useAuth } from "../../context/AuthContext";
 // ==========================================
 
 const PAGE_META = {
-    "/dashboard":     { title: "Dashboard",          subtitle: "Overview of your NEXUS activity"      },
-    "/profile":       { title: "My Profile",         subtitle: "Account & profile settings"            },
-    "/skills":        { title: "Skills",             subtitle: "Manage your technical skills"          },
-    "/interests":     { title: "Interests",          subtitle: "Manage your areas of interest"         },
-    "/goals":         { title: "Goals",              subtitle: "Track your academic & career goals"    },
-    "/projects":      { title: "Projects",           subtitle: "Manage and discover projects"          },
-    "/collaboration": { title: "Collaboration",      subtitle: "Manage collaboration requests"         },
-    "/students":      { title: "Find Students",      subtitle: "Discover and connect with students"    },
-    "/notifications": { title: "Notifications",      subtitle: "Your recent activity & updates"        },
-    "/recommendations": { title: "AI Recommendations", subtitle: "Smart project matching"             },
-    "/career-roadmap":  { title: "Career Roadmap",  subtitle: "AI-powered career development path"    },
-    "/support":       { title: "Help & Support",     subtitle: "Get help and submit support tickets"   },
+    "/dashboard": {
+        title: "Dashboard",
+        subtitle: "Overview of your NEXUS activity",
+    },
+
+    "/profile": {
+        title: "My Profile",
+        subtitle: "Account & profile settings",
+    },
+
+    "/skills": {
+        title: "Skills",
+        subtitle: "Manage your technical skills",
+    },
+
+    "/interests": {
+        title: "Interests",
+        subtitle: "Manage your areas of interest",
+    },
+
+    "/achievements": {
+        title: "Achievements",
+        subtitle: "Track your accomplishments",
+    },
+
+    "/certifications": {
+        title: "Certifications",
+        subtitle: "Manage your professional certifications",
+    },
+
+    "/goals": {
+        title: "Goals",
+        subtitle: "Track your academic & career goals",
+    },
+
+    "/projects": {
+        title: "Projects",
+        subtitle: "Manage and discover projects",
+    },
+
+    "/collaboration": {
+        title: "Collaboration",
+        subtitle: "Manage collaboration requests",
+    },
+
+    "/students": {
+        title: "Find Students",
+        subtitle: "Discover and connect with students",
+    },
+
+    "/notifications": {
+        title: "Notifications",
+        subtitle: "Your recent activity & updates",
+    },
+
+    "/recommendations": {
+        title: "AI Recommendations",
+        subtitle: "Smart project matching",
+    },
+
+    "/career-roadmap": {
+        title: "Career Roadmap",
+        subtitle: "AI-powered career development path",
+    },
+
+    "/support": {
+        title: "Help & Support",
+        subtitle: "Get help and submit support tickets",
+    },
 };
 
 // ==========================================
@@ -37,36 +93,35 @@ const PAGE_META = {
 // ==========================================
 
 const Header = ({
-    onMenuClick,
-    notificationCount = 0,
-}) => {
-    const navigate   = useNavigate();
-    const location   = useLocation();
+                    onMenuClick,
+                    notificationCount = 0,
+                }) => {
+
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const { student, logout } = useAuth();
 
     const [accountOpen, setAccountOpen] = useState(false);
 
-    // Resolve the current page meta from the route
+    // ==========================================
+    // CURRENT PAGE META
+    // ==========================================
+
     const pageMeta =
         PAGE_META[location.pathname] ?? {
-            title:    "NEXUS",
+            title: "NEXUS",
             subtitle: "Campus Collaboration Intelligence Platform",
         };
 
     // ==========================================
-    // HANDLERS (DO NOT MODIFY — business logic)
+    // HANDLERS
     // ==========================================
 
     const handleLogout = () => {
         logout();
         setAccountOpen(false);
         navigate("/login", { replace: true });
-    };
-
-    const handleProfile = () => {
-        setAccountOpen(false);
-        navigate("/profile");
     };
 
     const handleNotifications = () => {
@@ -84,7 +139,7 @@ const Header = ({
             <div className="h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
 
                 {/* ==========================================
-                    LEFT — Mobile menu + Dynamic page title
+                    LEFT — MOBILE MENU + PAGE TITLE
                 ========================================== */}
 
                 <div className="flex items-center gap-3 min-w-0">
@@ -100,19 +155,22 @@ const Header = ({
 
                     {/* Dynamic page title */}
                     <div className="min-w-0">
+
                         <p className="hidden sm:block text-xs font-medium text-slate-400 leading-none truncate">
                             {pageMeta.subtitle}
                         </p>
+
                         <h2 className="text-base font-bold text-slate-900 leading-tight truncate mt-0.5">
                             {pageMeta.title}
                         </h2>
+
                     </div>
 
                 </div>
 
 
                 {/* ==========================================
-                    RIGHT — Notifications + Account
+                    RIGHT — NOTIFICATIONS + ACCOUNT
                 ========================================== */}
 
                 <div className="flex items-center gap-1.5 shrink-0">
@@ -126,17 +184,21 @@ const Header = ({
                         className="relative p-2.5 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition"
                         aria-label="View notifications"
                     >
+
                         <Bell size={20} />
 
                         {notificationCount > 0 && (
-                            <span
-                                className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center leading-none"
-                            >
+
+                            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center leading-none">
+
                                 {notificationCount > 99
                                     ? "99+"
                                     : notificationCount}
+
                             </span>
+
                         )}
+
                     </button>
 
 
@@ -146,40 +208,53 @@ const Header = ({
 
                     <div className="relative">
 
-                        {/* Account trigger button */}
+                        {/* Account trigger */}
                         <button
                             onClick={() =>
-                                setAccountOpen((previous) => !previous)
+                                setAccountOpen(
+                                    (previous) => !previous
+                                )
                             }
                             className="flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-slate-50 transition"
                             aria-haspopup="true"
                             aria-expanded={accountOpen}
                         >
-                            {/* Student Name (hidden on xs) */}
+
+                            {/* Student name */}
                             <div className="hidden sm:block text-right">
+
                                 <p className="text-sm font-semibold text-slate-900 leading-tight">
                                     {student?.fullName || "Student"}
                                 </p>
+
                                 <p className="text-xs text-slate-400 leading-tight">
                                     Student
                                 </p>
+
                             </div>
+
 
                             {/* Avatar */}
                             <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold shrink-0 select-none">
+
                                 {student?.fullName
                                     ?.charAt(0)
                                     ?.toUpperCase() || "S"}
+
                             </div>
 
-                            {/* Chevron (hidden on xs) */}
+
+                            {/* Chevron */}
                             <ChevronDown
                                 size={15}
                                 className={[
                                     "hidden sm:block text-slate-400 transition-transform duration-200",
-                                    accountOpen ? "rotate-180" : "",
+                                    accountOpen
+                                        ? "rotate-180"
+                                        : "",
                                 ].join(" ")}
                             />
+
                         </button>
 
 
@@ -189,50 +264,57 @@ const Header = ({
 
                         {accountOpen && (
                             <>
-                                {/* Invisible backdrop to close on outside click */}
+
+                                {/* Outside click backdrop */}
                                 <div
                                     className="fixed inset-0 z-10"
-                                    onClick={() => setAccountOpen(false)}
+                                    onClick={() =>
+                                        setAccountOpen(false)
+                                    }
                                 />
 
+
+                                {/* Dropdown */}
                                 <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl border border-slate-200 shadow-lg z-20 overflow-hidden">
 
-                                    {/* User info */}
-                                    <div className="px-4 py-3 border-b border-slate-100">
+                                    {/* ==========================================
+                                        USER INFORMATION
+                                    ========================================== */}
+
+                                    <div className="px-4 py-3">
+
                                         <p className="text-sm font-semibold text-slate-900 truncate">
                                             {student?.fullName || "Student"}
                                         </p>
+
                                         <p className="text-xs text-slate-400 mt-0.5 truncate">
                                             {student?.email || ""}
                                         </p>
+
                                     </div>
 
-                                    {/* My Profile */}
-                                    <div className="p-1">
-                                        <button
-                                            onClick={handleProfile}
-                                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition"
-                                        >
-                                            <User
-                                                size={16}
-                                                className="text-slate-400"
-                                            />
-                                            My Profile
-                                        </button>
-                                    </div>
 
-                                    {/* Sign Out */}
+                                    {/* ==========================================
+                                        SIGN OUT
+                                    ========================================== */}
+
                                     <div className="p-1 border-t border-slate-100">
+
                                         <button
                                             onClick={handleLogout}
                                             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition"
                                         >
+
                                             <LogOut size={16} />
+
                                             Sign Out
+
                                         </button>
+
                                     </div>
 
                                 </div>
+
                             </>
                         )}
 
