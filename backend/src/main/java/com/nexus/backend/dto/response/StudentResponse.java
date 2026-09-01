@@ -41,6 +41,6 @@ public class StudentResponse {
 
     private String availabilityStatus;
 
-    // NEW
+
     private List<String> skills;
 }
