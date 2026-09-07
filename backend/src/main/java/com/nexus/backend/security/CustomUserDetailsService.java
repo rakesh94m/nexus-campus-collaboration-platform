@@ -15,6 +15,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final StudentRepository studentRepository;
 
+
     @Override
     public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
