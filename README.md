@@ -859,7 +859,7 @@ NEXUS was developed as a flagship project for Database Management Systems (DBMS)
 *Specialization: Full-Stack Cloud Engineering & Generative AI Systems*
 
 [![GitHub](https://img.shields.io/badge/GitHub-rakesh94m-181717?style=flat&logo=github)](https://github.com/rakesh94m)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=flat&logo=linkedin)](https://linkedin.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=flat&logo=linkedin)]([https://linkedin.com](https://www.linkedin.com/in/rakesh-meesa))
 
 </div>
 
