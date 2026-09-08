@@ -170,6 +170,7 @@ public class InterestServiceImpl implements InterestService {
     // =========================================
 
     @Override
+    @Transactional
     public InterestResponse updateInterest(
             Long id,
             UpdateInterestRequest request) {
@@ -187,10 +188,63 @@ public class InterestServiceImpl implements InterestService {
                                         "Interest not found."
                                 ));
 
+        // =========================================
+        // Bug #8 fix:
+        // Find or create the target Interest
+        // by the new name, then re-link the
+        // StudentInterest to it.
+        // =========================================
+
+        String newInterestName =
+                request.getInterestName().trim();
+
+        // Find existing interest or create a new one
+        Interest newInterest =
+                interestRepository
+                        .findByInterestName(newInterestName)
+                        .orElse(null);
+
+        if (newInterest == null) {
+            newInterest =
+                    interestRepository.save(
+                            Interest.builder()
+                                    .interestName(newInterestName)
+                                    .build()
+                    );
+        }
+
+        // Prevent re-linking to the same interest
+        if (newInterest.getId()
+                .equals(studentInterest.getInterest().getId())) {
+
+            return mapToResponse(studentInterest);
+        }
+
+        // Prevent duplicate: student already has this new interest
+        if (studentInterestRepository
+                .existsByStudentAndInterest(
+                        student,
+                        newInterest
+                )) {
+
+            throw new DuplicateResourceException(
+                    "Interest already added."
+            );
+        }
+
+        // Re-link to the new interest and save
+        studentInterest.setInterest(newInterest);
+
+        studentInterest =
+                studentInterestRepository.save(
+                        studentInterest
+                );
+
         return mapToResponse(
                 studentInterest
         );
     }
+
 
     // =========================================
     // Delete Interest

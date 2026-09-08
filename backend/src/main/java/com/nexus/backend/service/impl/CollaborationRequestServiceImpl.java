@@ -237,13 +237,22 @@ public class CollaborationRequestServiceImpl
         }
 
         // =========================================
-        // Duplicate Pending Request
+        // Duplicate Pending Request (Bug #10 fix)
+        // Check both forward and reverse directions
         // =========================================
 
         if (collaborationRequestRepository
                 .findBySenderAndReceiverAndProjectAndStatus(
                         sender,
                         receiver,
+                        project,
+                        CollaborationStatus.PENDING
+                )
+                .isPresent()
+                || collaborationRequestRepository
+                .findBySenderAndReceiverAndProjectAndStatus(
+                        receiver,
+                        sender,
                         project,
                         CollaborationStatus.PENDING
                 )
@@ -534,10 +543,25 @@ public class CollaborationRequestServiceImpl
             );
         }
 
+        // =========================================
+        // Bug #6 — Block deletion of ACCEPTED
+        // requests to preserve historical data
+        // and prevent ProjectMember orphaning.
+        // =========================================
+
+        if (collaborationRequest.getStatus()
+                == CollaborationStatus.ACCEPTED) {
+
+            throw new DuplicateResourceException(
+                    "Accepted collaboration requests cannot be deleted."
+            );
+        }
+
         collaborationRequestRepository.delete(
                 collaborationRequest
         );
     }
+
 
     // =========================================
     // Format Role For Notification

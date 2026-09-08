@@ -30,6 +30,9 @@ public interface CollaborationRequestRepository
 
     Long countBySenderId(Long senderId);
 
+    // Bug #17: count accepted requests where the student is the sender
+    Long countBySenderIdAndStatus(Long senderId, CollaborationStatus status);
+
     // Get all collaboration requests belonging to a project
     List<CollaborationRequest> findByProject(Project project);
 
@@ -39,4 +42,4 @@ public interface CollaborationRequestRepository
         Project project,
         CollaborationStatus status
 );
-}
+}

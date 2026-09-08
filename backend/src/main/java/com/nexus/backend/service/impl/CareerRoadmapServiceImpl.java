@@ -62,13 +62,13 @@ public class CareerRoadmapServiceImpl
     public CareerRoadmapResponse createCareerRoadmap(
             AddCareerRoadmapRequest request) {
 
-        Student student =
-                studentRepository
-                        .findById(request.getStudentId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Student not found."
-                                ));
+        // =========================================
+        // Bug #2 — IDOR fix:
+        // Resolve the student from the JWT, not
+        // from the caller-supplied studentId.
+        // =========================================
+
+        Student student = getCurrentStudent();
 
         CareerRoadmap careerRoadmap =
                 CareerRoadmap.builder()
@@ -104,17 +104,28 @@ public class CareerRoadmapServiceImpl
     // =========================================
     // Get All Career Roadmaps
     // =========================================
+    //
+    // Bug #3 — Privacy fix:
+    // Return only the current student's own
+    // roadmaps instead of all students' data.
+    //
+    // =========================================
 
     @Override
     public List<CareerRoadmapResponse>
     getAllCareerRoadmaps() {
 
+        Student student = getCurrentStudent();
+
         return careerRoadmapRepository
-                .findAll()
+                .findByStudentIdOrderByGeneratedAtDesc(
+                        student.getId()
+                )
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
     }
+
 
     // =========================================
     // Get My Career Roadmap History

@@ -51,4 +51,10 @@ public interface ProjectMemberRepository
             Project project,
             Student student
     );
-}
+
+    // =========================================
+    // Count memberships of a student
+    // =========================================
+
+    Long countByStudentId(Long studentId);
+}

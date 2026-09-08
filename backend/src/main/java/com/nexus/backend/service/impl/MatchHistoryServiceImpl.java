@@ -57,15 +57,13 @@ public class MatchHistoryServiceImpl
     public MatchHistoryResponse createMatchHistory(
             AddMatchHistoryRequest request) {
 
-        Student student =
-                studentRepository
-                        .findById(
-                                request.getStudentId()
-                        )
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Student not found."
-                                ));
+        // =========================================
+        // Bug #4 — IDOR fix:
+        // Resolve the student from the JWT, not
+        // from the caller-supplied studentId.
+        // =========================================
+
+        Student student = getCurrentStudent();
 
         Project project = null;
 
@@ -103,6 +101,7 @@ public class MatchHistoryServiceImpl
                 matchHistory
         );
     }
+
 
     // =========================================
     // Get Match History
