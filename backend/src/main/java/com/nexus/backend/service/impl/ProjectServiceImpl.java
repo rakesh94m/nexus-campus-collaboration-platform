@@ -259,10 +259,16 @@ public class ProjectServiceImpl implements ProjectService {
                                 .getStudent()
                                 .getId()
                                 .equals(student.getId())
+                                && !projectMemberRepository
+                                .existsByProjectAndStudent(
+                                        project,
+                                        student
+                                )
                 )
                 .map(this::mapToResponse)
                 .toList();
     }
+
 
     // =========================================
     // Update Project

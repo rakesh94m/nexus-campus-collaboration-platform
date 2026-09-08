@@ -8,6 +8,7 @@ import com.nexus.backend.entity.Student;
 import com.nexus.backend.entity.enums.MatchType;
 import com.nexus.backend.exception.ResourceNotFoundException;
 import com.nexus.backend.repository.MatchHistoryRepository;
+import com.nexus.backend.repository.ProjectMemberRepository;
 import com.nexus.backend.repository.ProjectRepository;
 import com.nexus.backend.repository.StudentRepository;
 import com.nexus.backend.service.GeminiService;
@@ -29,6 +30,7 @@ public class RecommendationServiceImpl
     private final StudentRepository studentRepository;
     private final ProjectRepository projectRepository;
     private final MatchHistoryRepository matchHistoryRepository;
+    private final ProjectMemberRepository projectMemberRepository;
     private final MatchScoreCalculator matchScoreCalculator;
     private final GeminiService geminiService;
 
@@ -77,6 +79,15 @@ public class RecommendationServiceImpl
                                 !project.getStudent()
                                         .getId()
                                         .equals(student.getId())
+                        )
+
+                        // Don't recommend projects the student already joined
+                        .filter(project ->
+                                !projectMemberRepository
+                                        .existsByProjectAndStudent(
+                                                project,
+                                                student
+                                        )
                         )
 
                         // Calculate match score

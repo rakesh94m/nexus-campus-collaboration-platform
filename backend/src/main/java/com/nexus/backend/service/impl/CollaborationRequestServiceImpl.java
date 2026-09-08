@@ -371,8 +371,26 @@ public class CollaborationRequestServiceImpl
         Project project =
                 collaborationRequest.getProject();
 
+        // =========================================
+        // Determine the new member:
+        // Always the non-owner party.
+        //
+        // JOIN PROJECT flow:
+        //   Sender = student, Receiver = owner
+        //   → new member = Sender
+        //
+        // FIND STUDENTS flow:
+        //   Sender = owner, Receiver = student
+        //   → new member = Receiver
+        // =========================================
+
         Student applicant =
-                collaborationRequest.getSender();
+                project.getStudent().getId()
+                        .equals(collaborationRequest
+                                .getSender()
+                                .getId())
+                        ? collaborationRequest.getReceiver()
+                        : collaborationRequest.getSender();
 
         // =========================================
         // REJECT
