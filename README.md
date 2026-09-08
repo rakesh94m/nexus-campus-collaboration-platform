@@ -28,6 +28,9 @@
 
 ---
 
+> **⚠️ Deployment Note:** NEXUS is deployed on Vercel and Microsoft Azure. To conserve Azure for Students cloud credits, the **Azure App Service backend and Azure PostgreSQL database may be stopped when the project is not being actively demonstrated**. During these periods, the live frontend may remain accessible, but backend-dependent features such as authentication, projects, profiles, and AI functionality will be temporarily unavailable. The Azure resources can be restarted when the application needs to be demonstrated or evaluated.
+
+
 ## 📌 Table of Contents
 
 - [Overview](#-overview)
@@ -134,7 +137,7 @@ NEXUS implements a production-grade, decoupled client-server architecture with s
 
 # ☁️ Cloud Deployment & Production Architecture
 
-NEXUS is deployed in a high-availability, enterprise cloud architecture. The frontend, backend, database, and AI microservices are decoupled across dedicated cloud platforms for optimal performance, uptime, and security.
+NEXUS is deployed in a decoupled cloud architecture, with the frontend, backend, database, and AI services hosted across dedicated platforms for maintainability, security, and practical cloud deployment.
 
 ### Production Architecture Flow
 
@@ -175,17 +178,16 @@ NEXUS is deployed in a high-availability, enterprise cloud architecture. The fro
 ```
 
 ---
-
 ### Cloud Infrastructure Stack
 
 | Layer | Cloud Provider | Resource Name / Plan | Purpose |
 | :--- | :--- | :--- | :--- |
-| **Frontend** | **Vercel** | `nexus-campus-collaboration-platform` | Serves the optimized production Vite bundle with global edge caching and CDN distribution. |
-| **Backend** | **Microsoft Azure** | Azure App Service (Linux, Java 21) | Executes the containerized/native Spring Boot executable JAR with automated scaling and health monitoring. |
-| **Database** | **Microsoft Azure** | Azure Database for PostgreSQL – Flexible Server | Managed relational database cluster (`nexus_db`) with automated storage encryption, SSL/TLS, and daily backups. |
-| **AI Mentorship** | **Google Cloud** | Google GenAI API (`gemini-3.6-flash`) | Natural language understanding, skill ontology analysis, career roadmap synthesis, and project suitability matching. |
-| **Mail Transport** | **Google Cloud / Gmail**| Gmail SMTP Server (`smtp.gmail.com:587`) | Delivers 6-digit email OTP codes for verification, password resets, and support ticket confirmations. |
-| **Version Control**| **GitHub** | `rakesh94m/nexus-campus-collaboration-platform` | Unified monorepo containing frontend and backend code with CI/CD deployment webhooks. |
+| **Frontend** | **Vercel** | `nexus-campus-collaboration-platform` | Serves the optimized production React + Vite application with global CDN delivery. |
+| **Backend** | **Microsoft Azure** | Azure App Service (Linux, Java 21, B1) | Hosts and runs the Spring Boot 3.5.4 executable JAR as the production REST API. |
+| **Database** | **Microsoft Azure** | Azure Database for PostgreSQL – Flexible Server | Hosts the production PostgreSQL database (`nexus_db`) with secure SSL/TLS connectivity. |
+| **AI Mentorship** | **Google Cloud** | Google GenAI API (`gemini-3.6-flash`) | Provides AI-powered career roadmap generation and project suitability recommendations. |
+| **Mail Transport** | **Google Cloud / Gmail** | Gmail SMTP Server (`smtp.gmail.com:587`) | Delivers 6-digit email OTP codes for registration, password reset, and support notifications. |
+| **Version Control** | **GitHub** | `rakesh94m/nexus-campus-collaboration-platform` | Unified monorepo containing the frontend and backend source code. |
 
 ---
 
