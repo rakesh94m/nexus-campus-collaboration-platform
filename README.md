@@ -320,7 +320,7 @@ This ensures browsers cleanly pass `OPTIONS` preflight requests, share credentia
 ### 👤 1. Student Capability Profile Management
 - Comprehensive student records: Name, roll number, department, specialization, academic year, section, and CGPA.
 - Professional links: GitHub username, LinkedIn URL, personal portfolio, and resume links.
-- Capability status indicator (`AVAILABLE`, `BUSY`, `OPEN_FOR_PROJECTS`).
+- Capability status indicator (`AVAILABLE`, `BUSY`, `LOOKING_FOR_TEAM`,`NOT_AVAILABLE`).
 
 ### 🧠 2. Granular Skills & Interests Taxonomy
 - Multi-category skill management: Programming Languages, Frameworks, Cloud, Databases, Developer Tools, and AI/ML.
