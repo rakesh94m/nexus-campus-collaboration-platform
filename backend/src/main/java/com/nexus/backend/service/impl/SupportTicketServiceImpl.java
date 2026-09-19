@@ -2,6 +2,7 @@ package com.nexus.backend.service.impl;
 
 import com.nexus.backend.dto.request.CreateSupportTicketRequest;
 import com.nexus.backend.dto.request.UpdateSupportTicketStatusRequest;
+import com.nexus.backend.dto.response.AdminSupportTicketResponse;
 import com.nexus.backend.dto.response.SupportTicketResponse;
 import com.nexus.backend.entity.Student;
 import com.nexus.backend.entity.SupportTicket;
@@ -278,6 +279,25 @@ public class SupportTicketServiceImpl
 
 
     // ==========================================
+    // GET ALL TICKETS (ADMIN ONLY)
+    // ==========================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AdminSupportTicketResponse> getAllTicketsForAdmin() {
+
+        // Security: only ADMIN may call this
+        getCurrentAdmin();
+
+        return supportTicketRepository
+                .findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(this::mapToAdminResponse)
+                .toList();
+    }
+
+
+    // ==========================================
     // ENTITY → RESPONSE
     // ==========================================
 
@@ -317,6 +337,47 @@ public class SupportTicketServiceImpl
                 .updatedAt(
                         ticket.getUpdatedAt()
                 )
+
+                .build();
+    }
+
+
+    // ==========================================
+    // ENTITY → ADMIN RESPONSE
+    // ==========================================
+
+    private AdminSupportTicketResponse mapToAdminResponse(
+            SupportTicket ticket
+    ) {
+
+        Student student = ticket.getStudent();
+
+        return AdminSupportTicketResponse
+                .builder()
+
+                .id(ticket.getId())
+
+                .studentId(student.getId())
+
+                .studentFullName(
+                        student.getFirstName()
+                                + " "
+                                + student.getLastName()
+                )
+
+                .studentEmail(student.getEmail())
+
+                .category(ticket.getCategory())
+
+                .subject(ticket.getSubject())
+
+                .message(ticket.getMessage())
+
+                .status(ticket.getStatus())
+
+                .createdAt(ticket.getCreatedAt())
+
+                .updatedAt(ticket.getUpdatedAt())
 
                 .build();
     }

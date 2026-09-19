@@ -21,7 +21,10 @@ import Certifications from "../pages/certifications/Certifications";
 import Goals from "../pages/goals/Goals";
 import Support from "../pages/support/Support";
 
+import AdminSupportTickets from "../pages/admin/AdminSupportTickets";
+
 import ProtectedRoute from "./ProtectedRoute";
+import AdminRoute from "./AdminRoute";
 
 const AppRoutes = () => {
     return (
@@ -144,6 +147,22 @@ const AppRoutes = () => {
             </Route>
 
             {/* ==========================================
+                ADMIN-ONLY ROUTES
+                (Requires ADMIN role — redirects others)
+            ========================================== */}
+
+            <Route element={<AdminRoute />}>
+
+                {/* ADMIN: SUPPORT TICKETS */}
+
+                <Route
+                    path="/admin/support-tickets"
+                    element={<AdminSupportTickets />}
+                />
+
+            </Route>
+
+            {/* ==========================================
                 UNKNOWN ROUTE
             ========================================== */}
 
@@ -161,4 +180,4 @@ const AppRoutes = () => {
     );
 };
 
-export default AppRoutes;
+export default AppRoutes;

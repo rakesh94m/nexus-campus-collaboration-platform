@@ -18,6 +18,7 @@ import {
     X,
     LogOut,
     Layers,
+    ShieldCheck,
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
@@ -329,6 +330,35 @@ const Sidebar = ({
                             Help &amp; Support
                         </span>
                     </NavLink>
+
+
+                    {/* ==========================================
+                        ADMIN SECTION (visible to ADMIN only)
+                    ========================================== */}
+
+                    {student?.role === "ADMIN" && (
+                        <>
+                            <p className="px-3 pt-3 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-violet-400">
+                                Admin
+                            </p>
+
+                            <NavLink
+                                to="/admin/support-tickets"
+                                onClick={onClose}
+                                className={({ isActive }) =>
+                                    [
+                                        "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150 group",
+                                        isActive
+                                            ? "bg-violet-50 text-violet-700 font-semibold"
+                                            : "text-slate-600 hover:bg-violet-50 hover:text-violet-700 font-medium",
+                                    ].join(" ")
+                                }
+                            >
+                                <ShieldCheck size={17} className="shrink-0" />
+                                <span>Support Tickets</span>
+                            </NavLink>
+                        </>
+                    )}
 
 
                     {/* ==========================================

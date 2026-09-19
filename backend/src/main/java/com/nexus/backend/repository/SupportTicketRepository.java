@@ -11,4 +11,6 @@ public interface SupportTicketRepository
     List<SupportTicket> findByStudentIdOrderByCreatedAtDesc(
             Long studentId
     );
+
+    List<SupportTicket> findAllByOrderByCreatedAtDesc();
 }
