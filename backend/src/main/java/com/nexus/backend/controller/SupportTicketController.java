@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/support/tickets")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+// F-20: @CrossOrigin removed — this controller now follows the global CORS configuration.
 public class SupportTicketController {
 
     private final SupportTicketService supportTicketService;

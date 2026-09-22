@@ -7,6 +7,7 @@ import com.nexus.backend.service.NotificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +19,12 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
+    // F-05: Restricted to ADMIN only.
+    // All internal notifications are created directly by backend services.
+    // This endpoint must not allow a student to create a notification for any arbitrary student ID.
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAuthority('ADMIN')")
     public NotificationResponse createNotification(
             @Valid @RequestBody AddNotificationRequest request) {
 

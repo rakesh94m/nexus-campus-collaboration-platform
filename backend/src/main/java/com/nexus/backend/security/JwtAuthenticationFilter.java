@@ -52,7 +52,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserDetails userDetails =
                     userDetailsService.loadUserByUsername(userEmail);
 
-            if (jwtService.isTokenValid(jwt, userDetails)) {
+            // F-10: Only authenticate when token is valid AND the account is ACTIVE.
+            // INACTIVE accounts must not retain API access via an existing JWT.
+            if (jwtService.isTokenValid(jwt, userDetails) && userDetails.isEnabled()) {
 
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(

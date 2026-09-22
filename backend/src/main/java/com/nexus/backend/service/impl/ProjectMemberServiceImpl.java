@@ -10,8 +10,10 @@ import com.nexus.backend.entity.Student;
 import com.nexus.backend.entity.enums.MemberRole;
 import com.nexus.backend.entity.enums.NotificationStatus;
 import com.nexus.backend.entity.enums.NotificationType;
+import com.nexus.backend.entity.enums.Role;
 import com.nexus.backend.exception.DuplicateResourceException;
 import com.nexus.backend.exception.ResourceNotFoundException;
+import com.nexus.backend.exception.UnauthorizedException;
 import com.nexus.backend.repository.NotificationRepository;
 import com.nexus.backend.repository.ProjectMemberRepository;
 import com.nexus.backend.repository.ProjectRepository;
@@ -58,6 +60,8 @@ public class ProjectMemberServiceImpl
 
     // =========================================
     // Check Project Owner
+    // F-08: Throws UnauthorizedException (HTTP 403) instead of
+    // ResourceNotFoundException (HTTP 404) — resource exists, caller lacks permission.
     // =========================================
 
     private void verifyProjectOwner(
@@ -68,7 +72,7 @@ public class ProjectMemberServiceImpl
                 .getId()
                 .equals(student.getId())) {
 
-            throw new ResourceNotFoundException(
+            throw new UnauthorizedException(
                     "You are not the owner of this project."
             );
         }
@@ -189,10 +193,14 @@ public class ProjectMemberServiceImpl
 
     // =========================================
     // Get All Members Of A Project
+    // F-06: Restricted to project owner, project members, and ADMIN.
+    // Prevents arbitrary students from enumerating member emails.
     // =========================================
 
     @Override
     public List<ProjectMemberResponse> getProjectMembers(Long projectId) {
+
+        Student currentStudent = getCurrentStudent();
 
         Project project = projectRepository
                 .findById(projectId)
@@ -200,6 +208,17 @@ public class ProjectMemberServiceImpl
                         new ResourceNotFoundException(
                                 "Project not found."
                         ));
+
+        // Allow: ADMIN, project owner, or existing project member.
+        boolean isAdmin = currentStudent.getRole() == Role.ADMIN;
+        boolean isOwner = project.getStudent().getId().equals(currentStudent.getId());
+        boolean isMember = projectMemberRepository.existsByProjectAndStudent(project, currentStudent);
+
+        if (!isAdmin && !isOwner && !isMember) {
+            throw new UnauthorizedException(
+                    "You do not have permission to view the members of this project."
+            );
+        }
 
         return projectMemberRepository
                 .findByProject(project)

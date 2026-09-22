@@ -298,7 +298,7 @@ const Login = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@university.edu"
+                    placeholder="you@gmail.com"
                     autoComplete="email"
                     className={inputCls}
                   />

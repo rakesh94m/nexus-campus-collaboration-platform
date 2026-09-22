@@ -124,6 +124,34 @@ public class GlobalExceptionHandler {
 
 
     // ==============================
+    // Bad Request (Illegal Argument)
+    // F-14: changePassword throws IllegalArgumentException for validation failures.
+    // This maps it to HTTP 400 instead of falling through to HTTP 500.
+    // ==============================
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(
+            IllegalArgumentException ex
+    ) {
+
+        ErrorResponse response =
+                ErrorResponse.builder()
+                        .timestamp(LocalDateTime.now())
+                        .status(
+                                HttpStatus.BAD_REQUEST.value()
+                        )
+                        .error("Bad Request")
+                        .message(ex.getMessage())
+                        .build();
+
+        return new ResponseEntity<>(
+                response,
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+
+    // ==============================
     // Generic Exception
     // ==============================
 

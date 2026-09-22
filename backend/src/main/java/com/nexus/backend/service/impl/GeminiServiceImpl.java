@@ -14,8 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
+import com.nexus.backend.entity.ProjectSkill;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -311,6 +312,9 @@ public class GeminiServiceImpl
 
     // =========================================
     // Matched Skills
+    // F-17: Use structured ProjectSkill relationship instead of
+    // free-text technologiesUsed string matching. This is consistent
+    // with the approach in MatchingServiceImpl.calculateMatchScore().
     // =========================================
 
     private String getMatchedSkills(
@@ -319,86 +323,64 @@ public class GeminiServiceImpl
 
         if (student.getStudentSkills() == null ||
                 student.getStudentSkills().isEmpty() ||
-                project.getTechnologiesUsed() == null) {
+                project.getProjectSkills() == null ||
+                project.getProjectSkills().isEmpty()) {
 
             return "None";
         }
 
-        String technologies =
-                project.getTechnologiesUsed()
-                        .toLowerCase();
-
-        return student.getStudentSkills()
+        // Build a set of required skill names (lower-cased) from the structured join table.
+        Set<String> requiredSkills = project.getProjectSkills()
                 .stream()
-                .filter(skill ->
-                        skill != null &&
-                                skill.getSkill() != null &&
-                                skill.getSkill()
-                                        .getSkillName() != null
-                )
-                .map(skill ->
-                        skill.getSkill()
-                                .getSkillName()
-                )
-                .filter(skill ->
-                        technologies.contains(
-                                skill.toLowerCase()
-                        )
-                )
-                .collect(
-                        Collectors.joining(", ")
-                );
+                .filter(ps -> ps != null && ps.getSkill() != null && ps.getSkill().getSkillName() != null)
+                .map(ps -> ps.getSkill().getSkillName().toLowerCase().trim())
+                .collect(Collectors.toSet());
+
+        // Return student skills that appear in the required set.
+        String matched = student.getStudentSkills()
+                .stream()
+                .filter(ss -> ss != null && ss.getSkill() != null && ss.getSkill().getSkillName() != null)
+                .map(ss -> ss.getSkill().getSkillName())
+                .filter(name -> requiredSkills.contains(name.toLowerCase().trim()))
+                .collect(Collectors.joining(", "));
+
+        return matched.isEmpty() ? "None" : matched;
     }
 
     // =========================================
     // Missing Skills
+    // F-17: Use structured ProjectSkill relationship instead of
+    // free-text technologiesUsed string splitting.
     // =========================================
 
     private String getMissingSkills(
             Student student,
             Project project) {
 
-        if (project.getTechnologiesUsed() == null) {
+        if (project.getProjectSkills() == null ||
+                project.getProjectSkills().isEmpty()) {
 
             return "None";
         }
 
-        List<String> studentSkills =
-                student.getStudentSkills() == null
-                        ? List.of()
-                        : student.getStudentSkills()
-                        .stream()
-                        .filter(skill ->
-                                skill != null &&
-                                        skill.getSkill() != null &&
-                                        skill.getSkill()
-                                                .getSkillName() != null
-                        )
-                        .map(skill ->
-                                skill.getSkill()
-                                        .getSkillName()
-                                        .toLowerCase()
-                                        .trim()
-                        )
-                        .toList();
+        // Build a set of student skill names (lower-cased).
+        Set<String> studentSkillNames = student.getStudentSkills() == null
+                ? Set.of()
+                : student.getStudentSkills()
+                .stream()
+                .filter(ss -> ss != null && ss.getSkill() != null && ss.getSkill().getSkillName() != null)
+                .map(ss -> ss.getSkill().getSkillName().toLowerCase().trim())
+                .collect(Collectors.toSet());
 
-        return Arrays.stream(
-                        project
-                                .getTechnologiesUsed()
-                                .split(",")
-                )
-                .map(String::trim)
-                .filter(skill ->
-                        !skill.isEmpty()
-                )
-                .filter(skill ->
-                        !studentSkills.contains(
-                                skill.toLowerCase()
-                        )
-                )
-                .collect(
-                        Collectors.joining(", ")
-                );
+        // Missing = required skills the student does NOT have.
+        String missing = project.getProjectSkills()
+                .stream()
+                .filter(ps -> ps != null && ps.getSkill() != null && ps.getSkill().getSkillName() != null)
+                .map(ps -> ps.getSkill().getSkillName())
+                .filter(name -> !studentSkillNames.contains(name.toLowerCase().trim()))
+                .collect(Collectors.joining(", "));
+
+        return missing.isEmpty() ? "None" : missing;
     }
 
     // =========================================

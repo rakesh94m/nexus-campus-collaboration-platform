@@ -1173,7 +1173,7 @@ const Profile = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <LinkCard label="GitHub" value={profile.githubUrl} icon={<Link size={17} />} accentCls="text-slate-900" />
             <LinkCard label="LinkedIn" value={profile.linkedinUrl} icon={<Link size={17} />} accentCls="text-blue-700" />
-            <LinkCard label="Resume" value={profile.resumeUrl} icon={<FileText size={17} />} accentCls="text-slate-700" />
+            <LinkCard label="Portfolio" value={profile.resumeUrl} icon={<FileText size={17} />} accentCls="text-slate-700" />
           </div>
 
           {/* Security — Change Password */}
@@ -1403,7 +1403,7 @@ const Profile = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="resumeUrl" className={labelCls}>Resume URL</label>
+                    <label htmlFor="resumeUrl" className={labelCls}>Portfolio URL</label>
                     <div className="relative">
                       <FileText size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                       <input
@@ -1412,7 +1412,7 @@ const Profile = () => {
                           type="url"
                           value={socialData.resumeUrl}
                           onChange={handleSocialChange}
-                          placeholder="https://example.com/resume.pdf"
+                          placeholder="https://your-portfolio.com"
                           className={`${inputCls} pl-10`}
                       />
                     </div>

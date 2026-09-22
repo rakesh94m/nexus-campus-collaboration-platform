@@ -6,6 +6,7 @@ import com.nexus.backend.dto.response.CareerRoadmapResponse;
 import com.nexus.backend.entity.CareerRoadmap;
 import com.nexus.backend.entity.Student;
 import com.nexus.backend.exception.ResourceNotFoundException;
+import com.nexus.backend.exception.UnauthorizedException;
 import com.nexus.backend.repository.CareerRoadmapRepository;
 import com.nexus.backend.repository.StudentRepository;
 import com.nexus.backend.service.CareerRoadmapService;
@@ -187,17 +188,15 @@ public class CareerRoadmapServiceImpl
                                         "Career roadmap not found."
                                 ));
 
-        // -----------------------------------------
-        // Student can only access own roadmap
-        // -----------------------------------------
-
+        // F-08: Student can only access own roadmap.
+        // Resource exists but caller lacks permission → 403 Forbidden.
         if (!careerRoadmap
                 .getStudent()
                 .getId()
                 .equals(student.getId())) {
 
-            throw new ResourceNotFoundException(
-                    "Career roadmap not found."
+            throw new UnauthorizedException(
+                    "You do not have permission to access this career roadmap."
             );
         }
 
@@ -224,17 +223,15 @@ public class CareerRoadmapServiceImpl
                                         "Career roadmap not found."
                                 ));
 
-        // -----------------------------------------
-        // Student can only update own roadmap
-        // -----------------------------------------
-
+        // F-08: Student can only update own roadmap.
+        // Resource exists but caller lacks permission → 403 Forbidden.
         if (!careerRoadmap
                 .getStudent()
                 .getId()
                 .equals(student.getId())) {
 
-            throw new ResourceNotFoundException(
-                    "Career roadmap not found."
+            throw new UnauthorizedException(
+                    "You do not have permission to update this career roadmap."
             );
         }
 
@@ -288,17 +285,15 @@ public class CareerRoadmapServiceImpl
                                         "Career roadmap not found."
                                 ));
 
-        // -----------------------------------------
-        // Student can only delete own roadmap
-        // -----------------------------------------
-
+        // F-08: Student can only delete own roadmap.
+        // Resource exists but caller lacks permission → 403 Forbidden.
         if (!careerRoadmap
                 .getStudent()
                 .getId()
                 .equals(student.getId())) {
 
-            throw new ResourceNotFoundException(
-                    "Career roadmap not found."
+            throw new UnauthorizedException(
+                    "You do not have permission to delete this career roadmap."
             );
         }
 

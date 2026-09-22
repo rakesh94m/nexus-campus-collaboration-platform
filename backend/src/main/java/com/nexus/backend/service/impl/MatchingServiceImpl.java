@@ -10,6 +10,7 @@ import com.nexus.backend.entity.Student;
 import com.nexus.backend.entity.StudentSkill;
 import com.nexus.backend.entity.enums.MatchType;
 import com.nexus.backend.exception.ResourceNotFoundException;
+import com.nexus.backend.exception.UnauthorizedException;
 import com.nexus.backend.repository.MatchHistoryRepository;
 import com.nexus.backend.repository.ProjectMemberRepository;
 import com.nexus.backend.repository.ProjectRepository;
@@ -212,8 +213,12 @@ public class MatchingServiceImpl implements MatchingService {
     // =========================================
     // GENERATE AI RECOMMENDATION
     //
+    // F-07: Authorization checks added.
     // Gemini is called ONLY when the user
-    // requests AI analysis for a project.
+    // requests AI analysis for a project AND:
+    //  1. The project is not the student's own.
+    //  2. A MatchHistory record exists (Java score already ran).
+    // This prevents arbitrary Gemini API billing abuse.
     // =========================================
 
     @Override
@@ -239,6 +244,24 @@ public class MatchingServiceImpl implements MatchingService {
                                 new ResourceNotFoundException(
                                         "Project not found."
                                 ));
+
+        // F-07: Student cannot generate AI analysis for their own project.
+        if (project.getStudent() != null &&
+                project.getStudent().getId().equals(student.getId())) {
+            throw new UnauthorizedException(
+                    "You cannot generate an AI recommendation for your own project."
+            );
+        }
+
+        // F-07: A Java-based match must already exist for this student+project
+        // pair before Gemini is called. This ensures the user has legitimately
+        // viewed their matches and has not found an arbitrary projectId.
+        matchHistoryRepository
+                .findByStudentAndProject(student, project)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "No match found for this project. Please load your project recommendations first."
+                        ));
 
         // -----------------------------------------
         // Calculate Java match score

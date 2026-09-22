@@ -243,7 +243,6 @@ const Support = () => {
                                     <option value="GENERAL">General Question</option>
                                     <option value="ACCOUNT_ISSUE">Account Issue</option>
                                     <option value="BUG_REPORT">Bug Report</option>
-                                    <option value="TECHNICAL_ISSUE">Technical Issue</option>
                                     <option value="FEATURE_REQUEST">Feature Request</option>
                                     <option value="OTHER">Other</option>
                                 </select>

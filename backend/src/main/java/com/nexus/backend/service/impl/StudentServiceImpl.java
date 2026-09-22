@@ -7,6 +7,8 @@ import com.nexus.backend.dto.request.UpdateSocialLinksRequest;
 import com.nexus.backend.dto.response.StudentProfileResponse;
 import com.nexus.backend.dto.response.StudentResponse;
 import com.nexus.backend.entity.Student;
+import com.nexus.backend.exception.ResourceNotFoundException;
+import com.nexus.backend.exception.UnauthorizedException;
 import com.nexus.backend.repository.StudentRepository;
 import com.nexus.backend.repository.StudentSkillRepository;
 import com.nexus.backend.service.StudentService;
@@ -39,7 +41,8 @@ public class StudentServiceImpl implements StudentService {
 
         return studentRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new RuntimeException("Student not found."));
+                        // F-15: Use ResourceNotFoundException (HTTP 404) not RuntimeException (HTTP 500).
+                        new ResourceNotFoundException("Student not found."));
     }
 
     // ===============================
@@ -194,27 +197,28 @@ public class StudentServiceImpl implements StudentService {
 
         Student student = getCurrentStudent();
 
-        // Verify current password
+        // F-14: Verify current password
+        // Throw IllegalArgumentException (HTTP 400) not RuntimeException (HTTP 500).
         if (!passwordEncoder.matches(
                 request.getCurrentPassword(),
                 student.getPassword())) {
 
-            throw new RuntimeException("Current password is incorrect.");
+            throw new IllegalArgumentException("Current password is incorrect.");
         }
 
-        // Check confirmation
+        // F-14: Check confirmation
         if (!request.getNewPassword()
                 .equals(request.getConfirmPassword())) {
 
-            throw new RuntimeException("New passwords do not match.");
+            throw new IllegalArgumentException("New passwords do not match.");
         }
 
-        // Prevent same password
+        // F-14: Prevent same password
         if (passwordEncoder.matches(
                 request.getNewPassword(),
                 student.getPassword())) {
 
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                     "New password must be different from current password."
             );
         }
@@ -255,10 +259,12 @@ public class StudentServiceImpl implements StudentService {
 
         Student student = studentRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Student not found."));
+                        new ResourceNotFoundException("Student not found."));
 
         if (student.getId().equals(currentStudent.getId())) {
-            throw new RuntimeException(
+            // F-08: Caller is authenticated and the resource exists — this is
+            // an authorization boundary, not a missing resource.
+            throw new UnauthorizedException(
                     "You cannot view yourself in student discovery."
             );
         }

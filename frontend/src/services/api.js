@@ -30,6 +30,12 @@ api.interceptors.response.use(
         if (error.response?.status === 401) {
             localStorage.removeItem("token");
             localStorage.removeItem("student");
+
+            // F-19: Redirect to login on token expiry/invalid auth.
+            // Guard prevents infinite redirect if already on the login page.
+            if (window.location.pathname !== "/login") {
+                window.location.href = "/login";
+            }
         }
 
         return Promise.reject(error);
