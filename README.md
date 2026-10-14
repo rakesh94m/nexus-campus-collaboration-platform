@@ -8,7 +8,7 @@
 > *A Next-Generation Campus Collaboration, Capability Discovery & AI Career Mentorship Ecosystem.*
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-brightgreen?style=for-the-badge&logo=vercel)](https://nexus-campus-collaboration-platform.vercel.app)
-[![Backend API](https://img.shields.io/badge/API%20Endpoint-Azure%20App%20Service-blue?style=for-the-badge&logo=microsoft-azure)](https://nexus-backend-cxgfa2cccrddcgar.centralindia-01.azurewebsites.net)
+[![Backend API](https://img.shields.io/badge/Backend%20API-Azure%20App%20Service%20(Currently%20Offline)-lightgrey?style=for-the-badge&logo=microsoft-azure)](https://nexus-backend-cxgfa2cccrddcgar.centralindia-01.azurewebsites.net)
 [![Database](https://img.shields.io/badge/Database-Azure%20PostgreSQL-336791?style=for-the-badge&logo=postgresql)](https://azure.microsoft.com/services/postgresql/)
 [![AI Engine](https://img.shields.io/badge/AI-Google%20Gemini%203.6%20Flash-orange?style=for-the-badge&logo=googlegemini)](https://ai.google.dev/)
 [![GitHub](https://img.shields.io/badge/Repository-GitHub%20Monorepo-181717?style=for-the-badge&logo=github)](https://github.com/rakesh94m/nexus-campus-collaboration-platform)
@@ -17,18 +17,21 @@
 
 ---
 
-## 🌐 Live Production Links
+## 🌐 Live Production Links & Deployment Status
 
-| Service | Host / Platform | URL |
-| :--- | :--- | :--- |
-| **Frontend Web App** | Vercel | [https://nexus-campus-collaboration-platform.vercel.app](https://nexus-campus-collaboration-platform.vercel.app) |
-| **Backend REST API** | Azure App Service (Linux / Java 21) | [https://nexus-backend-cxgfa2cccrddcgar.centralindia-01.azurewebsites.net](https://nexus-backend-cxgfa2cccrddcgar.centralindia-01.azurewebsites.net) |
-| **Database Server** | Azure PostgreSQL Flexible Server | `nexus-db-app.postgres.database.azure.com:5432/nexus_db` |
-| **Source Code Repository** | GitHub | [rakesh94m/nexus-campus-collaboration-platform](https://github.com/rakesh94m/nexus-campus-collaboration-platform) |
+| Service | Host / Platform | Status | URL / Endpoint |
+| :--- | :--- | :--- | :--- |
+| **Frontend Web App** | Vercel | 🟢 **Live** | [https://nexus-campus-collaboration-platform.vercel.app](https://nexus-campus-collaboration-platform.vercel.app) |
+| **Backend REST API** | Azure App Service (Linux / Java 21) | ⚪ **Currently Not Deployed** *(Deleted to conserve Azure credits; recreatable on demand)* | [https://nexus-backend-cxgfa2cccrddcgar.centralindia-01.azurewebsites.net](https://nexus-backend-cxgfa2cccrddcgar.centralindia-01.azurewebsites.net) *(Previous / Target Endpoint)* |
+| **Database Server** | Azure PostgreSQL Flexible Server | 🟢 **Provisioned** *(Retained independently)* | `nexus-db-app.postgres.database.azure.com:5432/nexus_db` |
+| **Source Code Repository** | GitHub | 🟢 **Active** | [rakesh94m/nexus-campus-collaboration-platform](https://github.com/rakesh94m/nexus-campus-collaboration-platform) |
 
 ---
 
-> **⚠️ Deployment Note:** NEXUS is deployed on Vercel and Microsoft Azure. To conserve Azure for Students cloud credits, the **Azure App Service backend** (`nexus-backend`) **may be deleted or stopped when the project is not being actively demonstrated**. During these periods, the live frontend may remain accessible on Vercel, but all backend-dependent features (authentication, projects, profiles, AI functionality) will be temporarily unavailable. The Azure PostgreSQL Flexible Server (`nexus-db-app`) is provisioned separately and is retained independently. The backend App Service can be recreated and restarted when the application needs to be demonstrated or evaluated.
+> **⚠️ Deployment Status Note:** NEXUS was deployed on Vercel and Microsoft Azure. Currently:
+> - **Frontend**: Deployed and actively accessible on Vercel ([nexus-campus-collaboration-platform.vercel.app](https://nexus-campus-collaboration-platform.vercel.app)).
+> - **Database**: Azure Database for PostgreSQL Flexible Server (`nexus-db-app`) is provisioned separately and retained independently.
+> - **Backend**: The **Azure App Service backend** (`nexus-backend`) is **currently not deployed** (the App Service instance and plan were deleted after deployment validation to conserve Azure for Students cloud credits). While the backend is offline, backend-dependent operations (live user authentication, profile updates, and Gemini AI queries) are unavailable on the public frontend. The URL listed above is the previous and intended target endpoint. For full end-to-end evaluation, the backend can be recreated on Azure on demand or run locally (see [Getting Started](#-getting-started-local-development)).
 
 
 ## 📌 Table of Contents
@@ -38,9 +41,9 @@
 - [Cloud Deployment & Production Architecture](#-cloud-deployment--production-architecture)
     - [Production Architecture Flow](#production-architecture-flow)
     - [Cloud Infrastructure Stack](#cloud-infrastructure-stack)
-    - [Frontend Deployment (Vercel)](#frontend-deployment--vercel)
-    - [Backend Deployment (Azure App Service)](#backend-deployment--azure-app-service)
-    - [Database Deployment (Azure PostgreSQL Flexible Server)](#database-deployment--azure-postgresql-flexible-server)
+    - [Frontend Deployment (Vercel)](#frontend-deployment-vercel)
+    - [Backend Deployment (Azure App Service)](#backend-deployment-azure-app-service)
+    - [Database Deployment (Azure PostgreSQL Flexible Server)](#database-deployment-azure-postgresql-flexible-server)
     - [Environment Variables & Security Configuration](#environment-variables--security-configuration)
     - [Production CORS & Preflight Resolution](#production-cors--preflight-resolution)
 - [Key Features](#-key-features)
@@ -184,7 +187,7 @@ NEXUS is deployed in a decoupled cloud architecture, with the frontend, backend,
 | Layer | Cloud Provider | Resource Name / Plan | Purpose |
 | :--- | :--- | :--- | :--- |
 | **Frontend** | **Vercel** | `nexus-campus-collaboration-platform` | Serves the optimized production React + Vite application with global CDN delivery. |
-| **Backend** | **Microsoft Azure** | Azure App Service (Linux, Java 21, B1) | Hosts and runs the Spring Boot 3.5.4 executable JAR as the production REST API. |
+| **Backend** | **Microsoft Azure** | Azure App Service (Linux, Java 21, B1) | Hosts and runs the Spring Boot 3.5.4 executable JAR as the production REST API *(currently not deployed to conserve Azure credits; recreatable on demand)*. |
 | **Database** | **Microsoft Azure** | Azure Database for PostgreSQL – Flexible Server | Hosts the production PostgreSQL database (`nexus_db`) with secure SSL/TLS connectivity. |
 | **AI Mentorship** | **Google Cloud** | Google GenAI API (`gemini-3.6-flash`) | Provides AI-powered career roadmap generation and project suitability recommendations. |
 | **Mail Transport** | **Google Cloud / Gmail** | Gmail SMTP Server (`smtp.gmail.com:587`) | Delivers 6-digit email OTP codes for registration, password reset, and support notifications. |
@@ -192,7 +195,7 @@ NEXUS is deployed in a decoupled cloud architecture, with the frontend, backend,
 
 ---
 
-### Frontend Deployment – Vercel
+### Frontend Deployment (Vercel)
 
 The React frontend is deployed continuously via Vercel connected directly to the GitHub monorepo.
 
@@ -222,7 +225,7 @@ The React frontend is deployed continuously via Vercel connected directly to the
    ```
 
 3. **Single Page Application (SPA) Routing**:  
-   Because NEXUS utilizes React Router v7 for client-side routing, direct navigation or browser page reloads on routes like `/projects`, `/career-roadmap`, or `/dashboard` must route back to `/index.html`. A [`vercel.json`](file:///c:/Btech/SEM5/DBMS/NEXUS/frontend/vercel.json) rewrite rule was configured:
+   Because NEXUS utilizes React Router v7 for client-side routing, direct navigation or browser page reloads on routes like `/projects`, `/career-roadmap`, or `/dashboard` must route back to `/index.html`. A [`frontend/vercel.json`](frontend/vercel.json) rewrite rule was configured:
    ```json
    {
      "rewrites": [
@@ -236,9 +239,11 @@ The React frontend is deployed continuously via Vercel connected directly to the
 
 ---
 
-### Backend Deployment – Azure App Service
+### Backend Deployment (Azure App Service)
 
 The Spring Boot application runs on Azure App Service under Linux with the **Java 21 LTS** runtime stack.
+
+> **Note on Deployment State:** The Azure App Service backend instance was deleted after deployment validation to conserve Azure for Students subscription credits. It can be re-provisioned and restarted on demand using the Maven package and Azure CLI.
 
 1. **Production Packaging**:  
    The backend is compiled into a standalone executable JAR using Maven:
@@ -249,20 +254,21 @@ The Spring Boot application runs on Azure App Service under Linux with the **Jav
     - Operating System: Linux
     - Java Runtime: Microsoft Build of OpenJDK 21
     - Web Server: Embedded Apache Tomcat (Spring Boot 3.5.4)
-    - Host Domain: `https://nexus-backend-cxgfa2cccrddcgar.centralindia-01.azurewebsites.net`
+    - Intended Host Domain: `https://nexus-backend-cxgfa2cccrddcgar.centralindia-01.azurewebsites.net` *(Previous / Target Endpoint)*
+    - Deployment State: Currently inactive/not deployed *(provisioned on demand)*
 
 ---
 
-### Database Deployment – Azure PostgreSQL Flexible Server
+### Database Deployment (Azure PostgreSQL Flexible Server)
 
-The relational database is provisioned on **Azure Database for PostgreSQL – Flexible Server**:
+The relational database is provisioned on **Azure Database for PostgreSQL – Flexible Server** (provisioned separately and retained independently):
 
 - **Host**: `nexus-db-app.postgres.database.azure.com`
 - **Port**: `5432`
 - **Database Name**: `nexus_db`
 - **SSL Enforcement**: Mandatory (`sslmode=require`)
 
-Connection configuration in [`application.properties`](file:///c:/Btech/SEM5/DBMS/NEXUS/backend/src/main/resources/application.properties):
+Connection configuration in [`backend/src/main/resources/application.properties`](backend/src/main/resources/application.properties):
 ```properties
 spring.datasource.url=jdbc:postgresql://nexus-db-app.postgres.database.azure.com:5432/nexus_db?sslmode=require
 spring.jpa.hibernate.ddl-auto=update
@@ -289,7 +295,7 @@ No credentials, passwords, or private API keys are ever committed to source cont
 
 ### Production CORS & Preflight Resolution
 
-Because the frontend is hosted on Vercel (`vercel.app`) while the backend runs on Azure (`azurewebsites.net`), cross-origin security is configured using a dedicated Spring [`CorsConfig`](file:///c:/Btech/SEM5/DBMS/NEXUS/backend/src/main/java/com/nexus/backend/config/CorsConfig.java) bean:
+Because the frontend is hosted on Vercel (`vercel.app`) while the backend runs on Azure (`azurewebsites.net`), cross-origin security is configured using a dedicated Spring [`CorsConfig`](backend/src/main/java/com/nexus/backend/config/CorsConfig.java) bean:
 
 ```java
 @Configuration
