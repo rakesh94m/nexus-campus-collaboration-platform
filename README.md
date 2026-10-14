@@ -28,7 +28,7 @@
 
 ---
 
-> **⚠️ Deployment Note:** NEXUS is deployed on Vercel and Microsoft Azure. To conserve Azure for Students cloud credits, the **Azure App Service backend and Azure PostgreSQL database may be stopped when the project is not being actively demonstrated**. During these periods, the live frontend may remain accessible, but backend-dependent features such as authentication, projects, profiles, and AI functionality will be temporarily unavailable. The Azure resources can be restarted when the application needs to be demonstrated or evaluated.
+> **⚠️ Deployment Note:** NEXUS is deployed on Vercel and Microsoft Azure. To conserve Azure for Students cloud credits, the **Azure App Service backend** (`nexus-backend`) **may be deleted or stopped when the project is not being actively demonstrated**. During these periods, the live frontend may remain accessible on Vercel, but all backend-dependent features (authentication, projects, profiles, AI functionality) will be temporarily unavailable. The Azure PostgreSQL Flexible Server (`nexus-db-app`) is provisioned separately and is retained independently. The backend App Service can be recreated and restarted when the application needs to be demonstrated or evaluated.
 
 
 ## 📌 Table of Contents
@@ -70,13 +70,14 @@ Finding the right peers to collaborate with is one of the most persistent hurdle
 **NEXUS** bridges this gap by creating an **AI-Powered Campus Capability and Collaboration Network**.
 
 ### What NEXUS Delivers:
-- **Capability Showcase**: Digital student profiles featuring verified skills, proficiencies, interests, CGPA, GitHub/LinkedIn integrations, and resume metadata.
+- **Capability Showcase**: Digital student profiles featuring verified skills, proficiencies, interests, CGPA, GitHub/LinkedIn integrations, and portfolio links.
 - **Smart Peer Discovery**: Multi-faceted search and discovery engine for student talents and team formation.
 - **Project Lifecycle Management**: Create projects, define required skills and roles, manage project members, and review incoming requests.
 - **Collaboration Pipeline**: Formal send, accept, reject, and review lifecycle for student collaboration invitations.
 - **Generative AI Mentorship**: Tailored, multi-phase career roadmaps and intelligent project suitability recommendations powered by the **Google Gemini 3.6 Flash** model.
 - **Student Growth Portfolio**: Track personal and professional goals, manage certifications, record achievements, and receive real-time notifications.
 - **In-App Help & Support**: Integrated ticketing system with automatic Gmail SMTP notifications for student inquiries and bug reporting.
+- **Administrator Support Management**: ADMIN-role accounts can access a dedicated Support Tickets administration page to view all submitted tickets and update their statuses. Backend endpoints for admin actions are protected with `@PreAuthorize("hasAuthority('ADMIN')")`. Regular STUDENT accounts retain access to all standard student features and cannot access admin-only endpoints.
 
 The system pairs a normalized **PostgreSQL** relational database with a resilient **Spring Boot 3** REST backend and a responsive **React 19** frontend, deployed across enterprise cloud services on **Azure** and **Vercel**.
 
@@ -318,9 +319,9 @@ This ensures browsers cleanly pass `OPTIONS` preflight requests, share credentia
 # ✨ Key Features
 
 ### 👤 1. Student Capability Profile Management
-- Comprehensive student records: Name, roll number, department, specialization, academic year, section, and CGPA.
-- Professional links: GitHub username, LinkedIn URL, personal portfolio, and resume links.
-- Capability status indicator (`AVAILABLE`, `BUSY`, `LOOKING_FOR_TEAM`,`NOT_AVAILABLE`).
+- Comprehensive student records: First name, last name, roll number, department, specialization, academic year, section, and CGPA.
+- Professional links: GitHub URL, LinkedIn URL, and portfolio URL (stored as `resumeUrl` in the database, displayed as **Portfolio** in the UI).
+- Capability status indicator (`AVAILABLE`, `BUSY`, `LOOKING_FOR_TEAM`, `NOT_AVAILABLE`).
 
 ### 🧠 2. Granular Skills & Interests Taxonomy
 - Multi-category skill management: Programming Languages, Frameworks, Cloud, Databases, Developer Tools, and AI/ML.
@@ -364,8 +365,13 @@ This ensures browsers cleanly pass `OPTIONS` preflight requests, share credentia
 - Mark individual notifications as read or clear all in bulk.
 
 ### 🆘 11. Help & Support Ticketing
-- Students raise support tickets categorized into `GENERAL`, `BUG`, `ACCOUNT`, `FEATURE_REQUEST`, `COLLABORATION`, or `OTHER`.
+- Students raise support tickets categorized into `GENERAL`, `ACCOUNT_ISSUE`, `BUG_REPORT`, `FEATURE_REQUEST`, or `OTHER`.
 - Tickets trigger automatic email notifications via Gmail SMTP to platform administrators.
+
+### 🛡️ 12. Administrator Support Ticket Management
+- ADMIN users can view all submitted support tickets via a dedicated administration page (`/admin/support-tickets`).
+- Administrators can update the status of any ticket (`OPEN` → `IN_PROGRESS` → `RESOLVED` → `CLOSED`).
+- Admin endpoints (`GET /api/support/tickets/admin/all` and `PUT /api/support/tickets/{id}/status`) are protected with `@PreAuthorize("hasAuthority('ADMIN')")` at the controller level, with additional enforcement at the service layer.
 
 ---
 
@@ -517,7 +523,7 @@ NEXUS runs on a 3NF-normalized PostgreSQL relational schema containing **17 Core
 
 | # | Entity Name | Description | Key Attributes |
 | :--- | :--- | :--- | :--- |
-| 1 | `Student` | Core student user record | `id`, `email`, `password`, `fullName`, `rollNumber`, `department`, `cgpa`, `availabilityStatus`, `role` |
+| 1 | `Student` | Core student user record | `id`, `email`, `password`, `firstName`, `lastName`, `rollNumber`, `department`, `cgpa`, `availabilityStatus`, `role` |
 | 2 | `Skill` | Master technical skill dictionary | `id`, `name`, `category`, `description` |
 | 3 | `StudentSkill` | Mapping student to skills | `student_id`, `skill_id`, `proficiencyLevel`, `yearsOfExperience` |
 | 4 | `Interest` | Master domain/career interest dictionary | `id`, `name`, `category` |
@@ -540,7 +546,7 @@ NEXUS runs on a 3NF-normalized PostgreSQL relational schema containing **17 Core
 ### Enumerations (16 Enums)
 
 - `AccountStatus` (`ACTIVE`, `INACTIVE`, `SUSPENDED`)
-- `AvailabilityStatus` (`AVAILABLE`, `BUSY`, `OPEN_FOR_PROJECTS`)
+- `AvailabilityStatus` (`AVAILABLE`, `BUSY`, `LOOKING_FOR_TEAM`, `NOT_AVAILABLE`)
 - `CollaborationStatus` (`PENDING`, `ACCEPTED`, `REJECTED`, `WITHDRAWN`)
 - `GoalStatus` (`NOT_STARTED`, `IN_PROGRESS`, `COMPLETED`, `ON_HOLD`)
 - `MatchType` (`STUDENT_TO_STUDENT`, `STUDENT_TO_PROJECT`)
@@ -551,9 +557,9 @@ NEXUS runs on a 3NF-normalized PostgreSQL relational schema containing **17 Core
 - `ProficiencyLevel` (`BEGINNER`, `INTERMEDIATE`, `ADVANCED`, `EXPERT`)
 - `ProjectStatus` (`PLANNING`, `IN_PROGRESS`, `COMPLETED`, `ON_HOLD`, `CANCELLED`)
 - `ProjectVisibility` (`PUBLIC`, `CAMPUS_ONLY`, `PRIVATE`)
-- `Role` (`STUDENT`, `FACULTY`, `ADMIN`)
+- `Role` (`STUDENT`, `ADMIN`)
 - `SkillImportance` (`MANDATORY`, `PREFERRED`, `NICE_TO_HAVE`)
-- `SupportCategory` (`GENERAL`, `BUG`, `ACCOUNT`, `FEATURE_REQUEST`, `COLLABORATION`, `OTHER`)
+- `SupportCategory` (`GENERAL`, `ACCOUNT_ISSUE`, `BUG_REPORT`, `FEATURE_REQUEST`, `OTHER`)
 - `SupportTicketStatus` (`OPEN`, `IN_PROGRESS`, `RESOLVED`, `CLOSED`)
 
 ---
@@ -593,21 +599,26 @@ The backend exposes secured, versioned REST endpoints prefixed with `/api`. All 
 ### 📁 Projects & Members (`/api/projects`, `/api/project-members`)
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/api/projects` | List all visible campus projects |
+| `GET` | `/api/projects` | List the current student's projects |
+| `GET` | `/api/projects/available` | List all available campus projects |
 | `POST` | `/api/projects` | Create a new project |
-| `GET` | `/api/projects/{id}` | Get project details, required skills, and members |
 | `PUT` | `/api/projects/{id}` | Update project details (creator/admin only) |
 | `DELETE` | `/api/projects/{id}` | Delete a project |
-| `POST` | `/api/projects/{id}/members` | Add a member to a project |
-| `DELETE` | `/api/projects/{id}/members/{studentId}` | Remove a member from a project |
+| `POST` | `/api/project-members` | Add a member to a project |
+| `GET` | `/api/project-members` | Get current student's project memberships |
+| `GET` | `/api/project-members/project/{projectId}` | Get all members of a project |
+| `PUT` | `/api/project-members/{id}` | Update a project member's role |
+| `DELETE` | `/api/project-members/{id}` | Leave a project (self) |
+| `DELETE` | `/api/project-members/project/{projectId}/member/{memberId}` | Remove a member (project owner) |
 
-### 🤝 Collaboration Requests (`/api/collaboration`)
+### 🤝 Collaboration Requests (`/api/collaboration-requests`)
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `POST` | `/api/collaboration/send` | Send a collaboration invite |
-| `GET` | `/api/collaboration/received` | List incoming collaboration requests |
-| `GET` | `/api/collaboration/sent` | List outgoing collaboration requests |
-| `PATCH` | `/api/collaboration/{id}/status` | Accept or reject a request |
+| `POST` | `/api/collaboration-requests` | Send a collaboration invite |
+| `GET` | `/api/collaboration-requests/received` | List incoming collaboration requests |
+| `GET` | `/api/collaboration-requests/sent` | List outgoing collaboration requests |
+| `PUT` | `/api/collaboration-requests/{id}` | Accept, reject, or update a request |
+| `DELETE` | `/api/collaboration-requests/{id}` | Delete a collaboration request |
 
 ### 🤖 AI Recommendations & Roadmaps (`/api/recommendations`, `/api/career-roadmap`)
 | Method | Endpoint | Description |
@@ -619,18 +630,24 @@ The backend exposes secured, versioned REST endpoints prefixed with `/api`. All 
 ### 🎯 Goals, Achievements & Certifications (`/api/goals`, `/api/achievements`, `/api/certifications`)
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` / `POST` | `/api/goals` | List or create personal goals |
-| `PATCH` | `/api/goals/{id}/status` | Update goal status |
+| `GET` | `/api/goals` | List current student's goals |
+| `POST` | `/api/goals` | Create a personal goal |
+| `PUT` | `/api/goals/{id}` | Update a goal |
+| `DELETE` | `/api/goals/{id}` | Delete a goal |
 | `GET` / `POST` | `/api/achievements` | List or record student achievements |
 | `GET` / `POST` | `/api/certifications` | List or record verified certifications |
 
-### 🔔 Notifications & Support (`/api/notifications`, `/api/support`)
+### 🔔 Notifications & Support (`/api/notifications`, `/api/support/tickets`)
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `GET` | `/api/notifications` | Fetch student notification history |
-| `PATCH` | `/api/notifications/{id}/read`| Mark a notification as read |
-| `POST` | `/api/support/ticket` | Submit a help & support ticket |
-| `GET` | `/api/support/my-tickets` | View submitted tickets and statuses |
+| `PUT` | `/api/notifications/{id}` | Update a notification (e.g., mark as read) |
+| `DELETE` | `/api/notifications/{id}` | Delete a notification |
+| `POST` | `/api/support/tickets` | Submit a help & support ticket |
+| `GET` | `/api/support/tickets/my` | View the current student's submitted tickets |
+| `GET` | `/api/support/tickets/{id}` | View a specific ticket (own ticket or admin) |
+| `GET` | `/api/support/tickets/admin/all` | List all tickets — **ADMIN only** |
+| `PUT` | `/api/support/tickets/{id}/status` | Update ticket status — **ADMIN only** |
 
 ---
 
